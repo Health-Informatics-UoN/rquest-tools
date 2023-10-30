@@ -1,6 +1,6 @@
 from typing import List
-from rquest_dto.base_dto import BaseDto
-from rquest_dto.group import Group
+from rquest_omop_worker.rquest_dto.base_dto import BaseDto
+from rquest_omop_worker.rquest_dto.group import Group
 
 
 class Cohort(BaseDto):

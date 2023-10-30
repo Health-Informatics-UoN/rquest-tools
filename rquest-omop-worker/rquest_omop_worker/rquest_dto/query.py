@@ -1,5 +1,5 @@
-from rquest_dto.base_dto import BaseDto
-from rquest_dto.cohort import Cohort
+from rquest_omop_worker.rquest_dto.base_dto import BaseDto
+from rquest_omop_worker.rquest_dto.cohort import Cohort
 
 
 class AvailabilityQuery(BaseDto):

@@ -9,7 +9,7 @@ from sqlalchemy import (
     func,
 )
 from rquest_omop_worker.db_manager import SyncDBManager
-from entities import (
+from rquest_omop_worker.entities import (
     Concept,
     ConditionOccurrence,
     Measurement,
@@ -18,11 +18,11 @@ from entities import (
     DrugExposure,
     ProcedureOccurrence,
 )
-from rquest_dto.query import AvailabilityQuery, DistributionQuery
-from rquest_dto.file import File
-from rquest_dto.result import RquestResult
-from obfuscation import get_results_modifiers, apply_filters
-import config
+from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
+from rquest_omop_worker.rquest_dto.file import File
+from rquest_omop_worker.rquest_dto.result import RquestResult
+from rquest_omop_worker.obfuscation import get_results_modifiers, apply_filters
+import rquest_omop_worker.config as config
 
 
 class AvailibilityQuerySolver:

@@ -1,4 +1,4 @@
-from rquest_dto.base_dto import BaseDto
+from rquest_omop_worker.rquest_dto.base_dto import BaseDto
 
 class File(BaseDto):
     def __init__(

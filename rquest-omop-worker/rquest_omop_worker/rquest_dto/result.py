@@ -1,6 +1,6 @@
 from typing import List, Union
-from rquest_dto.base_dto import BaseDto
-from rquest_dto.file import File
+from rquest_omop_worker.rquest_dto.base_dto import BaseDto
+from rquest_omop_worker.rquest_dto.file import File
 
 
 class RquestResult(BaseDto):
