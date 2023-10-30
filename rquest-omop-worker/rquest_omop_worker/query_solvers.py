@@ -9,7 +9,7 @@ from sqlalchemy import (
     func,
 )
 from rquest_omop_worker.db_manager import SyncDBManager
-from omop_entities.entities import (
+from entities import (
     Concept,
     ConditionOccurrence,
     Measurement,
@@ -21,8 +21,8 @@ from omop_entities.entities import (
 from rquest_dto.query import AvailabilityQuery, DistributionQuery
 from rquest_dto.file import File
 from rquest_dto.result import RquestResult
-from hutch_utils.obfuscation import get_results_modifiers, apply_filters
-from hutch_utils import config
+from obfuscation import get_results_modifiers, apply_filters
+import config
 
 
 class AvailibilityQuerySolver:

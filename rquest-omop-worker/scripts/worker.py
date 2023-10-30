@@ -3,11 +3,11 @@ import sys
 import logging
 import argparse
 import json
-import hutch_utils.config as config
+import rquest_omop_worker.config as config
 from rquest_omop_worker import query_solvers
-from rquest_dto.query import AvailabilityQuery, DistributionQuery
-from rquest_dto.result import RquestResult
-from hutch_utils.obfuscation import get_results_modifiers_from_str, apply_filters_v2
+from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
+from rquest_omop_worker.rquest_dto.result import RquestResult
+from rquest_omop_worker.obfuscation import get_results_modifiers_from_str, apply_filters_v2
 from rquest_omop_worker.db_manager import SyncDBManager
 
 parser = argparse.ArgumentParser(

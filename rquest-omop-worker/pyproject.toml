@@ -41,18 +41,6 @@ include = [
   "scripts",
 ]
 
-# Add lib packages to wheel
-[tool.hatch.build.targets.wheel.force-include]
-"../../lib/hutch_utils" = "hutch_utils"
-"../../lib/rquest_dto" = "rquest_dto"
-"../../lib/omop_entities" = "omop_entities"
-
-# Add lib packages to sdist
-[tool.hatch.build.targets.sdist.force-include]
-"../../lib/hutch_utils" = "hutch_utils"
-"../../lib/rquest_dto" = "rquest_dto"
-"../../lib/omop_entities" = "omop_entities"
-
 [tool.hatch.envs.mysql]
 skip-install = true
 extra-dependencies = [
