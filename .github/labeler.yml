@@ -1,0 +1,11 @@
+# label affected logical areas of the repo
+"Area: CI":
+  - .github/**/*
+"Area: RquestBridge backend":
+  - app/RquestBridge/**/*
+"Area: Rquest Omop Worker":
+  - app/rquest-omop-worker/**/*
+
+# label types of changes contained in a PR
+"Contains: Migrations":
+  - app/**/Migrations/*.cs
