@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FiveSafes.Net\FiveSafes.Net.csproj"/>
+  </ItemGroup>
+
 </Project>
