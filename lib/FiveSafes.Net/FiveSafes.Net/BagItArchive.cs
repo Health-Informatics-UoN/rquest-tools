@@ -37,6 +37,7 @@ public class BagItArchive
   {
     var sourceFileInfo = new FileInfo(sourceFile);
     if (!sourceFileInfo.Exists) throw new FileNotFoundException();
-    sourceFileInfo.CopyTo(_archive.FullName, overwrite: true);
+    var destination = System.IO.Path.Combine(PayloadDirectoryPath, sourceFileInfo.Name);
+    sourceFileInfo.CopyTo(destination, overwrite: true);
   }
 }
