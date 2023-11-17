@@ -2,34 +2,36 @@ namespace FiveSafes.Net;
 
 public class BagItArchive
 {
-  /// <summary>
-  /// Create a the BagIt archive's <c>data</c> directory inside <c>directory</c>.
-  /// </summary>
-  /// <param name="directory">The BagIt directory.</param>
-  /// <exception cref="NotImplementedException"></exception>
-  public void AddDataDirectory(string directory)
-  {
-    throw new NotImplementedException();
-  }
+  private DirectoryInfo _archive;
+  private string _dataDirectoryPath = "data";
 
-  /// <inheritdoc cref="AddDataDirectory(string)"/>
-  public void AddDataDirectory(DirectoryInfo directory)
+  /// <summary>
+  /// Create a <c>BagItArchive</c> in the given directory.
+  /// </summary>
+  /// <param name="archiveDirectory">The path to the archive.</param>
+  public BagItArchive(string archiveDirectory)
   {
-    throw new NotImplementedException();
+    _archive = new DirectoryInfo(archiveDirectory);
+    if (!_archive.Exists) _archive.Create();
   }
 
   /// <summary>
-  /// Add a file to the BagIt archive's <c>data</c> directory
+  /// Create the BagIt archive's <c>data</c> directory.
   /// </summary>
-  /// <param name="sourceFile"></param>
+  /// <exception cref="IOException">The directory cannot be created.</exception>
+  public void AddDataDirectory()
+  {
+    _archive.CreateSubdirectory(_dataDirectoryPath);
+  }
+
+  /// <summary>
+  /// Add a file to the BagIt archive's <c>data</c> directory. The file will be overwritten if it already exists.
+  /// </summary>
+  /// <param name="sourceFile">The file to add to the archive.</param>
   public void AddFile(string sourceFile)
   {
-    throw new NotImplementedException();
-  }
-
-  /// <inheritdoc cref="AddFile(string)"/>
-  public void AddFile(FileInfo sourceFile)
-  {
-    throw new NotImplementedException();
+    var sourceFileInfo = new FileInfo(sourceFile);
+    if (!sourceFileInfo.Exists) return;
+    sourceFileInfo.CopyTo(_archive.FullName, overwrite: true);
   }
 }
