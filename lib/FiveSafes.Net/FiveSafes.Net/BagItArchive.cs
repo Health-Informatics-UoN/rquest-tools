@@ -15,9 +15,9 @@ public class BagItArchive
     if (!_archive.Exists) _archive.Create();
   }
 
-  public string Path => _archive.FullName;
+  public string ArchiveRootPath => _archive.FullName;
 
-  public string PayloadDirectoryPath => System.IO.Path.Combine(Path, _payloadDirectoryPath);
+  public string PayloadDirectoryPath => Path.Combine(ArchiveRootPath, _payloadDirectoryPath);
 
   /// <summary>
   /// Create the BagIt archive's payload directory, call <c>data</c>.
@@ -38,7 +38,7 @@ public class BagItArchive
   {
     var sourceFileInfo = new FileInfo(sourceFile);
     if (!sourceFileInfo.Exists) throw new FileNotFoundException();
-    var destination = System.IO.Path.Combine(toPayload ? PayloadDirectoryPath : Path, sourceFileInfo.Name);
+    var destination = Path.Combine(toPayload ? PayloadDirectoryPath : ArchiveRootPath, sourceFileInfo.Name);
     sourceFileInfo.CopyTo(destination, overwrite: true);
   }
 }
