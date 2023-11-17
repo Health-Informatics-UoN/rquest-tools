@@ -45,9 +45,11 @@ public class TestBagItArchive : IClassFixture<BagItArchiveFixture>
 
     // Act
     archive.AddFile(_bagItArchiveFixture.TestFile.FullName);
+    archive.AddFile(_bagItArchiveFixture.TestFile.FullName, toPayload: false);
 
     // Assert
     Assert.True(File.Exists(Path.Combine(archive.PayloadDirectoryPath, _bagItArchiveFixture.TestFile.Name)));
+    Assert.True(File.Exists(Path.Combine(archive.Path, _bagItArchiveFixture.TestFile.Name)));
   }
 }
 

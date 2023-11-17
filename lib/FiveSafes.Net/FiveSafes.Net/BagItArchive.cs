@@ -29,15 +29,16 @@ public class BagItArchive
   }
 
   /// <summary>
-  /// Add a file to the BagIt archive's <c>data</c> directory. The file will be overwritten if it already exists.
+  /// Add a file to the BagIt archive. The file will be overwritten if it already exists.
   /// </summary>
   /// <param name="sourceFile">The file to add to the archive.</param>
+  /// <param name="toPayload">Add file to payload directory? Default: <c>true</c>.</param>
   /// <exception cref="FileNotFoundException">The source file does not exist.</exception>
-  public void AddFile(string sourceFile)
+  public void AddFile(string sourceFile, bool toPayload = true)
   {
     var sourceFileInfo = new FileInfo(sourceFile);
     if (!sourceFileInfo.Exists) throw new FileNotFoundException();
-    var destination = System.IO.Path.Combine(PayloadDirectoryPath, sourceFileInfo.Name);
+    var destination = System.IO.Path.Combine(toPayload ? PayloadDirectoryPath : Path, sourceFileInfo.Name);
     sourceFileInfo.CopyTo(destination, overwrite: true);
   }
 }
