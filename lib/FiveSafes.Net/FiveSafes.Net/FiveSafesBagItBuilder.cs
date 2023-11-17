@@ -36,7 +36,7 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
   }
 
   /// <inheritdoc />
-  public void BuildRoCrate()
+  public void BuildPayloadDirectory()
   {
     var roCrate = new ROCrate();
     roCrate.Save(_archive.DataDirectoryPath);
