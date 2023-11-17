@@ -51,6 +51,7 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
     await using var manifestFile =
       new FileStream(Path.Combine(_archive.ArchiveRootPath, BagItConstants.ManifestPath), FileMode.Create,
         FileAccess.Write);
+    if (!Directory.Exists(_archive.PayloadDirectoryPath)) return;
     await using var writer = new StreamWriter(manifestFile);
     foreach (var entry in Directory.EnumerateFiles(_archive.PayloadDirectoryPath, "*", SearchOption.AllDirectories))
     {
