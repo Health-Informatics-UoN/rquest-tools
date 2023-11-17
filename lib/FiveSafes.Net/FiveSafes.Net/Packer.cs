@@ -14,8 +14,8 @@ public class Packer
   /// </summary>
   public async Task BuildBlankArchive()
   {
+    _builder.BuildPayloadDirectory();
     await _builder.BuildTagFiles();
     await _builder.BuildChecksums();
-    _builder.BuildPayloadDirectory();
   }
 }

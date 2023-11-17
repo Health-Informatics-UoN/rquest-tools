@@ -100,12 +100,18 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
 
   private async Task WriteBagInfoTxt()
   {
-    var contents = "External-Identifier: urn:uuid:{}";
+    var contents = "External-Identifier: urn:uuid:{0}";
     var line = string.Format(contents, Guid.NewGuid().ToString());
     await using var manifestFile =
       new FileStream(Path.Combine(_archive.ArchiveRootPath, BagItConstants.BagInfoTxtPath), FileMode.Create,
         FileAccess.Write);
     await using var writer = new StreamWriter(manifestFile);
     await writer.WriteLineAsync(line);
+  }
+
+  public BagItArchive GetArchive()
+  {
+    BagItArchive result = _archive;
+    return result;
   }
 }
