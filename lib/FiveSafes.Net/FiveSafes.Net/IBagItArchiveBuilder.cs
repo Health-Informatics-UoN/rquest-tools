@@ -9,6 +9,11 @@ public interface IBagItArchiveBuilder
   Task BuildChecksums();
 
   /// <summary>
+  /// Build the tag files for the BagIt archive.
+  /// </summary>
+  Task BuildTagFiles();
+
+  /// <summary>
   /// Build the RO-Crate that will go in the BagIt archive's <c>data</c> directory.
   /// </summary>
   Task BuildRoCrate();

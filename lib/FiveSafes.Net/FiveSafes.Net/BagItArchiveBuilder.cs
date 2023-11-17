@@ -6,6 +6,8 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
 {
   private const string _manifestName = "manifest-sha512.txt";
   private const string _tagManifestName = "tagmanifest-sha512.txt";
+  private const string _bagitTxtPath = "bagit.txt";
+  private const string _bagInfoTxtPath = "bag-info.txt";
 
   private static string[] _tagFiles =
     { "bagit.txt", "bag-info.txt", "manifest-sha512.txt" };
@@ -27,6 +29,13 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
   {
     await WriteManifestSha512();
     await WriteTagManifestSha512();
+  }
+
+  /// <inheritdoc />
+  public async Task BuildTagFiles()
+  {
+    await WriteBagitTxt();
+    await WriteBagInfoTxt();
   }
 
   /// <inheritdoc />
@@ -74,5 +83,27 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
       // Note there should be 2 spaces between the checksum and the file path
       await writer.WriteLineAsync($"{checksum}  {tagFile}");
     }
+  }
+
+  private async Task WriteBagitTxt()
+  {
+    string[] contents = { "BagIt-Version: 1.0", "Tag-File-Character-Encoding: UTF-8" };
+    await using var manifestFile =
+      new FileStream(Path.Combine(_archive.Path, _bagitTxtPath), FileMode.Create, FileAccess.Write);
+    await using var writer = new StreamWriter(manifestFile);
+    foreach (var line in contents)
+    {
+      await writer.WriteLineAsync(line);
+    }
+  }
+
+  private async Task WriteBagInfoTxt()
+  {
+    var contents = "External-Identifier: urn:uuid:{}";
+    var line = string.Format(contents, Guid.NewGuid().ToString());
+    await using var manifestFile =
+      new FileStream(Path.Combine(_archive.Path, _bagitTxtPath), FileMode.Create, FileAccess.Write);
+    await using var writer = new StreamWriter(manifestFile);
+    await writer.WriteLineAsync(line);
   }
 }
