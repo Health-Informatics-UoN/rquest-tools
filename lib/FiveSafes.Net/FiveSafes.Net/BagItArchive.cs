@@ -15,6 +15,10 @@ public class BagItArchive
     if (!_archive.Exists) _archive.Create();
   }
 
+  public string Path => _archive.FullName;
+
+  public string DataDirectoryPath => _dataDirectoryPath;
+
   /// <summary>
   /// Create the BagIt archive's <c>data</c> directory.
   /// </summary>
