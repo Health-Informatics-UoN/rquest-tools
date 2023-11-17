@@ -68,7 +68,6 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
   /// Compute the SHA512 for the <c>bagit.txt</c>, <c>bag-info.txt</c> and <c>manifest-sha512.txt</c> and
   /// write a <c>tagmanifest-sha512.txt</c> to the archive.
   /// </summary>
-  /// <exception cref="FileNotFoundException">Thrown if a tag file doesn't exist in the archive.</exception>
   private async Task WriteTagManifestSha512()
   {
     await using var manifestFile =
@@ -78,7 +77,7 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
     foreach (var tagFile in _tagFiles)
     {
       var filePath = Path.Combine(_archive.ArchiveRootPath, tagFile);
-      if (!File.Exists(filePath)) throw new FileNotFoundException(null, filePath);
+      if (!File.Exists(filePath)) continue;
       await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
       var checksum = ChecksumUtility.ComputeSha512(stream);
       // Note there should be 2 spaces between the checksum and the file path
