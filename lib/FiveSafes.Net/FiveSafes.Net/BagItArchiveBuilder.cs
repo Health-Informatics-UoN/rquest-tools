@@ -2,7 +2,17 @@ namespace FiveSafes.Net;
 
 public class BagItArchiveBuilder : IBagItArchiveBuilder
 {
-  private BagItArchive _archive = new BagItArchive();
+  private BagItArchive _archive;
+
+  public BagItArchiveBuilder()
+  {
+    _archive = new BagItArchive(Directory.GetCurrentDirectory());
+  }
+
+  public BagItArchiveBuilder(string archiveDirectory)
+  {
+    _archive = new BagItArchive(archiveDirectory);
+  }
 
   /// <inheritdoc />
   public void BuildChecksums()
