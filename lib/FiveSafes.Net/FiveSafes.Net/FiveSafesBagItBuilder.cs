@@ -4,19 +4,19 @@ using ROCrates;
 
 namespace FiveSafes.Net;
 
-public class BagItArchiveBuilder : IBagItArchiveBuilder
+public class FiveSafesBagItBuilder : IBagItArchiveBuilder
 {
   private static string[] _tagFiles =
     { BagItConstants.BagitTxtPath, BagItConstants.BagInfoTxtPath, BagItConstants.ManifestPath };
 
   private BagItArchive _archive;
 
-  public BagItArchiveBuilder()
+  public FiveSafesBagItBuilder()
   {
     _archive = new BagItArchive(Directory.GetCurrentDirectory());
   }
 
-  public BagItArchiveBuilder(string archiveDirectory)
+  public FiveSafesBagItBuilder(string archiveDirectory)
   {
     _archive = new BagItArchive(archiveDirectory);
   }
