@@ -1,16 +1,12 @@
+using FiveSafes.Net.Constants;
 using FiveSafes.Net.Utilities;
 
 namespace FiveSafes.Net;
 
 public class BagItArchiveBuilder : IBagItArchiveBuilder
 {
-  private const string _manifestName = "manifest-sha512.txt";
-  private const string _tagManifestName = "tagmanifest-sha512.txt";
-  private const string _bagitTxtPath = "bagit.txt";
-  private const string _bagInfoTxtPath = "bag-info.txt";
-
   private static string[] _tagFiles =
-    { "bagit.txt", "bag-info.txt", "manifest-sha512.txt" };
+    { BagItConstants.BagitTxtPath, BagItConstants.BagInfoTxtPath, BagItConstants.ManifestPath };
 
   private BagItArchive _archive;
 
@@ -51,7 +47,7 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
   private async Task WriteManifestSha512()
   {
     await using var manifestFile =
-      new FileStream(Path.Combine(_archive.Path, _manifestName), FileMode.Create, FileAccess.Write);
+      new FileStream(Path.Combine(_archive.Path, BagItConstants.ManifestPath), FileMode.Create, FileAccess.Write);
     await using var writer = new StreamWriter(manifestFile);
     foreach (var entry in Directory.EnumerateFiles(_archive.DataDirectoryPath, "*", SearchOption.AllDirectories))
     {
@@ -72,7 +68,7 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
   private async Task WriteTagManifestSha512()
   {
     await using var manifestFile =
-      new FileStream(Path.Combine(_archive.Path, _tagManifestName), FileMode.Create, FileAccess.Write);
+      new FileStream(Path.Combine(_archive.Path, BagItConstants.TagManifestPath), FileMode.Create, FileAccess.Write);
     await using var writer = new StreamWriter(manifestFile);
     foreach (var tagFile in _tagFiles)
     {
@@ -89,7 +85,7 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
   {
     string[] contents = { "BagIt-Version: 1.0", "Tag-File-Character-Encoding: UTF-8" };
     await using var manifestFile =
-      new FileStream(Path.Combine(_archive.Path, _bagitTxtPath), FileMode.Create, FileAccess.Write);
+      new FileStream(Path.Combine(_archive.Path, BagItConstants.BagitTxtPath), FileMode.Create, FileAccess.Write);
     await using var writer = new StreamWriter(manifestFile);
     foreach (var line in contents)
     {
@@ -102,7 +98,7 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
     var contents = "External-Identifier: urn:uuid:{}";
     var line = string.Format(contents, Guid.NewGuid().ToString());
     await using var manifestFile =
-      new FileStream(Path.Combine(_archive.Path, _bagitTxtPath), FileMode.Create, FileAccess.Write);
+      new FileStream(Path.Combine(_archive.Path, BagItConstants.BagInfoTxtPath), FileMode.Create, FileAccess.Write);
     await using var writer = new StreamWriter(manifestFile);
     await writer.WriteLineAsync(line);
   }
