@@ -1,5 +1,6 @@
 using FiveSafes.Net.Constants;
 using FiveSafes.Net.Utilities;
+using ROCrates;
 
 namespace FiveSafes.Net;
 
@@ -35,9 +36,10 @@ public class BagItArchiveBuilder : IBagItArchiveBuilder
   }
 
   /// <inheritdoc />
-  public async Task BuildRoCrate()
+  public void BuildRoCrate()
   {
-    throw new NotImplementedException();
+    var roCrate = new ROCrate();
+    roCrate.Save(_archive.DataDirectoryPath);
   }
 
   /// <summary>

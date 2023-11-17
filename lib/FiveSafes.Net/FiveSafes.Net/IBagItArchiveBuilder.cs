@@ -16,5 +16,5 @@ public interface IBagItArchiveBuilder
   /// <summary>
   /// Build the RO-Crate that will go in the BagIt archive's <c>data</c> directory.
   /// </summary>
-  Task BuildRoCrate();
+  void BuildRoCrate();
 }
