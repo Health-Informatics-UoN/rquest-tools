@@ -39,7 +39,7 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
   public void BuildPayloadDirectory()
   {
     var roCrate = new ROCrate();
-    roCrate.Save(_archive.DataDirectoryPath);
+    roCrate.Save(_archive.PayloadDirectoryPath);
   }
 
   /// <summary>
@@ -51,7 +51,7 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
     await using var manifestFile =
       new FileStream(Path.Combine(_archive.Path, BagItConstants.ManifestPath), FileMode.Create, FileAccess.Write);
     await using var writer = new StreamWriter(manifestFile);
-    foreach (var entry in Directory.EnumerateFiles(_archive.DataDirectoryPath, "*", SearchOption.AllDirectories))
+    foreach (var entry in Directory.EnumerateFiles(_archive.PayloadDirectoryPath, "*", SearchOption.AllDirectories))
     {
       await using var stream = new FileStream(entry, FileMode.Open, FileAccess.Read);
       var checksum = ChecksumUtility.ComputeSha512(stream);

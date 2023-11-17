@@ -3,7 +3,7 @@ namespace FiveSafes.Net;
 public class BagItArchive
 {
   private DirectoryInfo _archive;
-  private string _dataDirectoryPath = "data";
+  private string _payloadDirectoryPath = "data";
 
   /// <summary>
   /// Create a <c>BagItArchive</c> in the given directory.
@@ -17,25 +17,26 @@ public class BagItArchive
 
   public string Path => _archive.FullName;
 
-  public string DataDirectoryPath => _dataDirectoryPath;
+  public string PayloadDirectoryPath => System.IO.Path.Combine(Path, _payloadDirectoryPath);
 
   /// <summary>
-  /// Create the BagIt archive's <c>data</c> directory.
+  /// Create the BagIt archive's payload directory, call <c>data</c>.
   /// </summary>
   /// <exception cref="IOException">The directory cannot be created.</exception>
-  public void AddDataDirectory()
+  public void AddPayloadDirectory()
   {
-    _archive.CreateSubdirectory(_dataDirectoryPath);
+    _archive.CreateSubdirectory(_payloadDirectoryPath);
   }
 
   /// <summary>
   /// Add a file to the BagIt archive's <c>data</c> directory. The file will be overwritten if it already exists.
   /// </summary>
   /// <param name="sourceFile">The file to add to the archive.</param>
+  /// <exception cref="FileNotFoundException">The source file does not exist.</exception>
   public void AddFile(string sourceFile)
   {
     var sourceFileInfo = new FileInfo(sourceFile);
-    if (!sourceFileInfo.Exists) return;
+    if (!sourceFileInfo.Exists) throw new FileNotFoundException();
     sourceFileInfo.CopyTo(_archive.FullName, overwrite: true);
   }
 }
