@@ -1,0 +1,20 @@
+namespace FiveSafes.Net;
+
+public interface IBagItArchiveBuilder
+{
+  /// <summary>
+  /// Compute the checksums for the <c>manifest-sha512.txt</c> and <c>tagmanifest-sha512.txt</c> files
+  /// and add them to the archive.
+  /// </summary>
+  Task BuildChecksums();
+
+  /// <summary>
+  /// Build the tag files for the BagIt archive.
+  /// </summary>
+  Task BuildTagFiles();
+
+  /// <summary>
+  /// Build the BagIt archive's <c>data</c> directory.
+  /// </summary>
+  void BuildPayloadDirectory();
+}
