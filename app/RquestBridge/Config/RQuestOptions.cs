@@ -1,4 +1,4 @@
-namespace RquestBridge.Models;
+namespace RquestBridge.Config;
 
 public class RQuestOptions
 {
