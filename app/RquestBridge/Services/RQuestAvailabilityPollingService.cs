@@ -2,7 +2,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
-using RquestBridge.Models;
+using RquestBridge.Config;
 
 namespace RquestBridge.Services;
 

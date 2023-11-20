@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using RquestBridge.Config;
-using RquestBridge.Models;
 using RquestBridge.Services;
 using RquestBridge.Services.Hosted;
 

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
-using RquestBridge.Models;
 
 namespace RquestBridge.Services
 {
