@@ -1,20 +1,20 @@
 using System.Text.Json;
 using FiveSafes.Net;
-using RquestBridge.Dto;
 using RquestBridge.Config;
 namespace RquestBridge.Services;
 
 public class CrateGenerationService
 {
-  public CrateGenerationService(){}
+  public CrateGenerationService() { }
 
   public async Task BuildCrate<T>(T job)
   {
-    // TODO: build the initial archive
+
+    var archive = await BuildBagIt(BridgeOptions.WorkingDirectory);
 
     var payload = JsonSerializer.Serialize<T>(job);
-    var destination = Path.Combine("someDir", RquestQueryOptions.FileName);
-    await SaveJobPayload(payload, destination);
+    var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQueryOptions.FileName);
+    await SaveJobPayload(payload, payloadDestination);
   }
 
   /// <summary>
@@ -30,5 +30,18 @@ public class CrateGenerationService
     using var fileStream = destinationInfo.Create();
     using var writer = new StreamWriter(fileStream);
     await writer.WriteAsync(payload);
+  }
+
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <param name="destination"></param>
+  /// <returns></returns>
+  private async Task<BagItArchive> BuildBagIt(string destination)
+  {
+    var builder = new FiveSafesBagItBuilder(destination);
+    var packer = new Packer(builder);
+    await packer.BuildBlankArchive();
+    return builder.GetArchive();
   }
 }
