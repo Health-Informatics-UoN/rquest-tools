@@ -60,7 +60,7 @@ public class CrateGenerationService
     return builder.GetArchive();
   }
 
-  public ROCrate InitialiseCrate(string cratePath)
+  private ROCrate InitialiseCrate(string cratePath)
   {
     var crate = new ROCrate();
     try
