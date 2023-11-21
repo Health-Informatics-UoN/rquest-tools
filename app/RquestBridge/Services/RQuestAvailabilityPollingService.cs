@@ -11,15 +11,18 @@ public class RQuestAvailabilityPollingService
   private readonly RQuestTaskApiClient _taskApi;
   private readonly ILogger<RQuestAvailabilityPollingService> _logger;
   private readonly RabbitJobQueueService _jobQueue;
+  private readonly CrateGenerationService _crateGenerationService;
 
   public RQuestAvailabilityPollingService(
     RQuestTaskApiClient taskApi,
     ILogger<RQuestAvailabilityPollingService> logger,
-    RabbitJobQueueService jobQueue)
+    RabbitJobQueueService jobQueue,
+    CrateGenerationService crateGenerationService)
   {
     _logger = logger;
     _taskApi = taskApi;
     _jobQueue = jobQueue;
+    _crateGenerationService = crateGenerationService;
   }
 
   public async Task Poll(RQuestOptions rQuest)
@@ -39,8 +42,11 @@ public class RQuestAvailabilityPollingService
           return;
         }
 
-        var packagedJob = PackageJob(job, rQuest);
-        SendToQueue(packagedJob, "jobs");
+        // var packagedJob = PackageJob(job, rQuest);
+        var payload = JsonSerializer.SerializeToElement(job);
+        
+        
+        //SendToQueue(packagedJob, "jobs");
       }
       catch (Exception e)
       {
