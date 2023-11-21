@@ -19,6 +19,7 @@ class Program
         services.AddTransient<RabbitJobQueueService>();
         services.AddOptions<RQuestOptions>().Bind(hostContext.Configuration.GetSection("RQuest"));
         services.AddOptions<RQuestTaskApiOptions>().Bind(hostContext.Configuration.GetSection("Credentials"));
+        services.AddOptions<WorkflowOptions>().Bind(hostContext.Configuration.GetSection("Workflow"));
       })
       .Build();
     host.Run();
