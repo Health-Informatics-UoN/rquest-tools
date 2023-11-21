@@ -1,20 +1,35 @@
 using System.Text.Json;
 using FiveSafes.Net;
+using Microsoft.Extensions.Logging;
+using ROCrates;
+using ROCrates.Exceptions;
 using RquestBridge.Config;
 namespace RquestBridge.Services;
 
 public class CrateGenerationService
 {
-  public CrateGenerationService() { }
+  private ILogger<CrateGenerationService> _logger;
+  public CrateGenerationService(ILogger<CrateGenerationService> logger) 
+  { 
+    _logger = logger;
+  }
 
   public async Task BuildCrate<T>(T job)
   {
 
     var archive = await BuildBagIt(BridgeOptions.WorkingDirectory);
+    // checksum files (blank)
+    // data/
+    //    metadata.json
+    //    preview.html
 
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQueryOptions.FileName);
     await SaveJobPayload(payload, payloadDestination);
+    
+    // Generate ROCrate metadata
+    var roCrate = InitialiseCrate(archive.PayloadDirectoryPath);
+
   }
 
   /// <summary>
@@ -43,5 +58,26 @@ public class CrateGenerationService
     var packer = new Packer(builder);
     await packer.BuildBlankArchive();
     return builder.GetArchive();
+  }
+
+  public ROCrate InitialiseCrate(string cratePath)
+  {
+    var crate = new ROCrate();
+    try
+    {
+      crate.Initialise(cratePath);
+    }
+    catch (CrateReadException e)
+    {
+      _logger.LogError(exception: e, "RO-Crate cannot be read, or is invalid");
+      throw;
+    }
+    catch (MetadataException e)
+    {
+      _logger.LogError(exception: e, "RO-Crate Metadata cannot be read, or is invalid");
+      throw;
+    }
+
+    return crate;
   }
 }
