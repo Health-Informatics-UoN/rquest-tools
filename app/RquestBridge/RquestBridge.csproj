@@ -19,6 +19,11 @@
       <Content Include="appsettings.Development.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <PackageReference Include="ROCrates.Net" Version="0.1.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\lib\FiveSafes.Net\FiveSafes.Net\FiveSafes.Net.csproj" />
     </ItemGroup>
 
 </Project>
