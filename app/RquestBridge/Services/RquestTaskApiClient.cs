@@ -65,7 +65,7 @@ namespace RquestBridge.Services
         _apiOptions.EndpointBase,
         _apiOptions.FetchQueryEndpoint,
         // Currently this method only looks for "Availability Queries""
-        rQuestOptions.ResourceId + typeSuffix);
+        rQuestOptions.CollectionId + typeSuffix);
       var result = await _client.GetAsync(
         requestUri);
 
@@ -74,8 +74,8 @@ namespace RquestBridge.Services
         if (result.StatusCode == HttpStatusCode.NoContent)
         {
           _logger.LogInformation(
-            "No Query Jobs waiting for {ResourceId}",
-            rQuestOptions.ResourceId);
+            "No Query Jobs waiting for {CollectionId}",
+            rQuestOptions.CollectionId);
           return null;
         }
 
@@ -122,7 +122,7 @@ namespace RquestBridge.Services
         _apiOptions.EndpointBase,
         _apiOptions.SubmitResultEndpoint,
         jobId,
-        activitySource.ResourceId);
+        activitySource.CollectionId);
 
       var response = (await _client.PostAsync(
           requestUri, AsHttpJsonString(result)))

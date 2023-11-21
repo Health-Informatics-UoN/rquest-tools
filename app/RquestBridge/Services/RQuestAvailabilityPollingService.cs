@@ -34,8 +34,8 @@ public class RQuestAvailabilityPollingService
         if (job is null)
         {
           _logger.LogInformation(
-            "No Queries on Collection: {ResourceId}",
-            rQuest.ResourceId);
+            "No Queries on Collection: {CollectionId}",
+            rQuest.CollectionId);
           return;
         }
 
