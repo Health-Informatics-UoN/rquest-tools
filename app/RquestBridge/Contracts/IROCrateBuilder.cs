@@ -1,5 +1,3 @@
-using ROCrates.Models;
-
 namespace RquestBridge.Contracts;
 
 public interface IROCrateBuilder
@@ -8,5 +6,13 @@ public interface IROCrateBuilder
   /// 
   /// </summary>
   /// <returns></returns>
-  RootDataset BuildRootDataset();
+  void AddProfile();
+
+  void AddRootDataset();
+
+  void AddLicense();
+
+  void AddCreateAction();
+
+  void AddWorkflow();
 }
