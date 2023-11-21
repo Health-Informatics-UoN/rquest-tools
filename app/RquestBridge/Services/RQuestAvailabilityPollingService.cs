@@ -60,7 +60,6 @@ public class RQuestAvailabilityPollingService
   {
     var job = new RQuestJob()
     {
-      RQuestJobId = rQuest.Id,
       Payload = JsonSerializer.SerializeToElement(jobPayload),
       Type = RQuestJobTypes.AvailabilityQuery,
       JobId = jobPayload.Uuid

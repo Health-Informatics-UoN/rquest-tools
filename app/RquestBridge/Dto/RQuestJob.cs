@@ -21,12 +21,6 @@ public class RQuestJob
   public string JobId { get; set; } = string.Empty;
   
   /// <summary>
-  /// The ID of the activity source.
-  /// </summary>
-  [JsonPropertyName("rquest_id")] 
-  public int RQuestJobId { get; set; }
-  
-  /// <summary>
   /// The properties of the job.
   /// </summary>
   [JsonPropertyName("payload")]
