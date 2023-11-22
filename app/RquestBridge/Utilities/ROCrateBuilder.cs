@@ -108,6 +108,7 @@ public class ROCrateBuilder : IROCrateBuilder
       Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate").SetQueryParam("version", _workflowOptions.Version.ToString())
     });
     _crate.Add(workflowEntity);
+    _crate.RootDataset.SetProperty("mainEntity", workflowEntity.Id);
   }
 
   private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)
