@@ -28,6 +28,12 @@ public class ROCrateBuilder : IROCrateBuilder
   /// <para>Add the <c>CreateAction</c> to the RO-Crate.</para>
   /// <para>This includes inputs necessary to run the <c>rquest-omop-worker</c>.</para>
   /// </summary>
+  /// <param name="queryFileName">The name of the file where the RQuest query is saved.</param>
+  /// <param name="isAvailability">Is the query an availability query? If not, treat as a distribution query.</param>
+  /// <param name="dbHost">The host address of the OMOP database.</param>
+  /// <param name="dbName">The name of the database on the host.</param>
+  /// <param name="dbUser">The user with access to the database.</param>
+  /// <param name="dbPassword">The user's password.</param>
   public void AddCreateAction(string queryFileName, bool isAvailability, string dbHost, string dbName, string dbUser, string dbPassword)
   {
     var createActionId = $"#query-{Guid.NewGuid()}";
