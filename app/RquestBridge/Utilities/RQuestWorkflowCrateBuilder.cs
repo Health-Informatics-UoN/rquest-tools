@@ -8,13 +8,13 @@ using System.Text.Json;
 using RquestBridge.Constants;
 namespace RquestBridge.Utilities;
 
-public class FiveSafesCrateBuilder : IROCrateBuilder
+public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 {
   private readonly WorkflowOptions _workflowOptions;
   private readonly CratePublishingOptions _publishingOptions;
   private ROCrate _crate = new ROCrate();
 
-  public FiveSafesCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions)
+  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
