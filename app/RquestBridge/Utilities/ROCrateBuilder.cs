@@ -252,8 +252,11 @@ public class ROCrateBuilder : IROCrateBuilder
 
   public void AddProject()
   {
-    var projectId = $"project-{Guid.NewGuid()}";
-    var projectEntity = new ContextEntity(null, projectId);
-    projectEntity.SetProperty("@type", "Project");
+    throw new NotImplementedException();
+  }
+
+  public void AddOrganisation()
+  {
+    throw new NotImplementedException();
   }
 }
