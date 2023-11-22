@@ -8,7 +8,5 @@ public interface IROCrateBuilder
 
   public void AddLicense();
 
-  public void AddCreateAction();
-
   public void AddWorkflow();
 }

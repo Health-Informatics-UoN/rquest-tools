@@ -24,7 +24,11 @@ public class ROCrateBuilder : IROCrateBuilder
     UpdateRootDataset();
   }
 
-  public void AddCreateAction()
+  /// <summary>
+  /// <para>Add the <c>CreateAction</c> to the RO-Crate.</para>
+  /// <para>This includes inputs necessary to run the <c>rquest-omop-worker</c>.</para>
+  /// </summary>
+  public void AddCreateAction(string queryFileName, bool isAvailability, string dbHost, string dbName, string dbUser, string dbPassword)
   {
     var createActionId = $"#query-{Guid.NewGuid()}";
     var createAction = new ContextEntity(_crate, createActionId);
@@ -38,28 +42,28 @@ public class ROCrateBuilder : IROCrateBuilder
     // set up OMOP worker inputs
 
     // body
-    var body = AddQueryJsonMetadata("rquest-query.json");
+    var body = AddQueryJsonMetadata(queryFileName);
     createAction.AppendTo("object", body);
 
     // is_availability
-    var isAvailability = AddQueryTypeMetadata(true);
-    createAction.AppendTo("object", isAvailability);
+    var isAvailabilityEntity = AddQueryTypeMetadata(isAvailability);
+    createAction.AppendTo("object", isAvailabilityEntity);
 
     // db_host
-    var dbHost = AddDbHostMetadata("example.com");
-    createAction.AppendTo("object", dbHost);
+    var dbHostEntity = AddDbHostMetadata(dbHost);
+    createAction.AppendTo("object", dbHostEntity);
 
     // db_name
-    var dbName = AddDbNameMetadata("name");
-    createAction.AppendTo("object", dbName);
+    var dbNameEntity = AddDbNameMetadata(dbName);
+    createAction.AppendTo("object", dbNameEntity);
 
     // db_user
-    var dbUser = AddDbUserMetadata("name");
-    createAction.AppendTo("object", dbUser);
+    var dbUserEntity = AddDbUserMetadata(dbUser);
+    createAction.AppendTo("object", dbUserEntity);
 
     // db_password
-    var dbPassword = AddDbPasswordMetadata("name");
-    createAction.AppendTo("object", dbPassword);
+    var dbPasswordEntity = AddDbPasswordMetadata(dbPassword);
+    createAction.AppendTo("object", dbPasswordEntity);
 
     _crate.Add(createAction);
   }
