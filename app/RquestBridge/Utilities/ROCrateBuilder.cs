@@ -19,6 +19,13 @@ public class ROCrateBuilder : IROCrateBuilder
   {
     _workflowOptions = workflowOptions.Value;
     _publishingOptions = publishingOptions.Value;
+
+    // Add 5 Safes props to RootDataset
+    _crate.RootDataset.SetProperty("conformsTo", new Part
+    {
+      Id = "https://w3id.org/trusted-wfrun-crate/0.3",
+    });
+    _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
   }
 
   public void AddCreateAction()
@@ -29,11 +36,9 @@ public class ROCrateBuilder : IROCrateBuilder
     createAction.SetProperty("actionStatus", ActionStatus.PotentialActionStatus);
 
     _crate.Entities.TryGetValue(GetWorkflowUrl(), out var workflow);
-    if(workflow is not null) createAction.SetProperty("instrument", new Part { Id = workflow.Id });
+    if (workflow is not null) createAction.SetProperty("instrument", new Part { Id = workflow.Id });
     createAction.SetProperty("name", "RQuest Query");
-    // set inputs here
-
-   }
+  }
 
   public void AddLicense()
   {
@@ -79,19 +84,6 @@ public class ROCrateBuilder : IROCrateBuilder
       Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate").SetQueryParam("version", _workflowOptions.Version.ToString())
     });
     _crate.Add(workflowEntity);
-  }
-
-  public void AddRootDataset()
-  {
-    var rootDataset = new RootDataset();
-
-    rootDataset.SetProperty("conformsTo", new Part
-    {
-      Id = "https://w3id.org/trusted-wfrun-crate/0.3",
-    });
-    rootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
-
-    _crate.Add(rootDataset);
   }
 
   public ROCrate GetROCrate()
