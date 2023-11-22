@@ -21,11 +21,7 @@ public class ROCrateBuilder : IROCrateBuilder
     _publishingOptions = publishingOptions.Value;
 
     // Add 5 Safes props to RootDataset
-    _crate.RootDataset.SetProperty("conformsTo", new Part
-    {
-      Id = "https://w3id.org/trusted-wfrun-crate/0.3",
-    });
-    _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
+    UpdateRootDataset();
   }
 
   public void AddCreateAction()
@@ -89,11 +85,27 @@ public class ROCrateBuilder : IROCrateBuilder
   public ROCrate GetROCrate()
   {
     ROCrate result = _crate;
+    ResetCrate();
     return result;
+  }
+
+  public void ResetCrate()
+  {
+    _crate = new ROCrate();
+    UpdateRootDataset();
   }
 
   private string GetWorkflowUrl()
   {
     return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString()).SetQueryParam("version", _workflowOptions.Version.ToString());
+  }
+
+  private void UpdateRootDataset()
+  {
+    _crate.RootDataset.SetProperty("conformsTo", new Part
+    {
+      Id = "https://w3id.org/trusted-wfrun-crate/0.3",
+    });
+    _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
   }
 }
