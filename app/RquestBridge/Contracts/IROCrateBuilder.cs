@@ -1,18 +1,16 @@
+using ROCrates.Models;
+
 namespace RquestBridge.Contracts;
 
 public interface IROCrateBuilder
 {
-  /// <summary>
-  /// 
-  /// </summary>
-  /// <returns></returns>
-  void AddProfile();
+  public void AddProfile();
 
-  void AddRootDataset();
+  public void AddRootDataset();
 
-  void AddLicense();
+  public void AddLicense();
 
-  void AddCreateAction();
+  public void AddCreateAction();
 
-  void AddWorkflow();
+  public void AddWorkflow();
 }
