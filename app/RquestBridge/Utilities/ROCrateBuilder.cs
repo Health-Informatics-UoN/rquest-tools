@@ -54,11 +54,11 @@ public class ROCrateBuilder : IROCrateBuilder
     createAction.AppendTo("object", dbName);
 
     // db_user
-    var dbUser = AddDbNameMetadata("name");
+    var dbUser = AddDbUserMetadata("name");
     createAction.AppendTo("object", dbUser);
 
     // db_password
-    var dbPassword = AddDbNameMetadata("name");
+    var dbPassword = AddDbPasswordMetadata("name");
     createAction.AppendTo("object", dbPassword);
   }
 
