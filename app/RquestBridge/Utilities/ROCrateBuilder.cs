@@ -99,7 +99,7 @@ public class ROCrateBuilder : IROCrateBuilder
     _crate.Add(profileEntity);
   }
 
-  public void AddWorkflow()
+  public void AddMainEntity()
   {
     var workflowURI = GetWorkflowUrl();
     var workflowEntity = new Dataset(identifier: workflowURI);
