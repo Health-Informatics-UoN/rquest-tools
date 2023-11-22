@@ -34,6 +34,32 @@ public class ROCrateBuilder : IROCrateBuilder
     _crate.Entities.TryGetValue(GetWorkflowUrl(), out var workflow);
     if (workflow is not null) createAction.SetProperty("instrument", new Part { Id = workflow.Id });
     createAction.SetProperty("name", "RQuest Query");
+
+    // set up OMOP worker inputs
+
+    // body
+    var body = AddQueryJsonMetadata("rquest-query.json");
+    createAction.AppendTo("object", body);
+
+    // is_availability
+    var isAvailability = AddQueryTypeMetadata(true);
+    createAction.AppendTo("object", isAvailability);
+
+    // db_host
+    var dbHost = AddDbHostMetadata("example.com");
+    createAction.AppendTo("object", dbHost);
+
+    // db_name
+    var dbName = AddDbNameMetadata("name");
+    createAction.AppendTo("object", dbName);
+
+    // db_user
+    var dbUser = AddDbNameMetadata("name");
+    createAction.AppendTo("object", dbUser);
+
+    // db_password
+    var dbPassword = AddDbNameMetadata("name");
+    createAction.AppendTo("object", dbPassword);
   }
 
   public void AddLicense()
@@ -80,6 +106,103 @@ public class ROCrateBuilder : IROCrateBuilder
       Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate").SetQueryParam("version", _workflowOptions.Version.ToString())
     });
     _crate.Add(workflowEntity);
+  }
+
+  private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)
+  {
+    var bodyParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-body");
+    bodyParam.SetProperty("@type", "FormalParameter");
+    bodyParam.SetProperty("name", "body");
+    bodyParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
+    var bodyEntity = new ROCrates.Models.File(null, queryFileName);
+    bodyEntity.SetProperty("name", "rquest-query");
+    bodyEntity.SetProperty("exampleOfWork", new Part { Id = bodyParam.Id });
+
+    _crate.Add(bodyParam, bodyEntity);
+    return bodyEntity;
+  }
+
+  private ContextEntity AddQueryTypeMetadata(bool isAvailability)
+  {
+    var paramId = "#hutch_workflow__x86_-inputs-{0}";
+    var entityId = "#input_{0}";
+
+    var isAvailabilityParam = new ContextEntity(null, string.Format(paramId, isAvailability ? "is_availability" : "is_distribution"));
+    isAvailabilityParam.SetProperty("@type", "FormalParameter");
+    isAvailabilityParam.SetProperty("name", isAvailability ? "is_availability" : "is_distribution");
+    isAvailabilityParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
+    var isAvailabilityEntity = new ContextEntity(null, string.Format(entityId, isAvailability ? "is_availability" : "is_distribution"));
+    isAvailabilityEntity.SetProperty("@type", "PropertyValue");
+    isAvailabilityEntity.SetProperty("name", isAvailability ? "is_availability" : "is_distribution");
+    isAvailabilityEntity.SetProperty("value", isAvailability);
+    isAvailabilityEntity.SetProperty("exampleOfWork", new Part { Id = isAvailabilityParam.Id });
+
+    _crate.Add(isAvailabilityParam, isAvailabilityEntity);
+    return isAvailabilityEntity;
+  }
+
+  private ContextEntity AddDbHostMetadata(string dbHost)
+  {
+    var dbHostParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_host");
+    dbHostParam.SetProperty("@type", "FormalParameter");
+    dbHostParam.SetProperty("name", "db_host");
+    dbHostParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
+    var dbHostEntity = new ContextEntity(null, "#input_db_host");
+    dbHostEntity.SetProperty("@type", "PropertyValue");
+    dbHostEntity.SetProperty("name", "db_host");
+    dbHostEntity.SetProperty("value", dbHost);
+    dbHostEntity.SetProperty("exampleOfWork", new Part { Id = dbHostParam.Id });
+
+    _crate.Add(dbHostParam, dbHostEntity);
+    return dbHostEntity;
+  }
+
+  private ContextEntity AddDbNameMetadata(string dbName)
+  {
+    var dbNameParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_name");
+    dbNameParam.SetProperty("@type", "FormalParameter");
+    dbNameParam.SetProperty("name", "db_name");
+    dbNameParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
+    var dbNameEntity = new ContextEntity(null, "#input_db_name");
+    dbNameEntity.SetProperty("@type", "PropertyValue");
+    dbNameEntity.SetProperty("name", "db_name");
+    dbNameEntity.SetProperty("value", dbName);
+    dbNameEntity.SetProperty("exampleOfWork", new Part { Id = dbNameParam.Id });
+
+    _crate.Add(dbNameParam, dbNameEntity);
+    return dbNameEntity;
+  }
+
+  private ContextEntity AddDbUserMetadata(string dbUser)
+  {
+    var dbUserParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_user");
+    dbUserParam.SetProperty("@type", "FormalParameter");
+    dbUserParam.SetProperty("name", "db_user");
+    dbUserParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
+    var dbUserEntity = new ContextEntity(null, "#input_db_user");
+    dbUserEntity.SetProperty("@type", "PropertyValue");
+    dbUserEntity.SetProperty("name", "db_user");
+    dbUserEntity.SetProperty("value", dbUser);
+    dbUserEntity.SetProperty("exampleOfWork", new Part { Id = dbUserParam.Id });
+
+    _crate.Add(dbUserParam, dbUserEntity);
+    return dbUserEntity;
+  }
+
+  private ContextEntity AddDbPasswordMetadata(string dbPassword)
+  {
+    var dbPasswordParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_password");
+    dbPasswordParam.SetProperty("@type", "FormalParameter");
+    dbPasswordParam.SetProperty("name", "db_password");
+    dbPasswordParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
+    var dbPasswordEntity = new ContextEntity(null, "#input_db_password");
+    dbPasswordEntity.SetProperty("@type", "PropertyValue");
+    dbPasswordEntity.SetProperty("name", "db_password");
+    dbPasswordEntity.SetProperty("value", dbPassword);
+    dbPasswordEntity.SetProperty("exampleOfWork", new Part { Id = dbPasswordParam.Id });
+
+    _crate.Add(dbPasswordParam, dbPasswordEntity);
+    return dbPasswordEntity;
   }
 
   public ROCrate GetROCrate()
