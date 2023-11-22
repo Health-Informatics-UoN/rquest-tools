@@ -15,10 +15,10 @@ public class ROCrateBuilder : IROCrateBuilder
   private readonly CratePublishingOptions _publishingOptions;
   private ROCrate _crate = new ROCrate();
 
-  public ROCrateBuilder(IOptions<WorkflowOptions> workflowOptions, IOptions<CratePublishingOptions> publishingOptions)
+  public ROCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions)
   {
-    _workflowOptions = workflowOptions.Value;
-    _publishingOptions = publishingOptions.Value;
+    _workflowOptions = workflowOptions;
+    _publishingOptions = publishingOptions;
 
     // Add 5 Safes props to RootDataset
     UpdateRootDataset();
@@ -123,7 +123,7 @@ public class ROCrateBuilder : IROCrateBuilder
 
   private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)
   {
-    var bodyParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-body");
+    var bodyParam = new ContextEntity(null, "#{_workflowOptions.Name}-inputs-body");
     bodyParam.SetProperty("@type", "FormalParameter");
     bodyParam.SetProperty("name", "body");
     bodyParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -137,7 +137,7 @@ public class ROCrateBuilder : IROCrateBuilder
 
   private ContextEntity AddQueryTypeMetadata(bool isAvailability)
   {
-    var paramId = "#hutch_workflow__x86_-inputs-{0}";
+    var paramId = "#{_workflowOptions.Name}-inputs-{0}";
     var entityId = "#input_{0}";
 
     var isAvailabilityParam = new ContextEntity(null, string.Format(paramId, isAvailability ? "is_availability" : "is_distribution"));
@@ -156,7 +156,7 @@ public class ROCrateBuilder : IROCrateBuilder
 
   private ContextEntity AddDbHostMetadata(string dbHost)
   {
-    var dbHostParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_host");
+    var dbHostParam = new ContextEntity(null, "#{_workflowOptions.Name}-inputs-db_host");
     dbHostParam.SetProperty("@type", "FormalParameter");
     dbHostParam.SetProperty("name", "db_host");
     dbHostParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -172,7 +172,7 @@ public class ROCrateBuilder : IROCrateBuilder
 
   private ContextEntity AddDbNameMetadata(string dbName)
   {
-    var dbNameParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_name");
+    var dbNameParam = new ContextEntity(null, "#{_workflowOptions.Name}-inputs-db_name");
     dbNameParam.SetProperty("@type", "FormalParameter");
     dbNameParam.SetProperty("name", "db_name");
     dbNameParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -188,7 +188,7 @@ public class ROCrateBuilder : IROCrateBuilder
 
   private ContextEntity AddDbUserMetadata(string dbUser)
   {
-    var dbUserParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_user");
+    var dbUserParam = new ContextEntity(null, $"#{_workflowOptions.Name}-inputs-db_user");
     dbUserParam.SetProperty("@type", "FormalParameter");
     dbUserParam.SetProperty("name", "db_user");
     dbUserParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -204,7 +204,7 @@ public class ROCrateBuilder : IROCrateBuilder
 
   private ContextEntity AddDbPasswordMetadata(string dbPassword)
   {
-    var dbPasswordParam = new ContextEntity(null, "#hutch_workflow__x86_-inputs-db_password");
+    var dbPasswordParam = new ContextEntity(null, $"#{_workflowOptions.Name}-inputs-db_password");
     dbPasswordParam.SetProperty("@type", "FormalParameter");
     dbPasswordParam.SetProperty("name", "db_password");
     dbPasswordParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -243,5 +243,17 @@ public class ROCrateBuilder : IROCrateBuilder
       Id = "https://w3id.org/trusted-wfrun-crate/0.3",
     });
     _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
+  }
+
+  public void AddAgent()
+  {
+    throw new NotImplementedException();
+  }
+
+  public void AddProject()
+  {
+    var projectId = $"project-{Guid.NewGuid()}";
+    var projectEntity = new ContextEntity(null, projectId);
+    projectEntity.SetProperty("@type", "Project");
   }
 }
