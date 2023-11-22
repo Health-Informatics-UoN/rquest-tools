@@ -60,6 +60,8 @@ public class ROCrateBuilder : IROCrateBuilder
     // db_password
     var dbPassword = AddDbPasswordMetadata("name");
     createAction.AppendTo("object", dbPassword);
+
+    _crate.Add(createAction);
   }
 
   public void AddLicense()
