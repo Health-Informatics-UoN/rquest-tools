@@ -2,20 +2,19 @@ using RquestBridge.Contracts;
 using ROCrates.Models;
 using System.Globalization;
 using RquestBridge.Config;
-using Microsoft.Extensions.Options;
 using Flurl;
 using ROCrates;
 using System.Text.Json;
 using RquestBridge.Constants;
 namespace RquestBridge.Utilities;
 
-public class ROCrateBuilder : IROCrateBuilder
+public class FiveSafesCrateBuilder : IROCrateBuilder
 {
   private readonly WorkflowOptions _workflowOptions;
   private readonly CratePublishingOptions _publishingOptions;
   private ROCrate _crate = new ROCrate();
 
-  public ROCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions)
+  public FiveSafesCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
