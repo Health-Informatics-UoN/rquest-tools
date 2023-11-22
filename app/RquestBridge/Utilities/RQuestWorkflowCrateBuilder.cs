@@ -12,12 +12,19 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 {
   private readonly WorkflowOptions _workflowOptions;
   private readonly CratePublishingOptions _publishingOptions;
+  private readonly CrateAgentOptions _crateAgentOptions;
+  private readonly CrateProjectOptions _crateProjectOptions;
+
+  private readonly CrateOrganizationOptions _crateOrganizationOptions;
   private ROCrate _crate = new ROCrate();
 
-  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions)
+  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions, CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions, CrateOrganizationOptions crateOrganizationOptions)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
+    _crateAgentOptions = crateAgentOptions;
+    _crateProjectOptions = crateProjectOptions;
+    _crateOrganizationOptions = crateOrganizationOptions;
 
     // Add 5 Safes props to RootDataset
     UpdateRootDataset();
@@ -246,7 +253,12 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 
   public void AddAgent()
   {
-    throw new NotImplementedException();
+    var agentEntity = new Entity(identifier: _crateAgentOptions.Id);
+    agentEntity.SetProperty("@type", _crateAgentOptions.Type);
+    agentEntity.SetProperty("name", _crateAgentOptions.Name);
+    agentEntity.SetProperty("affiliation", _crateAgentOptions.Affiliation);
+    agentEntity.SetProperty("memberOf", _crateAgentOptions.MemberOf);
+    _crate.Add(agentEntity);
   }
 
   public void AddProject()
