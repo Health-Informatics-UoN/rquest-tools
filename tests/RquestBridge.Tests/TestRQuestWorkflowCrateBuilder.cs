@@ -70,4 +70,39 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.NotNull(affiliation);
     Assert.Equal(agentOptions.Affiliation.Id, affiliation.Id);
   }
+
+  [Fact]
+  public void AddLicense_Adds_LicenseAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions
+    {
+      License = new LicenseOptions
+      {
+        Uri = "http://spdx.org/licenses/CC-BY-4.0",
+        Properties = new LicenseProperties
+        {
+          Identifier = "CC-BY-4.0",
+          Name = "Creative Commons Attribution 4.0 International"
+        }
+      }
+    };
+    var workflowOptions = new WorkflowOptions();
+    var organisationOptions = new CrateOrganizationOptions();
+    var projectOptions = new CrateProjectOptions();
+    var agentOptions = new CrateAgentOptions();
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions);
+
+    // Act
+    builder.AddLicense();
+    var crate = builder.GetROCrate();
+    crate.Entities.TryGetValue(publishingOptions.License.Uri, out var license);
+
+    // Assert
+    Assert.NotNull(license);
+    Assert.Equal(publishingOptions.License.Uri, license.Id);
+    Assert.Equal(publishingOptions.License.Properties.Identifier, license.GetProperty<string>("identifier"));
+    Assert.Equal(publishingOptions.License.Properties.Name, license.GetProperty<string>("name"));
+  }
 }
