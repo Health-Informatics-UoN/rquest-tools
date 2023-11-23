@@ -1,3 +1,4 @@
+using ROCrates.Models;
 using RquestBridge.Config;
 using RquestBridge.Utilities;
 
@@ -26,5 +27,47 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.NotNull(entity);
     Assert.Equal("https://w3id.org/trusted-wfrun-crate/0.3", entity.Id);
     Assert.Equal("Profile", entity.GetProperty<string>("@type"));
+  }
+
+  [Fact]
+  public void AddAgent_Adds_AgentAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions();
+    var workflowOptions = new WorkflowOptions();
+    var organisationOptions = new CrateOrganizationOptions()
+    {
+      Id = Guid.NewGuid().ToString()
+    };
+    var projectOptions = new CrateProjectOptions()
+    {
+      Id = $"#project-{Guid.NewGuid()}"
+    };
+    var agentOptions = new CrateAgentOptions()
+    {
+      Id = Guid.NewGuid().ToString(),
+      Affiliation = new Part() { Id = organisationOptions.Id },
+      MemberOf = new List<Part> { new() { Id = projectOptions.Id } },
+      Name = "Alice Day"
+    };
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions);
+
+    // Act
+    builder.AddAgent();
+    var crate = builder.GetROCrate();
+    crate.Entities.TryGetValue(agentOptions.Id, out var agentEntity);
+
+    // Assert
+    Assert.NotNull(agentEntity);
+    Assert.Equal(agentOptions.Id, agentEntity.Id);
+
+    var memberOf = agentEntity.GetProperty<List<Part>>("memberOf");
+    Assert.NotNull(memberOf);
+    Assert.Equal(agentOptions.MemberOf[0].Id, memberOf[0].Id);
+
+    var affiliation = agentEntity.GetProperty<Part>("affiliation");
+    Assert.NotNull(affiliation);
+    Assert.Equal(agentOptions.Affiliation.Id, affiliation.Id);
   }
 }
