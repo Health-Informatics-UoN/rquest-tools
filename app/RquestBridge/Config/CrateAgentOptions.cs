@@ -11,9 +11,9 @@ public class CrateAgentOptions
 
     public string Name { get; set; } = string.Empty;
 
-    public CrateOrganizationOptions Affiliation { get; set; } = new CrateOrganizationOptions();
+    public Part Affiliation { get; set; } = new();
 
-    public List<CrateProjectOptions> MemberOf { get; set; } = new List<CrateProjectOptions>();
+    public List<Part> MemberOf { get; set; } = new();
 
 }
 

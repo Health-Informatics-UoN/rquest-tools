@@ -6,6 +6,7 @@ using Flurl;
 using ROCrates;
 using System.Text.Json;
 using RquestBridge.Constants;
+
 namespace RquestBridge.Utilities;
 
 public class RQuestWorkflowCrateBuilder : IROCrateBuilder
@@ -18,7 +19,9 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
   private ROCrate _crate = new ROCrate();
 
-  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions, CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions, CrateOrganizationOptions crateOrganizationOptions)
+  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
+    CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
+    CrateOrganizationOptions crateOrganizationOptions)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
@@ -99,9 +102,11 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
         Id = profile.Id
       });
     }
+
     workflowEntity.SetProperty("distribution", new Part
     {
-      Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate").SetQueryParam("version", _workflowOptions.Version.ToString())
+      Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate")
+        .SetQueryParam("version", _workflowOptions.Version.ToString())
     });
     _crate.Add(workflowEntity);
     _crate.RootDataset.SetProperty("mainEntity", workflowEntity.Id);
@@ -126,11 +131,13 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     var paramId = "#{_workflowOptions.Name}-inputs-{0}";
     var entityId = "#input_{0}";
 
-    var isAvailabilityParam = new ContextEntity(null, string.Format(paramId, isAvailability ? "is_availability" : "is_distribution"));
+    var isAvailabilityParam =
+      new ContextEntity(null, string.Format(paramId, isAvailability ? "is_availability" : "is_distribution"));
     isAvailabilityParam.SetProperty("@type", "FormalParameter");
     isAvailabilityParam.SetProperty("name", isAvailability ? "is_availability" : "is_distribution");
     isAvailabilityParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
-    var isAvailabilityEntity = new ContextEntity(null, string.Format(entityId, isAvailability ? "is_availability" : "is_distribution"));
+    var isAvailabilityEntity = new ContextEntity(null,
+      string.Format(entityId, isAvailability ? "is_availability" : "is_distribution"));
     isAvailabilityEntity.SetProperty("@type", "PropertyValue");
     isAvailabilityEntity.SetProperty("name", isAvailability ? "is_availability" : "is_distribution");
     isAvailabilityEntity.SetProperty("value", isAvailability);
@@ -155,7 +162,8 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 
   private string GetWorkflowUrl()
   {
-    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString()).SetQueryParam("version", _workflowOptions.Version.ToString());
+    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
+      .SetQueryParam("version", _workflowOptions.Version.ToString());
   }
 
   private void UpdateRootDataset()
@@ -173,13 +181,16 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     agentEntity.SetProperty("@type", _crateAgentOptions.Type);
     agentEntity.SetProperty("name", _crateAgentOptions.Name);
     agentEntity.SetProperty("affiliation", _crateAgentOptions.Affiliation);
-    agentEntity.SetProperty("memberOf", _crateAgentOptions.MemberOf);
+    agentEntity.SetProperty("memberOf", new List<Part>
+    {
+      new() { Id = _crateProjectOptions.Id }
+    });
     _crate.Add(agentEntity);
   }
 
   public void AddProject()
   {
-    var projectEntity = new Entity(identifier: _crateProjectOptions.Id);
+    var projectEntity = new Entity(identifier: $"#project-{Guid.NewGuid()}");
     projectEntity.SetProperty("@type", _crateProjectOptions.Type);
     projectEntity.SetProperty("name", _crateProjectOptions.Name);
     projectEntity.SetProperty("identifier", _crateProjectOptions.Identifiers);

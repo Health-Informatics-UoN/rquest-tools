@@ -1,18 +1,15 @@
+using ROCrates.Models;
+
 namespace RquestBridge.Config;
 
 public class CrateProjectOptions
 {
-
-
     public string Id { get; set; } = string.Empty;
-
     public string Type { get; set; } = "Project";
     public string Name { get; set; } = string.Empty;
-    public List<Identifier> Identifiers { get; set; } = new List<Identifier>();
-
-    public FundingSource Funding { get; set; } = new FundingSource();
-
-    public List<CrateOrganizationOptions> Member { get; set; } = new List<CrateOrganizationOptions>();
+    public List<Identifier> Identifiers { get; set; } = new();
+    public FundingSource Funding { get; set; } = new();
+    public List<Part> Member { get; set; } = new();
 }
 
 public class Identifier
