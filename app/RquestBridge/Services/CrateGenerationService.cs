@@ -1,35 +1,61 @@
 using System.Text.Json;
 using FiveSafes.Net;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ROCrates;
 using ROCrates.Exceptions;
 using RquestBridge.Config;
+using RquestBridge.Dto;
+using RquestBridge.Utilities;
 namespace RquestBridge.Services;
 
 public class CrateGenerationService
 {
   private ILogger<CrateGenerationService> _logger;
-  public CrateGenerationService(ILogger<CrateGenerationService> logger) 
+  private readonly CratePublishingOptions _publishingOptions;
+  private readonly CrateAgentOptions _crateAgentOptions;
+  private readonly CrateProjectOptions _crateProjectOptions;
+  private readonly CrateOrganizationOptions _crateOrganizationOptions;
+  private readonly WorkflowOptions _workflowOptions;
+
+  public CrateGenerationService(
+    ILogger<CrateGenerationService> logger,
+    IOptions<CratePublishingOptions> publishingOptions,
+    IOptions<CrateAgentOptions> agentOptions,
+    IOptions<CrateProjectOptions> projectOptions,
+    IOptions<CrateOrganizationOptions> organizationOptions,
+    IOptions<WorkflowOptions> workflowOptions
+  ) 
   { 
     _logger = logger;
+    _publishingOptions = publishingOptions.Value;
+    _crateAgentOptions = agentOptions.Value;
+    _crateOrganizationOptions = organizationOptions.Value;
+    _crateProjectOptions = projectOptions.Value;
+    _workflowOptions = workflowOptions.Value;
   }
 
-  public async Task BuildCrate<T>(T job)
+  public async Task BuildCrate<T>(T job) where T: class, new()
   {
+    var isAvailability = new T() switch
+    {
+      AvailabilityQuery => true,
+      DistributionQuery => false,
+      _ => throw new NotImplementedException()
+    };
 
     var archive = await BuildBagIt(BridgeOptions.WorkingDirectory);
-    // checksum files (blank)
-    // data/
-    //    metadata.json
-    //    preview.html
 
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQueryOptions.FileName);
     await SaveJobPayload(payload, payloadDestination);
     
     // Generate ROCrate metadata
-    var roCrate = InitialiseCrate(archive.PayloadDirectoryPath);
-
+    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions, _crateProjectOptions, _crateOrganizationOptions);
+    var director = new RQuestWorkflowCrateDirector(builder);
+    director.BuildRQuestWorkflowCrate(RquestQueryOptions.FileName, isAvailability);
+    ROCrate crate = builder.GetROCrate();
+    crate.Save(archive.PayloadDirectoryPath);
   }
 
   /// <summary>

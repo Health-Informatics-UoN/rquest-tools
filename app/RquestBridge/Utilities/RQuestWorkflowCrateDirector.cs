@@ -9,11 +9,14 @@ public class RQuestWorkflowCrateDirector
     _builder = builder;
   }
 
-  public void BuildRQuestWorkflowCrate(string queryFileName, bool isAvailability, string dbHost, string dbName, string dbUser, string dbPassword)
+  public void BuildRQuestWorkflowCrate(string queryFileName, bool isAvailability)
   {
     _builder.AddMainEntity();
     _builder.AddProfile();
     _builder.AddLicense();
-    _builder.AddCreateAction(queryFileName, isAvailability, dbHost, dbName, dbUser, dbPassword);
+    _builder.AddCreateAction(queryFileName, isAvailability);
+    _builder.AddAgent();
+    _builder.AddOrganisation();
+    _builder.AddProject();
   }
 }
