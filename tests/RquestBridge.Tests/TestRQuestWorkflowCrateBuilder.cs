@@ -1,6 +1,7 @@
 using Flurl;
 using ROCrates.Models;
 using RquestBridge.Config;
+using RquestBridge.Constants;
 using RquestBridge.Utilities;
 
 namespace RquestBridge.Tests;
@@ -176,5 +177,36 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.NotNull(project);
     Assert.Equal(projectOptions.Name, project.GetProperty<string>("name"));
     Assert.Equal(projectOptions.Type, project.GetProperty<string>("@type"));
+  }
+
+  [Fact]
+  public void AddCreateAction_Adds_AvailabilityCreateActionAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions();
+    var workflowOptions = new WorkflowOptions
+    {
+      Name = "test-body"
+    };
+    var organisationOptions = new CrateOrganizationOptions();
+    var projectOptions = new CrateProjectOptions();
+    var agentOptions = new CrateAgentOptions();
+    var profileOptions = new CrateProfileOptions();
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions, profileOptions);
+
+    // Act
+    builder.AddCreateAction(RquestQuery.FileName, true);
+    var crate = builder.GetROCrate();
+    var createActionId = crate.Entities.Keys.First(x => x.StartsWith("#query-"));
+    crate.Entities.TryGetValue(createActionId, out var createAction);
+
+    //Assert
+    Assert.NotNull(createAction);
+    var objectProperty = createAction.GetProperty<List<Part>>("object");
+    Assert.NotNull(objectProperty);
+    var ids = objectProperty.Select(x => x.Id).ToList();
+    Assert.Contains(RquestQuery.FileName, ids);
+    Assert.Contains($"#input_is_availability", ids);
   }
 }
