@@ -43,10 +43,7 @@ public class TestRQuestWorkflowCrateBuilder
     {
       Id = Guid.NewGuid().ToString()
     };
-    var projectOptions = new CrateProjectOptions()
-    {
-      Id = $"#project-{Guid.NewGuid()}"
-    };
+    var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions()
     {
       Id = Guid.NewGuid().ToString(),
@@ -67,9 +64,14 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.NotNull(agentEntity);
     Assert.Equal(agentOptions.Id, agentEntity.Id);
 
-    var memberOf = agentEntity.GetProperty<List<Part>>("memberOf");
+    var memberOf = agentEntity.GetProperty<List<Part>>("memberOf")!.Select(x => x.Id).ToList();
     Assert.NotNull(memberOf);
-    Assert.Equal(agentOptions.MemberOf[0].Id, memberOf[0].Id);
+    var projectIds = crate.Entities.Keys.Where(x => x.StartsWith("#project-")).Select(x => new Part { Id = x })
+      .ToList();
+    foreach (var id in projectIds)
+    {
+      Assert.Contains(id.Id, memberOf);
+    }
 
     var affiliation = agentEntity.GetProperty<Part>("affiliation");
     Assert.NotNull(affiliation);
@@ -151,7 +153,7 @@ public class TestRQuestWorkflowCrateBuilder
   }
 
   [Fact]
-  public void AddProject_Adds_ProjectAsConfigured()
+  public void AddAgent_Adds_ProjectAsConfigured()
   {
     // Arrange
     var publishingOptions = new CratePublishingOptions();
@@ -167,7 +169,7 @@ public class TestRQuestWorkflowCrateBuilder
       organisationOptions, profileOptions);
 
     // Act
-    builder.AddProject();
+    builder.AddAgent();
     var crate = builder.GetROCrate();
     var projectId = crate.Entities.Keys.First(x => x.StartsWith("#project-"));
     crate.Entities.TryGetValue(projectId, out var project);
