@@ -1,3 +1,4 @@
+using Flurl;
 using ROCrates.Models;
 using RquestBridge.Config;
 using RquestBridge.Utilities;
@@ -108,5 +109,43 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.Equal(publishingOptions.License.Uri, license.Id);
     Assert.Equal(publishingOptions.License.Properties.Identifier, license.GetProperty<string>("identifier"));
     Assert.Equal(publishingOptions.License.Properties.Name, license.GetProperty<string>("name"));
+  }
+
+  [Fact]
+  public void AddMainEntity_Adds_MainEntityAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions();
+    var workflowOptions = new WorkflowOptions
+    {
+      Id = 471,
+      Version = 3
+    };
+    var organisationOptions = new CrateOrganizationOptions();
+    var projectOptions = new CrateProjectOptions();
+    var agentOptions = new CrateAgentOptions();
+    var profileOptions = new CrateProfileOptions();
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions, profileOptions);
+
+    var expectedId = Url.Combine(workflowOptions.BaseUrl, workflowOptions.Id.ToString())
+      .SetQueryParam("version", workflowOptions.Version.ToString());
+    var expectedMainEntityPart = new Part { Id = expectedId };
+
+    // Act
+    builder.AddMainEntity();
+    var crate = builder.GetROCrate();
+    crate.Entities.TryGetValue(expectedId, out var mainEntity);
+    var actualMainEntityPart = crate.RootDataset.GetProperty<Part>("mainEntity");
+
+
+    // Assert
+    Assert.NotNull(mainEntity);
+    Assert.Equal(expectedId, mainEntity.Id);
+    Assert.NotNull(mainEntity.GetProperty<Part>("distribution"));
+    // Should be null as `AddProfile` was not called
+    Assert.Null(mainEntity.GetProperty<Part>("conformsTo"));
+    Assert.NotNull(actualMainEntityPart);
+    Assert.Equal(expectedMainEntityPart.Id, actualMainEntityPart.Id);
   }
 }

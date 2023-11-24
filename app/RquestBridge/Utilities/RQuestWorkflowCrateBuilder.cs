@@ -65,7 +65,7 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     var workflowURI = GetWorkflowUrl();
     var workflowEntity = new Dataset(identifier: workflowURI);
     workflowEntity.SetProperty("name", _workflowOptions.Name);
-    _crate.Entities.TryGetValue("https://w3id.org/trusted-wfrun-crate/0.3", out var profile);
+    _crate.Entities.TryGetValue(_crateProfileOptions.Id, out var profile);
 
     if (profile is not null)
     {
@@ -81,7 +81,7 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
         .SetQueryParam("version", _workflowOptions.Version.ToString())
     });
     _crate.Add(workflowEntity);
-    _crate.RootDataset.SetProperty("mainEntity", workflowEntity.Id);
+    _crate.RootDataset.SetProperty("mainEntity", new Part { Id = workflowEntity.Id });
   }
 
   /// <summary>
@@ -130,11 +130,12 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 
   private ContextEntity AddQueryTypeMetadata(bool isAvailability)
   {
-    var paramId = "#{_workflowOptions.Name}-inputs-{0}";
+    var paramId = "#{0}-inputs-{1}";
     var entityId = "#input_{0}";
 
     var isAvailabilityParam =
-      new ContextEntity(null, string.Format(paramId, isAvailability ? "is_availability" : "is_distribution"));
+      new ContextEntity(null,
+        string.Format(paramId, _workflowOptions.Name, isAvailability ? "is_availability" : "is_distribution"));
     isAvailabilityParam.SetProperty("@type", "FormalParameter");
     isAvailabilityParam.SetProperty("name", isAvailability ? "is_availability" : "is_distribution");
     isAvailabilityParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -172,7 +173,7 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
   {
     _crate.RootDataset.SetProperty("conformsTo", new Part
     {
-      Id = "https://w3id.org/trusted-wfrun-crate/0.3",
+      Id = _crateProfileOptions.Id,
     });
     _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
   }
