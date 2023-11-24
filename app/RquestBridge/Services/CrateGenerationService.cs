@@ -41,6 +41,13 @@ public class CrateGenerationService
     _workflowOptions = workflowOptions.Value;
   }
 
+  /// <summary>
+  /// Build an RO-Crate for a cohort discovery query.
+  /// </summary>
+  /// <typeparam name="T">The type of the query. Choices: <see cref="AvailabilityQuery"/>, <see cref="DistributionQuery"/></typeparam>
+  /// <param name="job">The job to save to the crate.</param>
+  /// <returns></returns>
+  /// <exception cref="NotImplementedException">Query type is unavailable.</exception>
   public async Task BuildCrate<T>(T job) where T : class, new()
   {
     var isAvailability = new T() switch
@@ -55,14 +62,17 @@ public class CrateGenerationService
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
     await SaveJobPayload(payload, payloadDestination);
+    _logger.LogInformation($"Saved query JSON to {payloadDestination}.");
 
     // Generate ROCrate metadata
+    _logger.LogInformation("Building Five Safes ROCrate...");
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
       _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
     var director = new RQuestWorkflowCrateDirector(builder);
     director.BuildRQuestWorkflowCrate(RquestQuery.FileName, isAvailability);
     ROCrate crate = builder.GetROCrate();
     crate.Save(archive.PayloadDirectoryPath);
+    _logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
     await archive.WriteManifestSha512();
     await archive.WriteTagManifestSha512();
   }
@@ -93,26 +103,5 @@ public class CrateGenerationService
     var packer = new Packer(builder);
     await packer.BuildBlankArchive();
     return builder.GetArchive();
-  }
-
-  private ROCrate InitialiseCrate(string cratePath)
-  {
-    var crate = new ROCrate();
-    try
-    {
-      crate.Initialise(cratePath);
-    }
-    catch (CrateReadException e)
-    {
-      _logger.LogError(exception: e, "RO-Crate cannot be read, or is invalid");
-      throw;
-    }
-    catch (MetadataException e)
-    {
-      _logger.LogError(exception: e, "RO-Crate Metadata cannot be read, or is invalid");
-      throw;
-    }
-
-    return crate;
   }
 }

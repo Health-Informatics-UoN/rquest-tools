@@ -35,6 +35,9 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     UpdateRootDataset();
   }
 
+  /// <summary>
+  /// Adds Licence Entity to Five Safes RO-Crate.
+  /// </summary>
   public void AddLicense()
   {
     if (string.IsNullOrEmpty(_publishingOptions.License?.Uri)) return;
@@ -52,6 +55,9 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     _crate.RootDataset.SetProperty("license", new Part { Id = licenseEntity.Id });
   }
 
+  /// <summary>
+  /// Adds Profile Entity to Five Safes RO-Crate.
+  /// </summary>
   public void AddProfile()
   {
     var profileEntity = new Entity(identifier: _crateProfileOptions.Id);
@@ -60,6 +66,9 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     _crate.Add(profileEntity);
   }
 
+  /// <summary>
+  /// Adds mainEntity to Five Safes RO-Crate.
+  /// </summary>
   public void AddMainEntity()
   {
     var workflowURI = GetWorkflowUrl();
@@ -114,6 +123,11 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     _crate.Add(createAction);
   }
 
+  /// <summary>
+  /// Add the metadata elements for the query file.
+  /// </summary>
+  /// <param name="queryFileName">The name of the file where the query is saved.</param>
+  /// <returns>The entity representing the query file.</returns>
   private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)
   {
     var bodyParam = new ContextEntity(null, $"#{_workflowOptions.Name}-inputs-body");
@@ -128,6 +142,12 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     return bodyEntity;
   }
 
+  /// <summary>
+  /// Add the metadata elements concerning whether the query is an availability or a
+  /// distribution query.
+  /// </summary>
+  /// <param name="isAvailability">Is the query an availability query.</param>
+  /// <returns>The entity saying if the query is an availability or distribution query.</returns>
   private ContextEntity AddQueryTypeMetadata(bool isAvailability)
   {
     var paramId = "#{0}-inputs-{1}";
@@ -150,6 +170,10 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     return isAvailabilityEntity;
   }
 
+  /// <summary>
+  ///  Returns the ROCrate.
+  /// </summary>
+  /// <returns>resulting ROCrate</returns>
   public ROCrate GetROCrate()
   {
     ROCrate result = _crate;
@@ -157,18 +181,28 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     return result;
   }
 
+  /// <summary>
+  /// Resets the ROCrate back to a blank ROCrate.
+  /// </summary>
   public void ResetCrate()
   {
     _crate = new ROCrate();
     UpdateRootDataset();
   }
 
+  /// <summary>
+  /// Construct the Workflow URL from WorkflowOptions.
+  /// </summary>
+  /// <returns>Workflow URL</returns>
   private string GetWorkflowUrl()
   {
     return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
       .SetQueryParam("version", _workflowOptions.Version.ToString());
   }
 
+  /// <summary>
+  /// Adds basic information for the metadata to ROCrate.
+  /// </summary>
   private void UpdateRootDataset()
   {
     _crate.RootDataset.SetProperty("conformsTo", new Part
@@ -178,6 +212,9 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
   }
 
+  /// <summary>
+  /// Adds Agent Entity and links to relevant organisation and project.
+  /// </summary>
   public void AddAgent()
   {
     var organisation = AddOrganisation();
@@ -190,6 +227,10 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     _crate.Add(agentEntity, organisation, project);
   }
 
+  /// <summary>
+  /// Adds Project Entity as configured
+  /// </summary>
+  /// <returns></returns>
   private Entity AddProject()
   {
     var projectEntity = new Entity(identifier: $"#project-{Guid.NewGuid()}");
@@ -201,6 +242,10 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     return projectEntity;
   }
 
+  /// <summary>
+  /// Adds Organisation Entity as configured.
+  /// </summary>
+  /// <returns></returns>
   private Entity AddOrganisation()
   {
     var orgEntity = new Entity(identifier: _crateOrganizationOptions.Id);

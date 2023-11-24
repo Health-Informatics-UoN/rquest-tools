@@ -9,6 +9,11 @@ public class RQuestWorkflowCrateDirector
     _builder = builder;
   }
 
+  /// <summary>
+  /// Build the fully configured workflow crate.
+  /// </summary>
+  /// <param name="queryFileName">The name of the file to save the query.</param>
+  /// <param name="isAvailability">Is the the query an availability query.</param>
   public void BuildRQuestWorkflowCrate(string queryFileName, bool isAvailability)
   {
     _builder.AddMainEntity();
