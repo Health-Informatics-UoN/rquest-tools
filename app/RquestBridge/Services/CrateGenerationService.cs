@@ -19,6 +19,7 @@ public class CrateGenerationService
   private readonly CrateProjectOptions _crateProjectOptions;
   private readonly CratePublishingOptions _publishingOptions;
   private readonly WorkflowOptions _workflowOptions;
+  private readonly BridgeOptions _bridgeOptions;
   private ILogger<CrateGenerationService> _logger;
 
   public CrateGenerationService(
@@ -27,9 +28,11 @@ public class CrateGenerationService
     IOptions<CrateAgentOptions> agentOptions,
     IOptions<CrateProjectOptions> projectOptions,
     IOptions<CrateOrganizationOptions> organizationOptions,
-    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions)
+    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions,
+    IOptions<BridgeOptions> bridgeOptions)
   {
     _logger = logger;
+    _bridgeOptions = bridgeOptions.Value;
     _crateProfileOptions = crateProfileOptions.Value;
     _publishingOptions = publishingOptions.Value;
     _crateAgentOptions = agentOptions.Value;
@@ -47,7 +50,7 @@ public class CrateGenerationService
       _ => throw new NotImplementedException()
     };
 
-    var archive = await BuildBagIt(BridgeOptions.WorkingDirectory);
+    var archive = await BuildBagIt(Path.Combine(_bridgeOptions.WorkingDirectoryBase, Guid.NewGuid().ToString()));
 
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
@@ -60,6 +63,8 @@ public class CrateGenerationService
     director.BuildRQuestWorkflowCrate(RquestQuery.FileName, isAvailability);
     ROCrate crate = builder.GetROCrate();
     crate.Save(archive.PayloadDirectoryPath);
+    await archive.WriteManifestSha512();
+    await archive.WriteTagManifestSha512();
   }
 
   /// <summary>
