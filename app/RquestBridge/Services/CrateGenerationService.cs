@@ -7,16 +7,18 @@ using ROCrates.Exceptions;
 using RquestBridge.Config;
 using RquestBridge.Dto;
 using RquestBridge.Utilities;
+
 namespace RquestBridge.Services;
 
 public class CrateGenerationService
 {
-  private ILogger<CrateGenerationService> _logger;
-  private readonly CratePublishingOptions _publishingOptions;
   private readonly CrateAgentOptions _crateAgentOptions;
-  private readonly CrateProjectOptions _crateProjectOptions;
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
+  private readonly CrateProfileOptions _crateProfileOptions;
+  private readonly CrateProjectOptions _crateProjectOptions;
+  private readonly CratePublishingOptions _publishingOptions;
   private readonly WorkflowOptions _workflowOptions;
+  private ILogger<CrateGenerationService> _logger;
 
   public CrateGenerationService(
     ILogger<CrateGenerationService> logger,
@@ -24,10 +26,10 @@ public class CrateGenerationService
     IOptions<CrateAgentOptions> agentOptions,
     IOptions<CrateProjectOptions> projectOptions,
     IOptions<CrateOrganizationOptions> organizationOptions,
-    IOptions<WorkflowOptions> workflowOptions
-  ) 
-  { 
+    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions)
+  {
     _logger = logger;
+    _crateProfileOptions = crateProfileOptions.Value;
     _publishingOptions = publishingOptions.Value;
     _crateAgentOptions = agentOptions.Value;
     _crateOrganizationOptions = organizationOptions.Value;
@@ -35,7 +37,7 @@ public class CrateGenerationService
     _workflowOptions = workflowOptions.Value;
   }
 
-  public async Task BuildCrate<T>(T job) where T: class, new()
+  public async Task BuildCrate<T>(T job) where T : class, new()
   {
     var isAvailability = new T() switch
     {
@@ -49,9 +51,10 @@ public class CrateGenerationService
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQueryOptions.FileName);
     await SaveJobPayload(payload, payloadDestination);
-    
+
     // Generate ROCrate metadata
-    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions, _crateProjectOptions, _crateOrganizationOptions);
+    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
+      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
     var director = new RQuestWorkflowCrateDirector(builder);
     director.BuildRQuestWorkflowCrate(RquestQueryOptions.FileName, isAvailability);
     ROCrate crate = builder.GetROCrate();

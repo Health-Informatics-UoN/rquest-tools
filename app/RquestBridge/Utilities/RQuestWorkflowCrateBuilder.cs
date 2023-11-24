@@ -1,36 +1,87 @@
-using RquestBridge.Contracts;
-using ROCrates.Models;
 using System.Globalization;
-using RquestBridge.Config;
+using System.Text.Json;
 using Flurl;
 using ROCrates;
-using System.Text.Json;
+using ROCrates.Models;
+using RquestBridge.Config;
 using RquestBridge.Constants;
+using RquestBridge.Contracts;
 
 namespace RquestBridge.Utilities;
 
 public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 {
-  private readonly WorkflowOptions _workflowOptions;
-  private readonly CratePublishingOptions _publishingOptions;
   private readonly CrateAgentOptions _crateAgentOptions;
-  private readonly CrateProjectOptions _crateProjectOptions;
 
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
+  private readonly CrateProfileOptions _crateProfileOptions;
+  private readonly CrateProjectOptions _crateProjectOptions;
+  private readonly CratePublishingOptions _publishingOptions;
+  private readonly WorkflowOptions _workflowOptions;
   private ROCrate _crate = new ROCrate();
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
-    CrateOrganizationOptions crateOrganizationOptions)
+    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
     _crateAgentOptions = crateAgentOptions;
     _crateProjectOptions = crateProjectOptions;
     _crateOrganizationOptions = crateOrganizationOptions;
+    _crateProfileOptions = crateProfileOptions;
 
     // Add 5 Safes props to RootDataset
     UpdateRootDataset();
+  }
+
+  public void AddLicense()
+  {
+    if (string.IsNullOrEmpty(_publishingOptions.License?.Uri)) return;
+
+    var licenseProps = _publishingOptions.License.Properties;
+    var licenseEntity = new CreativeWork(
+      identifier: _publishingOptions.License.Uri,
+      properties: JsonSerializer.SerializeToNode(licenseProps)?.AsObject());
+
+    // Bug in ROCrates.Net: CreativeWork class uses the base constructor so @type is Thing by default
+    licenseEntity.SetProperty("@type", "CreativeWork");
+
+    _crate.Add(licenseEntity);
+
+    _crate.RootDataset.SetProperty("license", new Part { Id = licenseEntity.Id });
+  }
+
+  public void AddProfile()
+  {
+    var profileEntity = new Entity(identifier: _crateProfileOptions.Id);
+    profileEntity.SetProperty("@type", _crateProfileOptions.Type);
+    profileEntity.SetProperty("name", _crateProfileOptions.Name);
+    _crate.Add(profileEntity);
+  }
+
+  public void AddMainEntity()
+  {
+    var workflowURI = GetWorkflowUrl();
+    var workflowEntity = new Dataset(identifier: workflowURI);
+    workflowEntity.SetProperty("name", _workflowOptions.Name);
+    _crate.Entities.TryGetValue("https://w3id.org/trusted-wfrun-crate/0.3", out var profile);
+
+    if (profile is not null)
+    {
+      workflowEntity.SetProperty("conformsTo", new Part
+      {
+        Id = profile.Id
+      });
+    }
+
+    workflowEntity.SetProperty("distribution", new Part
+    {
+      Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate")
+        .SetQueryParam("version", _workflowOptions.Version.ToString())
+    });
+    _crate.Add(workflowEntity);
+    _crate.RootDataset.SetProperty("mainEntity", workflowEntity.Id);
   }
 
   /// <summary>
@@ -61,55 +112,6 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     createAction.AppendTo("object", isAvailabilityEntity);
 
     _crate.Add(createAction);
-  }
-
-  public void AddLicense()
-  {
-    if (string.IsNullOrEmpty(_publishingOptions.License?.Uri)) return;
-
-    var licenseProps = _publishingOptions.License.Properties;
-    var licenseEntity = new CreativeWork(
-      identifier: _publishingOptions.License.Uri,
-      properties: JsonSerializer.SerializeToNode(licenseProps)?.AsObject());
-
-    // Bug in ROCrates.Net: CreativeWork class uses the base constructor so @type is Thing by default
-    licenseEntity.SetProperty("@type", "CreativeWork");
-
-    _crate.Add(licenseEntity);
-
-    _crate.RootDataset.SetProperty("license", new Part { Id = licenseEntity.Id });
-  }
-
-  public void AddProfile()
-  {
-    var profileEntity = new Entity(identifier: "https://w3id.org/trusted-wfrun-crate/0.3");
-    profileEntity.SetProperty("@type", "Profile");
-    profileEntity.SetProperty("name", "Trusted Workflow Run Crate profile");
-    _crate.Add(profileEntity);
-  }
-
-  public void AddMainEntity()
-  {
-    var workflowURI = GetWorkflowUrl();
-    var workflowEntity = new Dataset(identifier: workflowURI);
-    workflowEntity.SetProperty("name", _workflowOptions.Name);
-    _crate.Entities.TryGetValue("https://w3id.org/trusted-wfrun-crate/0.3", out var profile);
-
-    if (profile is not null)
-    {
-      workflowEntity.SetProperty("conformsTo", new Part
-      {
-        Id = profile.Id
-      });
-    }
-
-    workflowEntity.SetProperty("distribution", new Part
-    {
-      Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate")
-        .SetQueryParam("version", _workflowOptions.Version.ToString())
-    });
-    _crate.Add(workflowEntity);
-    _crate.RootDataset.SetProperty("mainEntity", workflowEntity.Id);
   }
 
   private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)

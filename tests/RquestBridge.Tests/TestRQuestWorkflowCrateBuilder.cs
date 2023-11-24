@@ -15,18 +15,20 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
+    var profileOptions = new CrateProfileOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, profileOptions);
 
     // Act
     builder.AddProfile();
     var crate = builder.GetROCrate();
-    crate.Entities.TryGetValue("https://w3id.org/trusted-wfrun-crate/0.3", out var entity);
+    crate.Entities.TryGetValue(profileOptions.Id, out var entity);
 
     // Assert
     Assert.NotNull(entity);
-    Assert.Equal("https://w3id.org/trusted-wfrun-crate/0.3", entity.Id);
-    Assert.Equal("Profile", entity.GetProperty<string>("@type"));
+    Assert.Equal(profileOptions.Id, entity.Id);
+    Assert.Equal(profileOptions.Type, entity.GetProperty<string>("@type"));
+    Assert.Equal(profileOptions.Name, entity.GetProperty<string>("name"));
   }
 
   [Fact]
@@ -50,8 +52,9 @@ public class TestRQuestWorkflowCrateBuilder
       MemberOf = new List<Part> { new() { Id = projectOptions.Id } },
       Name = "Alice Day"
     };
+    var profileOptions = new CrateProfileOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, profileOptions);
 
     // Act
     builder.AddAgent();
@@ -91,8 +94,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
+    var profileOptions = new CrateProfileOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, profileOptions);
 
     // Act
     builder.AddLicense();
