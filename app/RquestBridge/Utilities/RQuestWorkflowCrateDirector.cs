@@ -16,7 +16,5 @@ public class RQuestWorkflowCrateDirector
     _builder.AddLicense();
     _builder.AddCreateAction(queryFileName, isAvailability);
     _builder.AddAgent();
-    _builder.AddOrganisation();
-    _builder.AddProject();
   }
 }

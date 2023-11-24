@@ -23,8 +23,11 @@ class Program
         services.AddOptions<WorkflowOptions>().Bind(hostContext.Configuration.GetSection("Workflow"));
         services.AddOptions<CrateAgentOptions>().Bind(hostContext.Configuration.GetSection("Crate:Agent"));
         services.AddOptions<CrateProjectOptions>().Bind(hostContext.Configuration.GetSection("Crate:Project"));
-        services.AddOptions<CrateOrganizationOptions>().Bind(hostContext.Configuration.GetSection("Crate:Organisation"));
+        services.AddOptions<CrateOrganizationOptions>()
+          .Bind(hostContext.Configuration.GetSection("Crate:Organisation"));
+        services.AddOptions<BridgeOptions>().Bind(hostContext.Configuration.GetSection("Bridge"));
       })
       .Build();
     host.Run();
-  }}
+  }
+}

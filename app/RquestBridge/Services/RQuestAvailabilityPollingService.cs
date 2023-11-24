@@ -42,10 +42,8 @@ public class RQuestAvailabilityPollingService
           return;
         }
 
-        // var packagedJob = PackageJob(job, rQuest);
-        var payload = JsonSerializer.SerializeToElement(job);
-        
-        
+        await _crateGenerationService.BuildCrate(job);
+
         //SendToQueue(packagedJob, "jobs");
       }
       catch (Exception e)

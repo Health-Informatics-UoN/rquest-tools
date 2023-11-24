@@ -180,18 +180,17 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 
   public void AddAgent()
   {
+    var organisation = AddOrganisation();
+    var project = AddProject();
     var agentEntity = new Entity(identifier: _crateAgentOptions.Id);
     agentEntity.SetProperty("@type", _crateAgentOptions.Type);
     agentEntity.SetProperty("name", _crateAgentOptions.Name);
-    agentEntity.SetProperty("affiliation", _crateAgentOptions.Affiliation);
-    agentEntity.SetProperty("memberOf", new List<Part>
-    {
-      new() { Id = _crateProjectOptions.Id }
-    });
-    _crate.Add(agentEntity);
+    agentEntity.SetProperty("affiliation", new Part() { Id = organisation.Id });
+    agentEntity.AppendTo("memberOf", project);
+    _crate.Add(agentEntity, organisation, project);
   }
 
-  public void AddProject()
+  private Entity AddProject()
   {
     var projectEntity = new Entity(identifier: $"#project-{Guid.NewGuid()}");
     projectEntity.SetProperty("@type", _crateProjectOptions.Type);
@@ -199,14 +198,14 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     projectEntity.SetProperty("identifier", _crateProjectOptions.Identifiers);
     projectEntity.SetProperty("funding", _crateProjectOptions.Funding);
     projectEntity.SetProperty("member", _crateProjectOptions.Member);
-    _crate.Add(projectEntity);
+    return projectEntity;
   }
 
-  public void AddOrganisation()
+  private Entity AddOrganisation()
   {
     var orgEntity = new Entity(identifier: _crateOrganizationOptions.Id);
     orgEntity.SetProperty("@type", _crateOrganizationOptions.Type);
     orgEntity.SetProperty("name", _crateOrganizationOptions.Name);
-    _crate.Add(orgEntity);
+    return orgEntity;
   }
 }
