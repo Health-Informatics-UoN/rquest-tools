@@ -148,4 +148,33 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.NotNull(actualMainEntityPart);
     Assert.Equal(expectedMainEntityPart.Id, actualMainEntityPart.Id);
   }
+
+  [Fact]
+  public void AddProject_Adds_ProjectAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions();
+    var workflowOptions = new WorkflowOptions();
+    var organisationOptions = new CrateOrganizationOptions();
+    var projectOptions = new CrateProjectOptions
+    {
+      Name = "trefx"
+    };
+    var agentOptions = new CrateAgentOptions();
+    var profileOptions = new CrateProfileOptions();
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions, profileOptions);
+
+    // Act
+    builder.AddProject();
+    var crate = builder.GetROCrate();
+    var projectId = crate.Entities.Keys.First(x => x.StartsWith("#project-"));
+    crate.Entities.TryGetValue(projectId, out var project);
+
+
+    // Assert
+    Assert.NotNull(project);
+    Assert.Equal(projectOptions.Name, project.GetProperty<string>("name"));
+    Assert.Equal(projectOptions.Type, project.GetProperty<string>("@type"));
+  }
 }
