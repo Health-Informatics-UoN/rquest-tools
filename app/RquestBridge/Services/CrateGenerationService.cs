@@ -7,6 +7,7 @@ using ROCrates.Exceptions;
 using RquestBridge.Config;
 using RquestBridge.Dto;
 using RquestBridge.Utilities;
+using RquestBridge.Constants;
 
 namespace RquestBridge.Services;
 
@@ -49,14 +50,14 @@ public class CrateGenerationService
     var archive = await BuildBagIt(BridgeOptions.WorkingDirectory);
 
     var payload = JsonSerializer.Serialize<T>(job);
-    var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQueryOptions.FileName);
+    var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
     await SaveJobPayload(payload, payloadDestination);
 
     // Generate ROCrate metadata
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
       _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
     var director = new RQuestWorkflowCrateDirector(builder);
-    director.BuildRQuestWorkflowCrate(RquestQueryOptions.FileName, isAvailability);
+    director.BuildRQuestWorkflowCrate(RquestQuery.FileName, isAvailability);
     ROCrate crate = builder.GetROCrate();
     crate.Save(archive.PayloadDirectoryPath);
   }

@@ -116,7 +116,7 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
 
   private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)
   {
-    var bodyParam = new ContextEntity(null, "#{_workflowOptions.Name}-inputs-body");
+    var bodyParam = new ContextEntity(null, $"#{_workflowOptions.Name}-inputs-body");
     bodyParam.SetProperty("@type", "FormalParameter");
     bodyParam.SetProperty("name", "body");
     bodyParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
