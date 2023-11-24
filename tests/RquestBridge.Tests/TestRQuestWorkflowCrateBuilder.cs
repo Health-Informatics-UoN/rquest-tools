@@ -211,4 +211,35 @@ public class TestRQuestWorkflowCrateBuilder
     Assert.Contains(RquestQuery.FileName, ids);
     Assert.Contains($"#input_is_availability", ids);
   }
+
+  [Fact]
+  public void AddCreateAction_Adds_DistributionCreateActionAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions();
+    var workflowOptions = new WorkflowOptions
+    {
+      Name = "test-body"
+    };
+    var organisationOptions = new CrateOrganizationOptions();
+    var projectOptions = new CrateProjectOptions();
+    var agentOptions = new CrateAgentOptions();
+    var profileOptions = new CrateProfileOptions();
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions, profileOptions);
+
+    // Act
+    builder.AddCreateAction(RquestQuery.FileName, false);
+    var crate = builder.GetROCrate();
+    var createActionId = crate.Entities.Keys.First(x => x.StartsWith("#query-"));
+    crate.Entities.TryGetValue(createActionId, out var createAction);
+
+    //Assert
+    Assert.NotNull(createAction);
+    var objectProperty = createAction.GetProperty<List<Part>>("object");
+    Assert.NotNull(objectProperty);
+    var ids = objectProperty.Select(x => x.Id).ToList();
+    Assert.Contains(RquestQuery.FileName, ids);
+    Assert.Contains("#input_is_distribution", ids);
+  }
 }
