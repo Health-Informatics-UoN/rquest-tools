@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiveSafes.Net", "lib\FiveSa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiveSafes.Net.Tests", "lib\FiveSafes.Net\FiveSafes.Net.Tests\FiveSafes.Net.Tests.csproj", "{9E8452B3-F497-43B9-90BC-94226D00202B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RquestBridge.Tests", "tests\RquestBridge.Tests\RquestBridge.Tests.csproj", "{CB5A7F6F-ADCF-4C4A-B34C-CCCE68EA6290}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,5 +30,9 @@ Global
 		{9E8452B3-F497-43B9-90BC-94226D00202B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E8452B3-F497-43B9-90BC-94226D00202B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E8452B3-F497-43B9-90BC-94226D00202B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB5A7F6F-ADCF-4C4A-B34C-CCCE68EA6290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB5A7F6F-ADCF-4C4A-B34C-CCCE68EA6290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB5A7F6F-ADCF-4C4A-B34C-CCCE68EA6290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB5A7F6F-ADCF-4C4A-B34C-CCCE68EA6290}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

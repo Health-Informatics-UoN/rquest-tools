@@ -9,7 +9,6 @@ public class BagItArchive
     { BagItConstants.BagitTxtPath, BagItConstants.BagInfoTxtPath, BagItConstants.ManifestPath };
 
   private DirectoryInfo _archive;
-  private string _payloadDirectoryPath = "data";
 
   /// <summary>
   /// Create a <c>BagItArchive</c> in the given directory.
@@ -23,7 +22,7 @@ public class BagItArchive
 
   public string ArchiveRootPath => _archive.FullName;
 
-  public string PayloadDirectoryPath => Path.Combine(ArchiveRootPath, _payloadDirectoryPath);
+  public string PayloadDirectoryPath => Path.Combine(ArchiveRootPath, BagItConstants.PayloadDirectory);
 
   /// <summary>
   /// Create the BagIt archive's payload directory, call <c>data</c>.
@@ -31,7 +30,7 @@ public class BagItArchive
   /// <exception cref="IOException">The directory cannot be created.</exception>
   public void AddPayloadDirectory()
   {
-    _archive.CreateSubdirectory(_payloadDirectoryPath);
+    _archive.CreateSubdirectory(BagItConstants.PayloadDirectory);
   }
 
   /// <summary>
