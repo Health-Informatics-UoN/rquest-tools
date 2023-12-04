@@ -1,33 +1,25 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using RquestBridge.Config;
-using RquestBridge.Services;
-using RquestBridge.Services.Hosted;
+﻿var builder = WebApplication.CreateBuilder(args);
 
-namespace RquestBridge;
+// Add services to the container.
 
-class Program
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-  public static void Main(string[] args)
-  {
-    IHost host = Host.CreateDefaultBuilder(args)
-      .ConfigureServices((hostContext, services) =>
-      {
-        services.AddHttpClient<RQuestTaskApiClient>();
-        services.AddScoped<RQuestAvailabilityPollingService>();
-        services.AddHostedService<RQuestPollingHostedService>();
-        services.AddTransient<RabbitJobQueueService>();
-        services.AddTransient<CrateGenerationService>();
-        services.AddOptions<RQuestOptions>().Bind(hostContext.Configuration.GetSection("RQuest"));
-        services.AddOptions<RQuestTaskApiOptions>().Bind(hostContext.Configuration.GetSection("Credentials"));
-        services.AddOptions<WorkflowOptions>().Bind(hostContext.Configuration.GetSection("Workflow"));
-        services.AddOptions<CrateAgentOptions>().Bind(hostContext.Configuration.GetSection("Crate:Agent"));
-        services.AddOptions<CrateProjectOptions>().Bind(hostContext.Configuration.GetSection("Crate:Project"));
-        services.AddOptions<CrateOrganizationOptions>()
-          .Bind(hostContext.Configuration.GetSection("Crate:Organisation"));
-        services.AddOptions<BridgeOptions>().Bind(hostContext.Configuration.GetSection("Bridge"));
-      })
-      .Build();
-    host.Run();
-  }
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
