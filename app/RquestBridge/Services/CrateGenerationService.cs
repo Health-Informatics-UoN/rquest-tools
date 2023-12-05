@@ -19,8 +19,7 @@ public class CrateGenerationService
   private readonly CrateProjectOptions _crateProjectOptions;
   private readonly CratePublishingOptions _publishingOptions;
   private readonly WorkflowOptions _workflowOptions;
-  private readonly BridgeOptions _bridgeOptions;
-  private ILogger<CrateGenerationService> _logger;
+  private readonly ILogger<CrateGenerationService> _logger;
 
   public CrateGenerationService(
     ILogger<CrateGenerationService> logger,
@@ -28,11 +27,10 @@ public class CrateGenerationService
     IOptions<CrateAgentOptions> agentOptions,
     IOptions<CrateProjectOptions> projectOptions,
     IOptions<CrateOrganizationOptions> organizationOptions,
-    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions,
-    IOptions<BridgeOptions> bridgeOptions)
+    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions
+  )
   {
     _logger = logger;
-    _bridgeOptions = bridgeOptions.Value;
     _crateProfileOptions = crateProfileOptions.Value;
     _publishingOptions = publishingOptions.Value;
     _crateAgentOptions = agentOptions.Value;
@@ -46,9 +44,10 @@ public class CrateGenerationService
   /// </summary>
   /// <typeparam name="T">The type of the query. Choices: <see cref="AvailabilityQuery"/>, <see cref="DistributionQuery"/></typeparam>
   /// <param name="job">The job to save to the crate.</param>
+  /// <param name="archive">The BagItArchive to save the crate to.</param>
   /// <returns></returns>
   /// <exception cref="NotImplementedException">Query type is unavailable.</exception>
-  public async Task BuildCrate<T>(T job) where T : class, new()
+  public async Task BuildCrate<T>(T job, BagItArchive archive) where T : class, new()
   {
     var isAvailability = new T() switch
     {
@@ -56,8 +55,6 @@ public class CrateGenerationService
       DistributionQuery => false,
       _ => throw new NotImplementedException()
     };
-
-    var archive = await BuildBagIt(Path.Combine(_bridgeOptions.WorkingDirectoryBase, Guid.NewGuid().ToString()));
 
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
@@ -97,7 +94,7 @@ public class CrateGenerationService
   /// </summary>
   /// <param name="destination"></param>
   /// <returns></returns>
-  private async Task<BagItArchive> BuildBagIt(string destination)
+  public async Task<BagItArchive> BuildBagIt(string destination)
   {
     var builder = new FiveSafesBagItBuilder(destination);
     var packer = new Packer(builder);
