@@ -14,6 +14,7 @@ class Program
       .ConfigureServices((hostContext, services) =>
       {
         services.AddHttpClient<RQuestTaskApiClient>();
+        services.AddHttpClient<HutchApiClient>();
         services.AddScoped<RQuestAvailabilityPollingService>();
         services.AddHostedService<RQuestPollingHostedService>();
         services.AddTransient<RabbitJobQueueService>();
