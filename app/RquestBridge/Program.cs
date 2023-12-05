@@ -1,4 +1,6 @@
 ﻿using RquestBridge.Config;
+using RquestBridge.Services;
+using RquestBridge.Services.Hosted;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,16 @@ builder.Services
   .Configure<CrateProjectOptions>(builder.Configuration.GetSection("Crate:Project"))
   .Configure<CrateOrganizationOptions>(builder.Configuration.GetSection("Crate:Organisation"))
   .Configure<BridgeOptions>(builder.Configuration.GetSection("Bridge"));
+
+// Add HttpClient
+builder.Services.AddHttpClient<RQuestTaskApiClient>();
+
+// Add Services
+builder.Services
+  .AddScoped<RQuestAvailabilityPollingService>()
+  .AddHostedService<RQuestPollingHostedService>()
+  .AddTransient<RabbitJobQueueService>()
+  .AddTransient<CrateGenerationService>();
 
 #endregion
 
