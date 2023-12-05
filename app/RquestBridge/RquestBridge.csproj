@@ -12,12 +12,6 @@
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
       <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
       <PackageReference Include="RabbitMQ.Client" Version="6.7.0"/>
-      <Content Include="appsettings.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="appsettings.Development.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <PackageReference Include="ROCrates.Net" Version="0.1.4" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0"/>
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
