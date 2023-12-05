@@ -18,6 +18,7 @@ class Program
         services.AddHostedService<RQuestPollingHostedService>();
         services.AddTransient<RabbitJobQueueService>();
         services.AddTransient<CrateGenerationService>();
+        services.AddTransient<MinioService>();
         services.AddOptions<RQuestOptions>().Bind(hostContext.Configuration.GetSection("RQuest"));
         services.AddOptions<RQuestTaskApiOptions>().Bind(hostContext.Configuration.GetSection("Credentials"));
         services.AddOptions<WorkflowOptions>().Bind(hostContext.Configuration.GetSection("Workflow"));
@@ -26,6 +27,11 @@ class Program
         services.AddOptions<CrateOrganizationOptions>()
           .Bind(hostContext.Configuration.GetSection("Crate:Organisation"));
         services.AddOptions<BridgeOptions>().Bind(hostContext.Configuration.GetSection("Bridge"));
+        services.AddOptions<HutchAgentOptions>().Bind((hostContext.Configuration.GetSection("HutchAgent:API")));
+        services.AddOptions<HutchDatabaseConnectionDetails>()
+          .Bind(hostContext.Configuration.GetSection("HutchAgent:DBConnection"));
+        services.AddOptions<MinioOptions>()
+          .Bind(hostContext.Configuration.GetSection("Minio"));
       })
       .Build();
     host.Run();
