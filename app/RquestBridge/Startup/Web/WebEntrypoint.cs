@@ -1,4 +1,4 @@
-namespace RquestBridge.Startup;
+namespace RquestBridge.Startup.Web;
 
 public static class WebEntrypoint
 {

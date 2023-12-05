@@ -2,7 +2,7 @@ using RquestBridge.Config;
 using RquestBridge.Services;
 using RquestBridge.Services.Hosted;
 
-namespace RquestBridge.Startup;
+namespace RquestBridge.Startup.Web;
 
 public static class ConfigureWebService
 {
