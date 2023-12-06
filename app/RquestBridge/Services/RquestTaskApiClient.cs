@@ -1,30 +1,32 @@
-using Flurl;
-using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
+using Flurl;
+using Flurl.Http;
+using Microsoft.Extensions.Options;
 using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
+using RquestBridge.Dto.RQuestResults;
 
 namespace RquestBridge.Services
 {
   public class RQuestTaskApiClient
   {
+    private readonly RQuestTaskApiOptions _apiOptions;
     private readonly HttpClient _client;
     private readonly ILogger<RQuestTaskApiClient> _logger;
-    private readonly RQuestTaskApiOptions _apiOptions;
+    private readonly RQuestOptions _rQuestOptions;
 
     public RQuestTaskApiClient(
       HttpClient client,
       ILogger<RQuestTaskApiClient> logger,
-      IOptions<RQuestTaskApiOptions> apiOptions)
+      IOptions<RQuestTaskApiOptions> apiOptions, RQuestOptions rQuestOptions)
     {
       _client = client;
       _logger = logger;
+      _rQuestOptions = rQuestOptions;
       _apiOptions = apiOptions.Value;
 
       // TODO: credentials in future will be per Activity Source, so won't be set as default
@@ -51,14 +53,13 @@ namespace RquestBridge.Services
     /// </summary>
     /// <param name="rQuestOptions"> RQuestOptions</param>
     /// <returns>A Task DTO containing a Query to run, or null if none are waiting</returns>
-    public async Task<T?> FetchQuery<T>(RQuestOptions rQuestOptions) where T: class, new()
+    public async Task<T?> FetchQuery<T>(RQuestOptions rQuestOptions) where T : class, new()
     {
       var typeSuffix = new T() switch
       {
         AvailabilityQuery _ => RQuestJobTypeSuffixes.AvailabilityQuery,
         DistributionQuery _ => RQuestJobTypeSuffixes.Distribution,
         _ => string.Empty
-        
       };
       var requestUri = Url.Combine(
         rQuestOptions.Host,
@@ -100,37 +101,30 @@ namespace RquestBridge.Services
         throw new ApplicationException($"Fetch Query Endpoint Request failed: {result.StatusCode}");
       }
     }
-    
-    /*
+
     /// <summary>
     /// Post to the Results endpoint, and handle the response correctly
     /// </summary>
-    /// <param name="activitySourceId">activitySourceId ID</param>
     /// <param name="jobId">Job ID</param>
     /// <param name="result">Results with Count</param>
-    public async Task ResultsEndpointPost(int activitySourceId, string jobId, RquestQueryResult result)
+    public async Task ResultsEndpointPost(string jobId, RquestQueryResult result)
     {
-      var activitySource = await _db.ActivitySources
-        .FirstOrDefaultAsync(x => x.Id == activitySourceId);
-
-      if (activitySource is null)
-        throw new KeyNotFoundException(
-          $"No ActivitySource with ID: {activitySourceId}");
-
       var requestUri = Url.Combine(
-        activitySource.Host,
+        _rQuestOptions.Host,
         _apiOptions.EndpointBase,
         _apiOptions.SubmitResultEndpoint,
         jobId,
-        activitySource.CollectionId);
+        _rQuestOptions.CollectionId);
 
-      var response = (await _client.PostAsync(
-          requestUri, AsHttpJsonString(result)))
-        .EnsureSuccessStatusCode();
+      // var response = (await _client.PostAsync(
+      //     requestUri, AsHttpJsonString(result)))
+      //   .EnsureSuccessStatusCode();
 
-      var body = await response.Content.ReadAsStringAsync();
+      var response = await requestUri.PostJsonAsync(result);
 
-      if (body != "Job saved" && !response.IsSuccessStatusCode)
+      var body = await response.ResponseMessage.Content.ReadAsStringAsync();
+
+      if (body != "Job saved" && !response.ResponseMessage.IsSuccessStatusCode)
       {
         const string message = "Unsuccessful Response from Submit Results Endpoint";
         _logger.LogError(message);
@@ -138,8 +132,6 @@ namespace RquestBridge.Services
 
         throw new ApplicationException(message);
       }
-
-      return;
-    }*/
+    }
   }
 }
