@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using Flurl;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RquestBridge.Config;
 using RquestBridge.Models;

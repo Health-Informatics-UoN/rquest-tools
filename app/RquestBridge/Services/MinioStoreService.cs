@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
@@ -9,8 +8,8 @@ namespace RquestBridge.Services;
 
 public class MinioService
 {
-  private readonly IMinioClient _minioClient;
   private readonly ILogger<MinioService> _logger;
+  private readonly IMinioClient _minioClient;
   private readonly MinioOptions _options;
 
   public MinioService(ILogger<MinioService> logger, IOptions<MinioOptions> options)

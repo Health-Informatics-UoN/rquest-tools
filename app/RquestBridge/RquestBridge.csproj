@@ -1,8 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+      <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>8f26d3a3-9450-4cfd-8dcb-0b34fd950557</UserSecretsId>
@@ -10,18 +9,17 @@
 
     <ItemGroup>
       <PackageReference Include="Flurl" Version="3.0.7" />
-      <PackageReference Include="Flurl.Http" Version="3.2.4"/>
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
       <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+      <PackageReference Include="RabbitMQ.Client" Version="6.7.0"/>
+      <PackageReference Include="Flurl.Http" Version="3.2.4"/>
       <PackageReference Include="Minio" Version="6.0.1"/>
-      <PackageReference Include="RabbitMQ.Client" Version="6.6.0" />
-      <Content Include="appsettings.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="appsettings.Development.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      <PackageReference Include="RabbitMQ.Client" Version="6.6.0"/>
       <PackageReference Include="ROCrates.Net" Version="0.1.4" />
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0"/>
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+      <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -1,22 +1,21 @@
 using System.IO.Compression;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
-using RquestBridge.Config;
 
 namespace RquestBridge.Services;
 
 public class RQuestAvailabilityPollingService
 {
-  private readonly RQuestTaskApiClient _taskApi;
-  private readonly ILogger<RQuestAvailabilityPollingService> _logger;
-  private readonly RabbitJobQueueService _jobQueue;
+  private readonly BridgeOptions _bridgeOptions;
   private readonly CrateGenerationService _crateGenerationService;
   private readonly HutchApiClient _hutchApiClient;
+  private readonly RabbitJobQueueService _jobQueue;
+  private readonly ILogger<RQuestAvailabilityPollingService> _logger;
   private readonly MinioService _minioService;
-  private readonly BridgeOptions _bridgeOptions;
+  private readonly RQuestTaskApiClient _taskApi;
 
 
   public RQuestAvailabilityPollingService(

@@ -1,13 +1,11 @@
 using System.Text.Json;
 using FiveSafes.Net;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ROCrates;
-using ROCrates.Exceptions;
 using RquestBridge.Config;
+using RquestBridge.Constants;
 using RquestBridge.Dto;
 using RquestBridge.Utilities;
-using RquestBridge.Constants;
 
 namespace RquestBridge.Services;
 
@@ -17,9 +15,9 @@ public class CrateGenerationService
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
   private readonly CrateProfileOptions _crateProfileOptions;
   private readonly CrateProjectOptions _crateProjectOptions;
+  private readonly ILogger<CrateGenerationService> _logger;
   private readonly CratePublishingOptions _publishingOptions;
   private readonly WorkflowOptions _workflowOptions;
-  private readonly ILogger<CrateGenerationService> _logger;
 
   public CrateGenerationService(
     ILogger<CrateGenerationService> logger,
