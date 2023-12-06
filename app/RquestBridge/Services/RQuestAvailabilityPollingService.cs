@@ -1,5 +1,7 @@
+using System.IO.Compression;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
 using RquestBridge.Config;
@@ -12,17 +14,27 @@ public class RQuestAvailabilityPollingService
   private readonly ILogger<RQuestAvailabilityPollingService> _logger;
   private readonly RabbitJobQueueService _jobQueue;
   private readonly CrateGenerationService _crateGenerationService;
+  private readonly HutchApiClient _hutchApiClient;
+  private readonly MinioService _minioService;
+  private readonly BridgeOptions _bridgeOptions;
+
 
   public RQuestAvailabilityPollingService(
     RQuestTaskApiClient taskApi,
     ILogger<RQuestAvailabilityPollingService> logger,
     RabbitJobQueueService jobQueue,
-    CrateGenerationService crateGenerationService)
+    CrateGenerationService crateGenerationService,
+    HutchApiClient hutchApiClient,
+    MinioService minioService,
+    IOptions<BridgeOptions> bridgeOptions)
   {
     _logger = logger;
     _taskApi = taskApi;
     _jobQueue = jobQueue;
     _crateGenerationService = crateGenerationService;
+    _hutchApiClient = hutchApiClient;
+    _minioService = minioService;
+    _bridgeOptions = bridgeOptions.Value;
   }
 
   public async Task Poll(RQuestOptions rQuest)
@@ -33,6 +45,7 @@ public class RQuestAvailabilityPollingService
     {
       try
       {
+        // Fetch RQuest Query
         job = await _taskApi.FetchQuery<AvailabilityQuery>(rQuest);
         if (job is null)
         {
@@ -42,9 +55,21 @@ public class RQuestAvailabilityPollingService
           return;
         }
 
-        await _crateGenerationService.BuildCrate(job);
+        // Build RQuest RO-Crate
+        var bagItPath = Path.Combine(_bridgeOptions.WorkingDirectoryBase, job.Uuid);
+        var archive = await _crateGenerationService.BuildBagIt(bagItPath);
+        await _crateGenerationService.BuildCrate(job, archive);
 
-        //SendToQueue(packagedJob, "jobs");
+        // Zip the BagIt package
+        if (!Directory.Exists(bagItPath))
+          Directory.CreateDirectory(bagItPath);
+
+        ZipFile.CreateFromDirectory(bagItPath, bagItPath + ".zip");
+
+        // Write generated RO-Crate to store
+        await _minioService.WriteToStore(Path.Combine(_bridgeOptions.WorkingDirectoryBase, job.Uuid) + ".zip");
+        // Submit RQuest Workflow RO-Crate to HutchAgent
+        await _hutchApiClient.HutchEndpointPost(job.Uuid);
       }
       catch (Exception e)
       {
