@@ -21,17 +21,22 @@ public static class ConfigureWebService
       .Configure<CrateAgentOptions>(b.Configuration.GetSection("Crate:Agent"))
       .Configure<CrateProjectOptions>(b.Configuration.GetSection("Crate:Project"))
       .Configure<CrateOrganizationOptions>(b.Configuration.GetSection("Crate:Organisation"))
-      .Configure<BridgeOptions>(b.Configuration.GetSection("Bridge"));
+      .Configure<BridgeOptions>(b.Configuration.GetSection("Bridge"))
+      .Configure<MinioOptions>(b.Configuration.GetSection("Minio"))
+      .Configure<HutchDatabaseConnectionDetails>(b.Configuration.GetSection("HutchAgent:DBConnection"))
+      .Configure<HutchAgentOptions>(b.Configuration.GetSection("HutchAgent:API"));
 
-    // Add HttpClient
+    // Add HttpClients
     b.Services.AddHttpClient<RQuestTaskApiClient>();
+    b.Services.AddHttpClient<HutchApiClient>();
 
     // Add Services
     b.Services
       .AddScoped<RQuestAvailabilityPollingService>()
       .AddHostedService<RQuestPollingHostedService>()
       .AddTransient<RabbitJobQueueService>()
-      .AddTransient<CrateGenerationService>();
+      .AddTransient<CrateGenerationService>()
+      .AddTransient<MinioService>();
 
     return b;
   }
