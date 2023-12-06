@@ -27,7 +27,6 @@ public static class ConfigureWebPipeline
     // API Controllers
     app.MapControllers();
 
-    app.MapFallbackToFile("index.html").AllowAnonymous();
     return app;
   }
 }
