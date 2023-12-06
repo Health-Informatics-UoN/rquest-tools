@@ -7,8 +7,8 @@ using RquestBridge.Models;
 
 namespace RquestBridge.Services;
 
-public class ResultsHandlingService(RQuestTaskApiOptions taskApiOptions, MinioService minioService,
-  BridgeOptions bridgeOptions, RQuestTaskApiClient rQuestTaskApiClient, ILogger<ResultsHandlingService> logger)
+public class ResultsHandlingService(MinioService minioService, BridgeOptions bridgeOptions,
+  RQuestTaskApiClient rQuestTaskApiClient, ILogger logger)
 {
   /// <summary>
   /// Download the final results of a query from S3 and POST them back to RQuest.
