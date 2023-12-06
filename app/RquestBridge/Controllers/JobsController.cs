@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RquestBridge.Models.WebHooks;
+using RquestBridge.Services;
 
 namespace RquestBridge.Controllers;
 
@@ -8,12 +9,12 @@ namespace RquestBridge.Controllers;
 [AllowAnonymous]
 [Produces("application/json")]
 [Route("api/{controller}")]
-public class JobsController : ControllerBase
+public class JobsController(ResultsHandlingService resultsHandlingService, ILogger logger) : ControllerBase
 {
   [HttpPost("complete")]
   public async Task<IActionResult> JobComplete(FinalOutcomeWebHookModel payload)
   {
-    // Todo: trigger services to handle the completed job
+    await resultsHandlingService.HandleResults(payload);
     return NoContent();
   }
 }

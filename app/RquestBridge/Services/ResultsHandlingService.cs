@@ -3,7 +3,7 @@ using System.Text.Json;
 using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto.RQuestResults;
-using RquestBridge.Models;
+using RquestBridge.Models.WebHooks;
 
 namespace RquestBridge.Services;
 
