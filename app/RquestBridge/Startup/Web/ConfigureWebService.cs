@@ -36,7 +36,8 @@ public static class ConfigureWebService
       .AddHostedService<RQuestPollingHostedService>()
       .AddTransient<RabbitJobQueueService>()
       .AddTransient<CrateGenerationService>()
-      .AddTransient<MinioService>();
+      .AddTransient<MinioService>()
+      .AddTransient<ResultsHandlingService>();
 
     return b;
   }

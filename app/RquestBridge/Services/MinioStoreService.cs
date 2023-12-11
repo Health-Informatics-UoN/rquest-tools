@@ -53,8 +53,30 @@ public class MinioService
       .WithFileName(filePath)
       .WithObject(objectName);
 
-    _logger.LogInformation($"Uploading {objectName} to {_options.Bucket}...");
+    _logger.LogInformation("Uploading {ObjectName} to {Bucket}...", objectName, _options.Bucket);
     await _minioClient.PutObjectAsync(putObjectArgs);
-    _logger.LogInformation($"Successfully uploaded {objectName} to {_options.Bucket}.");
+    _logger.LogInformation("Successfully uploaded {ObjectName} to {Bucket}", objectName, _options.Bucket);
+  }
+
+  /// <summary>
+  /// Get an object from an S3 store.
+  /// </summary>
+  /// <param name="objectName">The name of the object to retrieve.</param>
+  /// <param name="destination">The destination on disk to save the object.</param>
+  /// <exception cref="BucketNotFoundException">The configured bucket does not exist.</exception>
+  public async Task GetFromStore(string objectName, string destination)
+  {
+    if (!await StoreExists())
+      throw new BucketNotFoundException(_options.Bucket, $"No such bucket: {_options.Bucket}");
+
+    var getObjectArgs = new GetObjectArgs()
+      .WithBucket(_options.Bucket)
+      .WithFile(destination)
+      .WithObject(objectName);
+
+    _logger.LogInformation("Downloading {FileName} from {Bucket}", objectName, _options.Bucket);
+    await _minioClient.GetObjectAsync(getObjectArgs);
+    _logger.LogInformation("Successfully downloaded {FileName} from {Bucket} to {Destination}", objectName,
+      _options.Bucket, destination);
   }
 }
