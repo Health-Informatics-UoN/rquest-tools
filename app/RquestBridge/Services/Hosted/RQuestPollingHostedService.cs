@@ -3,31 +3,22 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RquestBridge.Config;
+
 namespace RquestBridge.Services.Hosted;
 
-public class RQuestPollingHostedService : BackgroundService
-{
-  private readonly ILogger<RQuestPollingHostedService> _logger;
-  private readonly IServiceProvider _serviceProvider;
-  private readonly RQuestPollingOptions _config;
-  private readonly RQuestOptions _rQuestOptions;
-  private int _executionCount;
-
-  public RQuestPollingHostedService(
-    ILogger<RQuestPollingHostedService> logger,
+public class RQuestPollingHostedService(ILogger<RQuestPollingHostedService> logger,
     IServiceProvider serviceProvider,
-    IOptions<RQuestPollingOptions> config, 
+    IOptions<RQuestPollingOptions> config,
     IOptions<RQuestOptions> rQuestOptions)
-  {
-    _logger = logger;
-    _serviceProvider = serviceProvider;
-    _rQuestOptions = rQuestOptions.Value;
-    _config = config.Value;
-  }
+  : BackgroundService
+{
+  private readonly RQuestPollingOptions _config = config.Value;
+  private readonly RQuestOptions _rQuestOptions = rQuestOptions.Value;
+  private int _executionCount;
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("RQuest Polling started");
+    logger.LogInformation("RQuest Polling started");
 
     if (_config.PollingInterval < 0) return;
 
@@ -43,10 +34,10 @@ public class RQuestPollingHostedService : BackgroundService
   {
     var count = Interlocked.Increment(ref _executionCount);
 
-    _logger.LogDebug(
+    logger.LogDebug(
       "{Service} is working. Count: {Count}", nameof(RQuestAvailabilityPollingService), count);
 
-    using var executionScope = _serviceProvider.CreateScope();
+    using var executionScope = serviceProvider.CreateScope();
 
     // TODO use another worker service with DI instead of Service Locator? 
 
@@ -60,7 +51,7 @@ public class RQuestPollingHostedService : BackgroundService
 
   public override async Task StopAsync(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("Activity Source Polling stopping");
+    logger.LogInformation("Activity Source Polling stopping");
 
     await base.StopAsync(stoppingToken);
   }

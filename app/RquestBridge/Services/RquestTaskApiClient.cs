@@ -22,11 +22,11 @@ namespace RquestBridge.Services
     public RQuestTaskApiClient(
       HttpClient client,
       ILogger<RQuestTaskApiClient> logger,
-      IOptions<RQuestTaskApiOptions> apiOptions, RQuestOptions rQuestOptions)
+      IOptions<RQuestTaskApiOptions> apiOptions, IOptions<RQuestOptions> rQuestOptions)
     {
       _client = client;
       _logger = logger;
-      _rQuestOptions = rQuestOptions;
+      _rQuestOptions = rQuestOptions.Value;
       _apiOptions = apiOptions.Value;
 
       // TODO: credentials in future will be per Activity Source, so won't be set as default

@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto.RQuestResults;
@@ -7,9 +8,11 @@ using RquestBridge.Models.WebHooks;
 
 namespace RquestBridge.Services;
 
-public class ResultsHandlingService(MinioService minioService, BridgeOptions bridgeOptions,
-  RQuestTaskApiClient rQuestTaskApiClient, ILogger logger)
+public class ResultsHandlingService(MinioService minioService, IOptions<BridgeOptions> bridgeOptions,
+  RQuestTaskApiClient rQuestTaskApiClient, ILogger<ResultsHandlingService> logger)
 {
+  private readonly BridgeOptions _bridgeOptions = bridgeOptions.Value;
+
   /// <summary>
   /// Download the final results of a query from S3 and POST them back to RQuest.
   /// </summary>
@@ -18,9 +21,9 @@ public class ResultsHandlingService(MinioService minioService, BridgeOptions bri
   /// </param>
   public async Task HandleResults(FinalOutcomeWebHookModel payload)
   {
-    var pathToResults = Path.Combine(bridgeOptions.WorkingDirectoryBase, payload.File);
+    var pathToResults = Path.Combine(_bridgeOptions.WorkingDirectoryBase, payload.File);
     var resultsDirectory =
-      Path.Combine(bridgeOptions.WorkingDirectoryBase, Path.GetFileNameWithoutExtension(pathToResults));
+      Path.Combine(_bridgeOptions.WorkingDirectoryBase, Path.GetFileNameWithoutExtension(pathToResults));
     var resultsFile = Path.Combine(resultsDirectory, "data", RquestQuery.ResultFileName);
 
     // Get file from S3
