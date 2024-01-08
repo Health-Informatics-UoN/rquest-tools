@@ -1,10 +1,14 @@
+using FiveSafes.Net.Constants;
 using ROCrates;
+using ROCrates.Models;
 
 namespace FiveSafes.Net;
 
-public class FiveSafesBagItBuilder : IBagItArchiveBuilder
+public class FiveSafesBagItBuilder
 {
-  private BagItArchive _archive;
+  private readonly BagItArchive _archive;
+  private readonly FiveSafesProfile _profile = new();
+  private ROCrate _crate = new();
 
   public FiveSafesBagItBuilder()
   {
@@ -16,30 +20,49 @@ public class FiveSafesBagItBuilder : IBagItArchiveBuilder
     _archive = new BagItArchive(archiveDirectory);
   }
 
-  /// <inheritdoc />
   public async Task BuildChecksums()
   {
     await _archive.WriteManifestSha512();
     await _archive.WriteTagManifestSha512();
   }
 
-  /// <inheritdoc />
   public async Task BuildTagFiles()
   {
     await _archive.WriteBagitTxt();
     await _archive.WriteBagInfoTxt();
   }
 
-  /// <inheritdoc />
-  public void BuildPayloadDirectory()
-  {
-    var roCrate = new ROCrate();
-    roCrate.Save(_archive.PayloadDirectoryPath);
-  }
-
   public BagItArchive GetArchive()
   {
     BagItArchive result = _archive;
     return result;
+  }
+
+  public void BuildCrate(string workflowUri)
+  {
+    AddProfile();
+    AddMainEntity(workflowUri);
+    _crate.Save(_archive.PayloadDirectoryPath);
+  }
+
+  private void AddProfile()
+  {
+    var profileEntity = new Entity(identifier: _profile.Id);
+    profileEntity.SetProperty("@type", _profile.Type);
+    profileEntity.SetProperty("name", _profile.Name);
+    _crate.Add(profileEntity);
+  }
+
+  private void AddMainEntity(string workflowUri)
+  {
+    var workflowEntity = new Dataset(identifier: workflowUri);
+
+    workflowEntity.SetProperty("conformsTo", new Part
+    {
+      Id = _profile.Id
+    });
+
+    _crate.Add(workflowEntity);
+    _crate.RootDataset.SetProperty("mainEntity", new Part { Id = workflowEntity.Id });
   }
 }
