@@ -56,7 +56,7 @@ public class RQuestWorkflowCrateBuilder
   /// Update mainEntity to Five Safes RO-Crate.
   /// </summary>
   /// <exception cref="InvalidDataException">mainEntity not found in RO-Crate.</exception>
-  private void UpdateMainEntity()
+  public void UpdateMainEntity()
   {
     var workflowUri = GetWorkflowUrl();
     if (_crate.Entities.TryGetValue(workflowUri, out var mainEntity))
