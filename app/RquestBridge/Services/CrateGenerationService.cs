@@ -9,43 +9,29 @@ using RquestBridge.Utilities;
 
 namespace RquestBridge.Services;
 
-public class CrateGenerationService
+public class CrateGenerationService(ILogger<CrateGenerationService> logger,
+  IOptions<CratePublishingOptions> publishingOptions,
+  IOptions<CrateAgentOptions> agentOptions,
+  IOptions<CrateProjectOptions> projectOptions,
+  IOptions<CrateOrganizationOptions> organizationOptions,
+  IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions)
 {
-  private readonly CrateAgentOptions _crateAgentOptions;
-  private readonly CrateOrganizationOptions _crateOrganizationOptions;
-  private readonly CrateProfileOptions _crateProfileOptions;
-  private readonly CrateProjectOptions _crateProjectOptions;
-  private readonly ILogger<CrateGenerationService> _logger;
-  private readonly CratePublishingOptions _publishingOptions;
-  private readonly WorkflowOptions _workflowOptions;
-
-  public CrateGenerationService(
-    ILogger<CrateGenerationService> logger,
-    IOptions<CratePublishingOptions> publishingOptions,
-    IOptions<CrateAgentOptions> agentOptions,
-    IOptions<CrateProjectOptions> projectOptions,
-    IOptions<CrateOrganizationOptions> organizationOptions,
-    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions
-  )
-  {
-    _logger = logger;
-    _crateProfileOptions = crateProfileOptions.Value;
-    _publishingOptions = publishingOptions.Value;
-    _crateAgentOptions = agentOptions.Value;
-    _crateOrganizationOptions = organizationOptions.Value;
-    _crateProjectOptions = projectOptions.Value;
-    _workflowOptions = workflowOptions.Value;
-  }
+  private readonly CrateAgentOptions _crateAgentOptions = agentOptions.Value;
+  private readonly CrateOrganizationOptions _crateOrganizationOptions = organizationOptions.Value;
+  private readonly CrateProfileOptions _crateProfileOptions = crateProfileOptions.Value;
+  private readonly CrateProjectOptions _crateProjectOptions = projectOptions.Value;
+  private readonly CratePublishingOptions _publishingOptions = publishingOptions.Value;
+  private readonly WorkflowOptions _workflowOptions = workflowOptions.Value;
 
   /// <summary>
   /// Build an RO-Crate for a cohort discovery query.
   /// </summary>
   /// <typeparam name="T">The type of the query. Choices: <see cref="AvailabilityQuery"/>, <see cref="DistributionQuery"/></typeparam>
   /// <param name="job">The job to save to the crate.</param>
-  /// <param name="archive">The BagItArchive to save the crate to.</param>
+  /// <param name="bagItPath">The BagItArchive path to save the crate to.</param>
   /// <returns></returns>
   /// <exception cref="NotImplementedException">Query type is unavailable.</exception>
-  public async Task BuildCrate<T>(T job, BagItArchive archive) where T : class, new()
+  public async Task BuildCrate<T>(T job, string bagItPath) where T : class, new()
   {
     var isAvailability = new T() switch
     {
@@ -54,10 +40,14 @@ public class CrateGenerationService
       _ => throw new NotImplementedException()
     };
 
+    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
+      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
+    var workflowUri = builder.GetWorkflowUrl();
+    var archive = await BuildBagIt(bagItPath, workflowUri);
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
     await SaveJobPayload(payload, payloadDestination);
-    _logger.LogInformation($"Saved query JSON to {payloadDestination}.");
+    logger.LogInformation($"Saved query JSON to {payloadDestination}.");
 
     // Generate ROCrate metadata
     _logger.LogInformation("Building Five Safes ROCrate...");
@@ -88,15 +78,17 @@ public class CrateGenerationService
   }
 
   /// <summary>
-  /// 
+  /// Build BagIt archive
   /// </summary>
   /// <param name="destination"></param>
+  /// <param name="workflowUri"></param>
   /// <returns></returns>
-  public async Task<BagItArchive> BuildBagIt(string destination)
+  public async Task<BagItArchive> BuildBagIt(string destination, string workflowUri)
   {
     var builder = new FiveSafesBagItBuilder(destination);
-    var packer = new Packer(builder);
-    await packer.BuildBlankArchive();
+    builder.BuildCrate(workflowUri);
+    await builder.BuildChecksums();
+    await builder.BuildTagFiles();
     return builder.GetArchive();
   }
 }
