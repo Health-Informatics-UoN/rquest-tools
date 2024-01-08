@@ -50,14 +50,11 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     logger.LogInformation($"Saved query JSON to {payloadDestination}.");
 
     // Generate ROCrate metadata
-    _logger.LogInformation("Building Five Safes ROCrate...");
-    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
-    var director = new RQuestWorkflowCrateDirector(builder);
-    director.BuildRQuestWorkflowCrate(RquestQuery.FileName, isAvailability);
-    ROCrate crate = builder.GetROCrate();
+    logger.LogInformation("Building Five Safes ROCrate...");
+
+    ROCrate crate = BuildFiveSafesCrate(builder, RquestQuery.FileName, isAvailability);
     crate.Save(archive.PayloadDirectoryPath);
-    _logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
+    logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
     await archive.WriteManifestSha512();
     await archive.WriteTagManifestSha512();
   }
@@ -90,5 +87,15 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     await builder.BuildChecksums();
     await builder.BuildTagFiles();
     return builder.GetArchive();
+  }
+
+  public ROCrate BuildFiveSafesCrate(RQuestWorkflowCrateBuilder builder, string queryFileName, bool isAvailability)
+  {
+    builder.AddLicense();
+    builder.AddCreateAction(queryFileName, isAvailability);
+    builder.AddAgent();
+    ROCrate crate = builder.GetROCrate();
+
+    return crate;
   }
 }
