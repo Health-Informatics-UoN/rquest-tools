@@ -94,8 +94,8 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     builder.AddLicense();
     builder.AddCreateAction(queryFileName, isAvailability);
     builder.AddAgent();
+    builder.UpdateMainEntity();
     ROCrate crate = builder.GetROCrate();
-
     return crate;
   }
 }
