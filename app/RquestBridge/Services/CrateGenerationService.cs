@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FiveSafes.Net;
+using Flurl;
 using Microsoft.Extensions.Options;
 using ROCrates;
 using RquestBridge.Config;
@@ -40,9 +41,8 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
       _ => throw new NotImplementedException()
     };
 
-    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
-    var workflowUri = builder.GetWorkflowUrl();
+
+    var workflowUri = GetWorkflowUrl();
     var archive = await BuildBagIt(bagItPath, workflowUri);
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
@@ -51,7 +51,8 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
 
     // Generate ROCrate metadata
     logger.LogInformation("Building Five Safes ROCrate...");
-
+    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
+      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions, archive.PayloadDirectoryPath);
     ROCrate crate = BuildFiveSafesCrate(builder, RquestQuery.FileName, isAvailability);
     crate.Save(archive.PayloadDirectoryPath);
     logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
@@ -97,5 +98,15 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     builder.UpdateMainEntity();
     ROCrate crate = builder.GetROCrate();
     return crate;
+  }
+
+  /// <summary>
+  /// Construct the Workflow URL from WorkflowOptions.
+  /// </summary>
+  /// <returns>Workflow URL</returns>
+  public string GetWorkflowUrl()
+  {
+    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
+      .SetQueryParam("version", _workflowOptions.Version.ToString());
   }
 }

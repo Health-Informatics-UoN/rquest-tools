@@ -7,22 +7,41 @@ using RquestBridge.Constants;
 
 namespace RquestBridge.Utilities;
 
-public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
-  CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
-  CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions)
+public class RQuestWorkflowCrateBuilder
 {
   private ROCrate _crate = new ROCrate();
+  private readonly WorkflowOptions _workflowOptions;
+  private readonly CratePublishingOptions _publishingOptions;
+  private readonly CrateAgentOptions _crateAgentOptions;
+  private readonly CrateProjectOptions _crateProjectOptions;
+  private readonly CrateOrganizationOptions _crateOrganizationOptions;
+  private readonly CrateProfileOptions _crateProfileOptions;
+
+  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
+    CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
+    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions,
+    string archivePayloadDirectoryPath)
+  {
+    _workflowOptions = workflowOptions;
+    _publishingOptions = publishingOptions;
+    _crateAgentOptions = crateAgentOptions;
+    _crateProjectOptions = crateProjectOptions;
+    _crateOrganizationOptions = crateOrganizationOptions;
+    _crateProfileOptions = crateProfileOptions;
+
+    _crate.Initialise(archivePayloadDirectoryPath);
+  }
 
   /// <summary>
   /// Adds Licence Entity to Five Safes RO-Crate.
   /// </summary>
   public void AddLicense()
   {
-    if (string.IsNullOrEmpty(publishingOptions.License?.Uri)) return;
+    if (string.IsNullOrEmpty(_publishingOptions.License?.Uri)) return;
 
-    var licenseProps = publishingOptions.License.Properties;
+    var licenseProps = _publishingOptions.License.Properties;
     var licenseEntity = new CreativeWork(
-      identifier: publishingOptions.License.Uri,
+      identifier: _publishingOptions.License.Uri,
       properties: JsonSerializer.SerializeToNode(licenseProps)?.AsObject());
 
     // Bug in ROCrates.Net: CreativeWork class uses the base constructor so @type is Thing by default
@@ -42,14 +61,14 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
     var workflowUri = GetWorkflowUrl();
     if (_crate.Entities.TryGetValue(workflowUri, out var mainEntity))
     {
-      mainEntity.SetProperty("name", workflowOptions.Name);
+      mainEntity.SetProperty("name", _workflowOptions.Name);
 
-      _crate.Entities.TryGetValue(crateProfileOptions.Id, out var profile);
+      _crate.Entities.TryGetValue(_crateProfileOptions.Id, out var profile);
 
       mainEntity.SetProperty("distribution", new Part
       {
-        Id = Url.Combine(workflowOptions.BaseUrl, workflowOptions.Id.ToString(), "ro_crate")
-          .SetQueryParam("version", workflowOptions.Version.ToString())
+        Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate")
+          .SetQueryParam("version", _workflowOptions.Version.ToString())
       });
       _crate.Add(mainEntity);
       _crate.RootDataset.SetProperty("mainEntity", new Part { Id = mainEntity.Id });
@@ -97,7 +116,7 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
   /// <returns>The entity representing the query file.</returns>
   private ROCrates.Models.File AddQueryJsonMetadata(string queryFileName)
   {
-    var bodyParam = new ContextEntity(null, $"#{workflowOptions.Name}-inputs-body");
+    var bodyParam = new ContextEntity(null, $"#{_workflowOptions.Name}-inputs-body");
     bodyParam.SetProperty("@type", "FormalParameter");
     bodyParam.SetProperty("name", "body");
     bodyParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -122,7 +141,7 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
 
     var isAvailabilityParam =
       new ContextEntity(null,
-        string.Format(paramId, workflowOptions.Name, isAvailability ? "is_availability" : "is_distribution"));
+        string.Format(paramId, _workflowOptions.Name, isAvailability ? "is_availability" : "is_distribution"));
     isAvailabilityParam.SetProperty("@type", "FormalParameter");
     isAvailabilityParam.SetProperty("name", isAvailability ? "is_availability" : "is_distribution");
     isAvailabilityParam.SetProperty("dct:conformsTo", "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/");
@@ -163,9 +182,9 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
   {
     var organisation = AddOrganisation();
     var project = AddProject();
-    var agentEntity = new Entity(identifier: crateAgentOptions.Id);
-    agentEntity.SetProperty("@type", crateAgentOptions.Type);
-    agentEntity.SetProperty("name", crateAgentOptions.Name);
+    var agentEntity = new Entity(identifier: _crateAgentOptions.Id);
+    agentEntity.SetProperty("@type", _crateAgentOptions.Type);
+    agentEntity.SetProperty("name", _crateAgentOptions.Name);
     agentEntity.SetProperty("affiliation", new Part() { Id = organisation.Id });
     agentEntity.AppendTo("memberOf", project);
     _crate.Add(agentEntity, organisation, project);
@@ -178,11 +197,11 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
   private Entity AddProject()
   {
     var projectEntity = new Entity(identifier: $"#project-{Guid.NewGuid()}");
-    projectEntity.SetProperty("@type", crateProjectOptions.Type);
-    projectEntity.SetProperty("name", crateProjectOptions.Name);
-    projectEntity.SetProperty("identifier", crateProjectOptions.Identifiers);
-    projectEntity.SetProperty("funding", crateProjectOptions.Funding);
-    projectEntity.SetProperty("member", crateProjectOptions.Member);
+    projectEntity.SetProperty("@type", _crateProjectOptions.Type);
+    projectEntity.SetProperty("name", _crateProjectOptions.Name);
+    projectEntity.SetProperty("identifier", _crateProjectOptions.Identifiers);
+    projectEntity.SetProperty("funding", _crateProjectOptions.Funding);
+    projectEntity.SetProperty("member", _crateProjectOptions.Member);
     return projectEntity;
   }
 
@@ -192,9 +211,9 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
   /// <returns></returns>
   private Entity AddOrganisation()
   {
-    var orgEntity = new Entity(identifier: crateOrganizationOptions.Id);
-    orgEntity.SetProperty("@type", crateOrganizationOptions.Type);
-    orgEntity.SetProperty("name", crateOrganizationOptions.Name);
+    var orgEntity = new Entity(identifier: _crateOrganizationOptions.Id);
+    orgEntity.SetProperty("@type", _crateOrganizationOptions.Type);
+    orgEntity.SetProperty("name", _crateOrganizationOptions.Name);
     return orgEntity;
   }
 
@@ -204,7 +223,7 @@ public class RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePu
   /// <returns>Workflow URL</returns>
   public string GetWorkflowUrl()
   {
-    return Url.Combine(workflowOptions.BaseUrl, workflowOptions.Id.ToString())
-      .SetQueryParam("version", workflowOptions.Version.ToString());
+    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
+      .SetQueryParam("version", _workflowOptions.Version.ToString());
   }
 }
