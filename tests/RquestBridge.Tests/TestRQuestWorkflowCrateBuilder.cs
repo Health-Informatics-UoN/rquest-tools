@@ -9,36 +9,15 @@ namespace RquestBridge.Tests;
 public class TestRQuestWorkflowCrateBuilder
 {
   [Fact]
-  public void AddProfile_Adds_ProfileAsConfigured()
-  {
-    // Arrange
-    var workflowOptions = new WorkflowOptions();
-    var publishingOptions = new CratePublishingOptions();
-    var organisationOptions = new CrateOrganizationOptions();
-    var projectOptions = new CrateProjectOptions();
-    var agentOptions = new CrateAgentOptions();
-    var profileOptions = new CrateProfileOptions();
-    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
-
-    // Act
-    builder.AddProfile();
-    var crate = builder.GetROCrate();
-    crate.Entities.TryGetValue(profileOptions.Id, out var entity);
-
-    // Assert
-    Assert.NotNull(entity);
-    Assert.Equal(profileOptions.Id, entity.Id);
-    Assert.Equal(profileOptions.Type, entity.GetProperty<string>("@type"));
-    Assert.Equal(profileOptions.Name, entity.GetProperty<string>("name"));
-  }
-
-  [Fact]
   public void AddAgent_Adds_AgentAsConfigured()
   {
     // Arrange
     var publishingOptions = new CratePublishingOptions();
-    var workflowOptions = new WorkflowOptions();
+    var workflowOptions = new WorkflowOptions
+    {
+      Id = 471,
+      Version = 3
+    };
     var organisationOptions = new CrateOrganizationOptions()
     {
       Id = Guid.NewGuid().ToString()
@@ -94,7 +73,11 @@ public class TestRQuestWorkflowCrateBuilder
         }
       }
     };
-    var workflowOptions = new WorkflowOptions();
+    var workflowOptions = new WorkflowOptions
+    {
+      Id = 471,
+      Version = 3
+    };
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
@@ -115,7 +98,7 @@ public class TestRQuestWorkflowCrateBuilder
   }
 
   [Fact]
-  public void AddMainEntity_Adds_MainEntityAsConfigured()
+  public void AddAgent_Adds_ProjectAsConfigured()
   {
     // Arrange
     var publishingOptions = new CratePublishingOptions();
@@ -124,40 +107,6 @@ public class TestRQuestWorkflowCrateBuilder
       Id = 471,
       Version = 3
     };
-    var organisationOptions = new CrateOrganizationOptions();
-    var projectOptions = new CrateProjectOptions();
-    var agentOptions = new CrateAgentOptions();
-    var profileOptions = new CrateProfileOptions();
-    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
-
-    var expectedId = Url.Combine(workflowOptions.BaseUrl, workflowOptions.Id.ToString())
-      .SetQueryParam("version", workflowOptions.Version.ToString());
-    var expectedMainEntityPart = new Part { Id = expectedId };
-
-    // Act
-    builder.AddMainEntity();
-    var crate = builder.GetROCrate();
-    crate.Entities.TryGetValue(expectedId, out var mainEntity);
-    var actualMainEntityPart = crate.RootDataset.GetProperty<Part>("mainEntity");
-
-
-    // Assert
-    Assert.NotNull(mainEntity);
-    Assert.Equal(expectedId, mainEntity.Id);
-    Assert.NotNull(mainEntity.GetProperty<Part>("distribution"));
-    // Should be null as `AddProfile` was not called
-    Assert.Null(mainEntity.GetProperty<Part>("conformsTo"));
-    Assert.NotNull(actualMainEntityPart);
-    Assert.Equal(expectedMainEntityPart.Id, actualMainEntityPart.Id);
-  }
-
-  [Fact]
-  public void AddAgent_Adds_ProjectAsConfigured()
-  {
-    // Arrange
-    var publishingOptions = new CratePublishingOptions();
-    var workflowOptions = new WorkflowOptions();
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions
     {
@@ -188,7 +137,9 @@ public class TestRQuestWorkflowCrateBuilder
     var publishingOptions = new CratePublishingOptions();
     var workflowOptions = new WorkflowOptions
     {
-      Name = "test-body"
+      Name = "test-body",
+      Id = 471,
+      Version = 3
     };
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
@@ -219,7 +170,9 @@ public class TestRQuestWorkflowCrateBuilder
     var publishingOptions = new CratePublishingOptions();
     var workflowOptions = new WorkflowOptions
     {
-      Name = "test-body"
+      Name = "test-body",
+      Id = 471,
+      Version = 3
     };
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FiveSafes.Net;
+using Flurl;
 using Microsoft.Extensions.Options;
 using ROCrates;
 using RquestBridge.Config;
@@ -9,43 +10,29 @@ using RquestBridge.Utilities;
 
 namespace RquestBridge.Services;
 
-public class CrateGenerationService
+public class CrateGenerationService(ILogger<CrateGenerationService> logger,
+  IOptions<CratePublishingOptions> publishingOptions,
+  IOptions<CrateAgentOptions> agentOptions,
+  IOptions<CrateProjectOptions> projectOptions,
+  IOptions<CrateOrganizationOptions> organizationOptions,
+  IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions)
 {
-  private readonly CrateAgentOptions _crateAgentOptions;
-  private readonly CrateOrganizationOptions _crateOrganizationOptions;
-  private readonly CrateProfileOptions _crateProfileOptions;
-  private readonly CrateProjectOptions _crateProjectOptions;
-  private readonly ILogger<CrateGenerationService> _logger;
-  private readonly CratePublishingOptions _publishingOptions;
-  private readonly WorkflowOptions _workflowOptions;
-
-  public CrateGenerationService(
-    ILogger<CrateGenerationService> logger,
-    IOptions<CratePublishingOptions> publishingOptions,
-    IOptions<CrateAgentOptions> agentOptions,
-    IOptions<CrateProjectOptions> projectOptions,
-    IOptions<CrateOrganizationOptions> organizationOptions,
-    IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions
-  )
-  {
-    _logger = logger;
-    _crateProfileOptions = crateProfileOptions.Value;
-    _publishingOptions = publishingOptions.Value;
-    _crateAgentOptions = agentOptions.Value;
-    _crateOrganizationOptions = organizationOptions.Value;
-    _crateProjectOptions = projectOptions.Value;
-    _workflowOptions = workflowOptions.Value;
-  }
+  private readonly CrateAgentOptions _crateAgentOptions = agentOptions.Value;
+  private readonly CrateOrganizationOptions _crateOrganizationOptions = organizationOptions.Value;
+  private readonly CrateProfileOptions _crateProfileOptions = crateProfileOptions.Value;
+  private readonly CrateProjectOptions _crateProjectOptions = projectOptions.Value;
+  private readonly CratePublishingOptions _publishingOptions = publishingOptions.Value;
+  private readonly WorkflowOptions _workflowOptions = workflowOptions.Value;
 
   /// <summary>
   /// Build an RO-Crate for a cohort discovery query.
   /// </summary>
   /// <typeparam name="T">The type of the query. Choices: <see cref="AvailabilityQuery"/>, <see cref="DistributionQuery"/></typeparam>
   /// <param name="job">The job to save to the crate.</param>
-  /// <param name="archive">The BagItArchive to save the crate to.</param>
+  /// <param name="bagItPath">The BagItArchive path to save the crate to.</param>
   /// <returns></returns>
   /// <exception cref="NotImplementedException">Query type is unavailable.</exception>
-  public async Task BuildCrate<T>(T job, BagItArchive archive) where T : class, new()
+  public async Task BuildCrate<T>(T job, string bagItPath) where T : class, new()
   {
     var isAvailability = new T() switch
     {
@@ -54,20 +41,21 @@ public class CrateGenerationService
       _ => throw new NotImplementedException()
     };
 
+
+    var workflowUri = GetWorkflowUrl();
+    var archive = await BuildBagIt(bagItPath, workflowUri);
     var payload = JsonSerializer.Serialize<T>(job);
     var payloadDestination = Path.Combine(archive.PayloadDirectoryPath, RquestQuery.FileName);
     await SaveJobPayload(payload, payloadDestination);
-    _logger.LogInformation($"Saved query JSON to {payloadDestination}.");
+    logger.LogInformation($"Saved query JSON to {payloadDestination}.");
 
     // Generate ROCrate metadata
-    _logger.LogInformation("Building Five Safes ROCrate...");
+    logger.LogInformation("Building Five Safes ROCrate...");
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions);
-    var director = new RQuestWorkflowCrateDirector(builder);
-    director.BuildRQuestWorkflowCrate(RquestQuery.FileName, isAvailability);
-    ROCrate crate = builder.GetROCrate();
+      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions, archive.PayloadDirectoryPath);
+    ROCrate crate = BuildFiveSafesCrate(builder, RquestQuery.FileName, isAvailability);
     crate.Save(archive.PayloadDirectoryPath);
-    _logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
+    logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
     await archive.WriteManifestSha512();
     await archive.WriteTagManifestSha512();
   }
@@ -88,15 +76,37 @@ public class CrateGenerationService
   }
 
   /// <summary>
-  /// 
+  /// Build BagIt archive
   /// </summary>
   /// <param name="destination"></param>
+  /// <param name="workflowUri"></param>
   /// <returns></returns>
-  public async Task<BagItArchive> BuildBagIt(string destination)
+  public async Task<BagItArchive> BuildBagIt(string destination, string workflowUri)
   {
     var builder = new FiveSafesBagItBuilder(destination);
-    var packer = new Packer(builder);
-    await packer.BuildBlankArchive();
+    builder.BuildCrate(workflowUri);
+    await builder.BuildChecksums();
+    await builder.BuildTagFiles();
     return builder.GetArchive();
+  }
+
+  public ROCrate BuildFiveSafesCrate(RQuestWorkflowCrateBuilder builder, string queryFileName, bool isAvailability)
+  {
+    builder.AddLicense();
+    builder.AddCreateAction(queryFileName, isAvailability);
+    builder.AddAgent();
+    builder.UpdateMainEntity();
+    ROCrate crate = builder.GetROCrate();
+    return crate;
+  }
+
+  /// <summary>
+  /// Construct the Workflow URL from WorkflowOptions.
+  /// </summary>
+  /// <returns>Workflow URL</returns>
+  public string GetWorkflowUrl()
+  {
+    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
+      .SetQueryParam("version", _workflowOptions.Version.ToString());
   }
 }

@@ -1,28 +1,26 @@
-using System.Globalization;
 using System.Text.Json;
 using Flurl;
 using ROCrates;
 using ROCrates.Models;
 using RquestBridge.Config;
 using RquestBridge.Constants;
-using RquestBridge.Contracts;
 
 namespace RquestBridge.Utilities;
 
-public class RQuestWorkflowCrateBuilder : IROCrateBuilder
+public class RQuestWorkflowCrateBuilder
 {
+  private ROCrate _crate = new ROCrate();
+  private readonly WorkflowOptions _workflowOptions;
+  private readonly CratePublishingOptions _publishingOptions;
   private readonly CrateAgentOptions _crateAgentOptions;
-
+  private readonly CrateProjectOptions _crateProjectOptions;
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
   private readonly CrateProfileOptions _crateProfileOptions;
-  private readonly CrateProjectOptions _crateProjectOptions;
-  private readonly CratePublishingOptions _publishingOptions;
-  private readonly WorkflowOptions _workflowOptions;
-  private ROCrate _crate = new ROCrate();
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
-    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions)
+    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions,
+    string archivePayloadDirectoryPath)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
@@ -31,8 +29,7 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     _crateOrganizationOptions = crateOrganizationOptions;
     _crateProfileOptions = crateProfileOptions;
 
-    // Add 5 Safes props to RootDataset
-    UpdateRootDataset();
+    _crate.Initialise(archivePayloadDirectoryPath);
   }
 
   /// <summary>
@@ -56,41 +53,30 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
   }
 
   /// <summary>
-  /// Adds Profile Entity to Five Safes RO-Crate.
+  /// Update mainEntity to Five Safes RO-Crate.
   /// </summary>
-  public void AddProfile()
+  /// <exception cref="InvalidDataException">mainEntity not found in RO-Crate.</exception>
+  public void UpdateMainEntity()
   {
-    var profileEntity = new Entity(identifier: _crateProfileOptions.Id);
-    profileEntity.SetProperty("@type", _crateProfileOptions.Type);
-    profileEntity.SetProperty("name", _crateProfileOptions.Name);
-    _crate.Add(profileEntity);
-  }
-
-  /// <summary>
-  /// Adds mainEntity to Five Safes RO-Crate.
-  /// </summary>
-  public void AddMainEntity()
-  {
-    var workflowURI = GetWorkflowUrl();
-    var workflowEntity = new Dataset(identifier: workflowURI);
-    workflowEntity.SetProperty("name", _workflowOptions.Name);
-    _crate.Entities.TryGetValue(_crateProfileOptions.Id, out var profile);
-
-    if (profile is not null)
+    var workflowUri = GetWorkflowUrl();
+    if (_crate.Entities.TryGetValue(workflowUri, out var mainEntity))
     {
-      workflowEntity.SetProperty("conformsTo", new Part
+      mainEntity.SetProperty("name", _workflowOptions.Name);
+
+      _crate.Entities.TryGetValue(_crateProfileOptions.Id, out var profile);
+
+      mainEntity.SetProperty("distribution", new Part
       {
-        Id = profile.Id
+        Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate")
+          .SetQueryParam("version", _workflowOptions.Version.ToString())
       });
+      _crate.Add(mainEntity);
+      _crate.RootDataset.SetProperty("mainEntity", new Part { Id = mainEntity.Id });
     }
-
-    workflowEntity.SetProperty("distribution", new Part
+    else
     {
-      Id = Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString(), "ro_crate")
-        .SetQueryParam("version", _workflowOptions.Version.ToString())
-    });
-    _crate.Add(workflowEntity);
-    _crate.RootDataset.SetProperty("mainEntity", new Part { Id = workflowEntity.Id });
+      throw new InvalidDataException("Could not find mainEntity in RO-Crate.");
+    }
   }
 
   /// <summary>
@@ -184,32 +170,9 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
   /// <summary>
   /// Resets the ROCrate back to a blank ROCrate.
   /// </summary>
-  public void ResetCrate()
+  private void ResetCrate()
   {
     _crate = new ROCrate();
-    UpdateRootDataset();
-  }
-
-  /// <summary>
-  /// Construct the Workflow URL from WorkflowOptions.
-  /// </summary>
-  /// <returns>Workflow URL</returns>
-  private string GetWorkflowUrl()
-  {
-    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
-      .SetQueryParam("version", _workflowOptions.Version.ToString());
-  }
-
-  /// <summary>
-  /// Adds basic information for the metadata to ROCrate.
-  /// </summary>
-  private void UpdateRootDataset()
-  {
-    _crate.RootDataset.SetProperty("conformsTo", new Part
-    {
-      Id = _crateProfileOptions.Id,
-    });
-    _crate.RootDataset.SetProperty("datePublished", DateTimeOffset.UtcNow.ToString("o", CultureInfo.InvariantCulture));
   }
 
   /// <summary>
@@ -252,5 +215,15 @@ public class RQuestWorkflowCrateBuilder : IROCrateBuilder
     orgEntity.SetProperty("@type", _crateOrganizationOptions.Type);
     orgEntity.SetProperty("name", _crateOrganizationOptions.Name);
     return orgEntity;
+  }
+
+  /// <summary>
+  /// Construct the Workflow URL from WorkflowOptions.
+  /// </summary>
+  /// <returns>Workflow URL</returns>
+  public string GetWorkflowUrl()
+  {
+    return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
+      .SetQueryParam("version", _workflowOptions.Version.ToString());
   }
 }
