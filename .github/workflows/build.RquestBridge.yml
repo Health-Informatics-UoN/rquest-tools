@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - app/RquestBridge/**
+      - test/RquestBridge.Tests/**
       - .github/workflows/build.RquestBridge.yml
 
 env:
@@ -13,6 +14,7 @@ env:
   CI_build-config: release
   CI_dotnet-version: 8.0.x
   CI_project: ./app/RquestBridge/RquestBridge.csproj
+  Bridge_test_project: ./test/RquestBridge.Tests/RquestBridge.Tests.csproj
 
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
@@ -31,3 +33,8 @@ jobs:
           dotnet build
           ${{ env.CI_project }}
           -c ${{ env.CI_build-config }}
+      - name: Run RquestBridge Tests
+        run: >-
+            dotnet test
+            ${{ env.Bridge_test_project }}
+            -c ${{ env.CI_build-config }}
