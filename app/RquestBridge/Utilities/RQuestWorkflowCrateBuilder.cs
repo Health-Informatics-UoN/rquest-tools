@@ -32,6 +32,18 @@ public class RQuestWorkflowCrateBuilder
     _crate.Initialise(archivePayloadDirectoryPath);
   }
 
+  public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
+    CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
+    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions)
+  {
+    _workflowOptions = workflowOptions;
+    _publishingOptions = publishingOptions;
+    _crateAgentOptions = crateAgentOptions;
+    _crateProjectOptions = crateProjectOptions;
+    _crateOrganizationOptions = crateOrganizationOptions;
+    _crateProfileOptions = crateProfileOptions;
+  }
+
   /// <summary>
   /// Adds Licence Entity to Five Safes RO-Crate.
   /// </summary>
