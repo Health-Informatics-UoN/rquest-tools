@@ -1,3 +1,4 @@
+using Microsoft.FeatureManagement;
 using RquestBridge.Config;
 using RquestBridge.Services;
 using RquestBridge.Services.Hosted;
@@ -12,6 +13,8 @@ public static class ConfigureWebService
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     b.Services.AddEndpointsApiExplorer();
     b.Services.AddSwaggerGen();
+    b.Services.AddFeatureManagement(
+      b.Configuration.GetSection("Flags"));
 
     // Add Options
     b.Services
