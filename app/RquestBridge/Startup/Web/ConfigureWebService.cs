@@ -27,7 +27,8 @@ public static class ConfigureWebService
       .Configure<BridgeOptions>(b.Configuration.GetSection("Bridge"))
       .Configure<MinioOptions>(b.Configuration.GetSection("Minio"))
       .Configure<HutchDatabaseConnectionDetails>(b.Configuration.GetSection("HutchAgent:DBConnection"))
-      .Configure<HutchAgentOptions>(b.Configuration.GetSection("HutchAgent:API"));
+      .Configure<HutchAgentOptions>(b.Configuration.GetSection("HutchAgent:API"))
+      .Configure<AssessActionsOptions>(b.Configuration.GetSection("AssessActions"));
 
     // Add HttpClients
     b.Services.AddHttpClient<RQuestTaskApiClient>();
