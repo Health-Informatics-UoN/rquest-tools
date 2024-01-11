@@ -1,5 +1,8 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using FiveSafes.Net;
+using FiveSafes.Net.Constants;
+using FiveSafes.Net.Utilities;
 using Flurl;
 using Microsoft.Extensions.Options;
 using ROCrates;
@@ -15,7 +18,8 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   IOptions<CrateAgentOptions> agentOptions,
   IOptions<CrateProjectOptions> projectOptions,
   IOptions<CrateOrganizationOptions> organizationOptions,
-  IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions)
+  IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions,
+  IOptions<AssessActionsOptions> assessActions)
 {
   private readonly CrateAgentOptions _crateAgentOptions = agentOptions.Value;
   private readonly CrateOrganizationOptions _crateOrganizationOptions = organizationOptions.Value;
@@ -23,6 +27,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   private readonly CrateProjectOptions _crateProjectOptions = projectOptions.Value;
   private readonly CratePublishingOptions _publishingOptions = publishingOptions.Value;
   private readonly WorkflowOptions _workflowOptions = workflowOptions.Value;
+  private readonly AssessActionsOptions _assessActionsOptions = assessActions.Value;
 
   /// <summary>
   /// Build an RO-Crate for a cohort discovery query.
@@ -32,7 +37,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   /// <param name="bagItPath">The BagItArchive path to save the crate to.</param>
   /// <returns></returns>
   /// <exception cref="NotImplementedException">Query type is unavailable.</exception>
-  public async Task BuildCrate<T>(T job, string bagItPath) where T : class, new()
+  public async Task<BagItArchive> BuildCrate<T>(T job, string bagItPath) where T : class, new()
   {
     var isAvailability = new T() switch
     {
@@ -58,6 +63,8 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
     await archive.WriteManifestSha512();
     await archive.WriteTagManifestSha512();
+
+    return archive;
   }
 
   /// <summary>
@@ -108,5 +115,63 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   {
     return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
       .SetQueryParam("version", _workflowOptions.Version.ToString());
+  }
+
+  public async Task AssessBagIt(BagItArchive archive)
+  {
+    var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
+      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions, archive.PayloadDirectoryPath);
+
+    if (_assessActionsOptions.CheckValue)
+    {
+      var manifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.ManifestPath);
+      var tagManifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.TagManifestPath);
+
+      var bothFilesExist = File.Exists(manifestPath) && File.Exists(tagManifestPath);
+      var checkSumsMatch = await ChecksumsMatch(manifestPath) && await ChecksumsMatch(tagManifestPath);
+
+      if (bothFilesExist && checkSumsMatch)
+      {
+        builder.AddCheckValueAssessAction(ActionStatus.CompletedActionStatus, DateTime.Now);
+      }
+
+      builder.AddCheckValueAssessAction(ActionStatus.FailedActionStatus, DateTime.Now);
+    }
+
+    if (_assessActionsOptions.Validate)
+    {
+      // Todo: validate crate
+    }
+
+    if (_assessActionsOptions.SignOff)
+    {
+      // Todo: sign off crate 
+    }
+
+    // Todo: save the crate
+    await archive.WriteTagManifestSha512();
+    await archive.WriteManifestSha512();
+  }
+
+  /// <summary>
+  /// Check that the actual checksums of the files match the recorded checksums.
+  /// </summary>
+  /// <param name="checksumFilePath">The path to the checksum file containing records that need validating.</param>
+  /// <returns></returns>
+  private async Task<bool> ChecksumsMatch(string checksumFilePath)
+  {
+    var lines = await File.ReadAllLinesAsync(checksumFilePath);
+    foreach (var line in lines)
+    {
+      var checksumAndFile = Regex.Split(line, @"\s+");
+      var expectedChecksum = checksumAndFile.First();
+      var fileName = checksumAndFile.Last();
+
+      using var fileStream = File.OpenRead(checksumFilePath);
+      var fileChecksum = ChecksumUtility.ComputeSha512(fileStream);
+      if (fileChecksum != expectedChecksum) return false;
+    }
+
+    return true;
   }
 }

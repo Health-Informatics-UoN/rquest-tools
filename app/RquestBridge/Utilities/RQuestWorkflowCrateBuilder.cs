@@ -229,6 +229,34 @@ public class RQuestWorkflowCrateBuilder
     return orgEntity;
   }
 
+  public void AddCheckValueAssessAction(string status, DateTime startTime)
+  {
+    var checkActionId = $"#check-{Guid.NewGuid()}";
+    var checkAction = new ContextEntity(_crate, checkActionId);
+    var statusMsg = status switch
+    {
+      ActionStatus.CompletedActionStatus => "completed",
+      ActionStatus.ActiveActionStatus => "active",
+      ActionStatus.FailedActionStatus => "failed",
+      ActionStatus.PotentialActionStatus => "potential",
+      _ => ""
+    };
+    checkAction.SetProperty("startTime", startTime);
+    checkAction.SetProperty("@type", "AssessAction");
+    checkAction.SetProperty("additionalType", new Part() { Id = "https://w3id.org/shp#CheckValue" });
+    checkAction.SetProperty("name", $"BagIt checksum of Crate: {statusMsg}");
+    checkAction.SetProperty("actionStatus", status);
+    checkAction.SetProperty("object", new Part { Id = _crate.RootDataset.Id });
+
+    var instrument = new Entity { Id = "https://www.iana.org/assignments/named-information#sha-512" };
+    instrument.SetProperty("@type", "DefinedTerm");
+    instrument.SetProperty("name", "sha-512 algorithm");
+    checkAction.SetProperty("instrument", new Part() { Id = instrument.Id });
+    // TODO: set agent
+    checkAction.SetProperty("endTime", DateTime.Now);
+    _crate.Add(checkAction, instrument);
+  }
+
   /// <summary>
   /// Construct the Workflow URL from WorkflowOptions.
   /// </summary>

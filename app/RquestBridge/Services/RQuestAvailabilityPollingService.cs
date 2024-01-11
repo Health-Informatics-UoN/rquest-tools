@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
@@ -13,7 +14,8 @@ public class RQuestAvailabilityPollingService(RQuestTaskApiClient taskApi,
   CrateGenerationService crateGenerationService,
   HutchApiClient hutchApiClient,
   MinioService minioService,
-  IOptions<BridgeOptions> bridgeOptions)
+  IOptions<BridgeOptions> bridgeOptions,
+  IFeatureManager features)
 {
   private readonly BridgeOptions _bridgeOptions = bridgeOptions.Value;
 
@@ -38,7 +40,11 @@ public class RQuestAvailabilityPollingService(RQuestTaskApiClient taskApi,
 
         // Build RQuest RO-Crate
         var bagItPath = Path.Combine(_bridgeOptions.WorkingDirectoryBase, job.Uuid);
-        await crateGenerationService.BuildCrate(job, bagItPath);
+        var archive = await crateGenerationService.BuildCrate(job, bagItPath);
+
+        // Assess RO-Crate
+        if (await features.IsEnabledAsync(FeatureFlags.MakeAssessActions))
+          await crateGenerationService.AssessBagIt(archive);
 
         // Zip the BagIt package
         if (!Directory.Exists(bagItPath))
