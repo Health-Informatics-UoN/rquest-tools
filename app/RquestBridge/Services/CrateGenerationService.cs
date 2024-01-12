@@ -127,14 +127,17 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
       var tagManifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.TagManifestPath);
 
       var bothFilesExist = File.Exists(manifestPath) && File.Exists(tagManifestPath);
-      var checkSumsMatch = await ChecksumsMatch(manifestPath) && await ChecksumsMatch(tagManifestPath);
+      var checkSumsMatch = await ChecksumsMatch(manifestPath, archive.ArchiveRootPath) &&
+                           await ChecksumsMatch(tagManifestPath, archive.ArchiveRootPath);
 
       if (bothFilesExist && checkSumsMatch)
       {
         builder.AddCheckValueAssessAction(ActionStatus.CompletedActionStatus, DateTime.Now);
       }
-
-      builder.AddCheckValueAssessAction(ActionStatus.FailedActionStatus, DateTime.Now);
+      else
+      {
+        builder.AddCheckValueAssessAction(ActionStatus.FailedActionStatus, DateTime.Now);
+      }
     }
 
     if (_assessActionsOptions.Validate)
@@ -158,8 +161,9 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   /// Check that the actual checksums of the files match the recorded checksums.
   /// </summary>
   /// <param name="checksumFilePath">The path to the checksum file containing records that need validating.</param>
+  /// <param name="archiveRoot">Path to the root of the archive.</param>
   /// <returns></returns>
-  private async Task<bool> ChecksumsMatch(string checksumFilePath)
+  private async Task<bool> ChecksumsMatch(string checksumFilePath, string archiveRoot)
   {
     var lines = await File.ReadAllLinesAsync(checksumFilePath);
     foreach (var line in lines)
@@ -168,7 +172,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
       var expectedChecksum = checksumAndFile.First();
       var fileName = checksumAndFile.Last();
 
-      using var fileStream = File.OpenRead(checksumFilePath);
+      using var fileStream = File.OpenRead(Path.Combine(archiveRoot, fileName));
       var fileChecksum = ChecksumUtility.ComputeSha512(fileStream);
       if (fileChecksum != expectedChecksum) return false;
     }
