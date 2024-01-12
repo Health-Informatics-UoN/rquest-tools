@@ -29,8 +29,9 @@ public class TestRQuestWorkflowCrateBuilder
       MemberOf = new List<Part> { new() { Id = projectOptions.Id } },
       Name = "Alice Day"
     };
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddAgent();
@@ -79,8 +80,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddLicense();
@@ -110,8 +112,9 @@ public class TestRQuestWorkflowCrateBuilder
       Name = "trefx"
     };
     var agentOptions = new CrateAgentOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddAgent();
@@ -140,8 +143,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddCreateAction(RquestQuery.FileName, true);
@@ -172,8 +176,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddCreateAction(RquestQuery.FileName, false);

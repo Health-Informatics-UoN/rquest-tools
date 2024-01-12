@@ -9,6 +9,7 @@ namespace RquestBridge.Utilities;
 
 public class RQuestWorkflowCrateBuilder
 {
+  private readonly AgreementPolicyOptions _agreementPolicy;
   private readonly CrateAgentOptions _crateAgentOptions;
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
   private readonly CrateProjectOptions _crateProjectOptions;
@@ -19,26 +20,28 @@ public class RQuestWorkflowCrateBuilder
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
     CrateOrganizationOptions crateOrganizationOptions,
-    string archivePayloadDirectoryPath)
+    string archivePayloadDirectoryPath, AgreementPolicyOptions agreementPolicy)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
     _crateAgentOptions = crateAgentOptions;
     _crateProjectOptions = crateProjectOptions;
     _crateOrganizationOptions = crateOrganizationOptions;
+    _agreementPolicy = agreementPolicy;
 
     _crate.Initialise(archivePayloadDirectoryPath);
   }
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
-    CrateOrganizationOptions crateOrganizationOptions)
+    CrateOrganizationOptions crateOrganizationOptions, AgreementPolicyOptions agreementPolicy)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
     _crateAgentOptions = crateAgentOptions;
     _crateProjectOptions = crateProjectOptions;
     _crateOrganizationOptions = crateOrganizationOptions;
+    _agreementPolicy = agreementPolicy;
   }
 
   /// <summary>
@@ -279,14 +282,13 @@ public class RQuestWorkflowCrateBuilder
       new() { Id = projectId },
     });
     signOffEntity.SetProperty("actionStatus", ActionStatus.CompletedActionStatus);
-    // Todo: set up agreement policy
-    // signOffEntity.SetProperty("instrument", );
-    // var agreementPolicyEntity = new CreativeWork(identifier:"");
-    // Todo: fix type bug in ROCrates.Net
-    // agreementPolicyEntity.SetProperty("@type", "CreativeWork");
-    // agreementPolicyEntity.SetProperty("name", "");
+    var agreementPolicyEntity = new CreativeWork(identifier: _agreementPolicy.Id);
+    signOffEntity.SetProperty("instrument", new Part { Id = _agreementPolicy.Id });
+    // Manually set type due to bug in ROCrates.Net
+    agreementPolicyEntity.SetProperty("@type", "CreativeWork");
+    agreementPolicyEntity.SetProperty("name", _agreementPolicy.Name);
 
-    _crate.Add(signOffEntity); // Todo: add agreementPolicyEntity when that is set up
+    _crate.Add(signOffEntity, agreementPolicyEntity);
   }
 
   /// <summary>

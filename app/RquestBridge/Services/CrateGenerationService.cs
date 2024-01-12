@@ -10,7 +10,6 @@ using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
 using RquestBridge.Utilities;
-using File = System.IO.File;
 
 namespace RquestBridge.Services;
 
@@ -20,14 +19,16 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   IOptions<CrateProjectOptions> projectOptions,
   IOptions<CrateOrganizationOptions> organizationOptions,
   IOptions<WorkflowOptions> workflowOptions,
-  IOptions<AssessActionsOptions> assessActions)
+  IOptions<AssessActionsOptions> assessActions,
+  IOptions<AgreementPolicyOptions> agreementPolicy)
 {
+  private readonly AgreementPolicyOptions _agreementPolicyOptions = agreementPolicy.Value;
+  private readonly AssessActionsOptions _assessActionsOptions = assessActions.Value;
   private readonly CrateAgentOptions _crateAgentOptions = agentOptions.Value;
   private readonly CrateOrganizationOptions _crateOrganizationOptions = organizationOptions.Value;
   private readonly CrateProjectOptions _crateProjectOptions = projectOptions.Value;
   private readonly CratePublishingOptions _publishingOptions = publishingOptions.Value;
   private readonly WorkflowOptions _workflowOptions = workflowOptions.Value;
-  private readonly AssessActionsOptions _assessActionsOptions = assessActions.Value;
 
   /// <summary>
   /// Build an RO-Crate for a cohort discovery query.
@@ -57,7 +58,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     // Generate ROCrate metadata
     logger.LogInformation("Building Five Safes ROCrate...");
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath);
+      _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath, _agreementPolicyOptions);
     ROCrate crate = BuildFiveSafesCrate(builder, RquestQuery.FileName, isAvailability);
     crate.Save(archive.PayloadDirectoryPath);
     logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
@@ -120,7 +121,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   public async Task AssessBagIt(BagItArchive archive)
   {
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath);
+      _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath, _agreementPolicyOptions);
     if (_assessActionsOptions.CheckValue)
     {
       var manifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.ManifestPath);
