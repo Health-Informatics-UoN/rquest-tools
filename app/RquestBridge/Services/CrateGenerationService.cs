@@ -10,6 +10,7 @@ using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
 using RquestBridge.Utilities;
+using File = System.IO.File;
 
 namespace RquestBridge.Services;
 
@@ -18,12 +19,11 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   IOptions<CrateAgentOptions> agentOptions,
   IOptions<CrateProjectOptions> projectOptions,
   IOptions<CrateOrganizationOptions> organizationOptions,
-  IOptions<WorkflowOptions> workflowOptions, IOptions<CrateProfileOptions> crateProfileOptions,
+  IOptions<WorkflowOptions> workflowOptions,
   IOptions<AssessActionsOptions> assessActions)
 {
   private readonly CrateAgentOptions _crateAgentOptions = agentOptions.Value;
   private readonly CrateOrganizationOptions _crateOrganizationOptions = organizationOptions.Value;
-  private readonly CrateProfileOptions _crateProfileOptions = crateProfileOptions.Value;
   private readonly CrateProjectOptions _crateProjectOptions = projectOptions.Value;
   private readonly CratePublishingOptions _publishingOptions = publishingOptions.Value;
   private readonly WorkflowOptions _workflowOptions = workflowOptions.Value;
@@ -57,7 +57,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
     // Generate ROCrate metadata
     logger.LogInformation("Building Five Safes ROCrate...");
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions, archive.PayloadDirectoryPath);
+      _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath);
     ROCrate crate = BuildFiveSafesCrate(builder, RquestQuery.FileName, isAvailability);
     crate.Save(archive.PayloadDirectoryPath);
     logger.LogInformation($"Saved Five Safes ROCrate to {archive.PayloadDirectoryPath}");
@@ -120,8 +120,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   public async Task AssessBagIt(BagItArchive archive)
   {
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
-      _crateProjectOptions, _crateOrganizationOptions, _crateProfileOptions, archive.PayloadDirectoryPath);
-
+      _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath);
     if (_assessActionsOptions.CheckValue)
     {
       var manifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.ManifestPath);
@@ -140,15 +139,17 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
 
     if (_assessActionsOptions.Validate)
     {
-      // Todo: validate crate
+      builder.AddValidateCheck(ActionStatus.CompletedActionStatus);
     }
 
     if (_assessActionsOptions.SignOff)
     {
-      // Todo: sign off crate 
+      builder.AddSignOff();
     }
 
     // Todo: save the crate
+    var crate = builder.GetROCrate();
+    crate.Save(archive.PayloadDirectoryPath);
     await archive.WriteTagManifestSha512();
     await archive.WriteManifestSha512();
   }

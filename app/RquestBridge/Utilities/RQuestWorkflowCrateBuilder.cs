@@ -228,17 +228,10 @@ public class RQuestWorkflowCrateBuilder
   {
     var checkActionId = $"#check-{Guid.NewGuid()}";
     var checkAction = new ContextEntity(_crate, checkActionId);
-    var statusMsg = status switch
-    {
-      ActionStatus.CompletedActionStatus => "completed",
-      ActionStatus.ActiveActionStatus => "active",
-      ActionStatus.FailedActionStatus => "failed",
-      ActionStatus.PotentialActionStatus => "potential",
-      _ => ""
-    };
     checkAction.SetProperty("startTime", startTime);
     checkAction.SetProperty("@type", "AssessAction");
     checkAction.SetProperty("additionalType", new Part() { Id = "https://w3id.org/shp#CheckValue" });
+    var statusMsg = GetStatus(status);
     checkAction.SetProperty("name", $"BagIt checksum of Crate: {statusMsg}");
     checkAction.SetProperty("actionStatus", status);
     checkAction.SetProperty("object", new Part { Id = _crate.RootDataset.Id });
@@ -252,6 +245,49 @@ public class RQuestWorkflowCrateBuilder
     _crate.Add(checkAction, instrument);
   }
 
+  public void AddValidateCheck(string status)
+  {
+    var profile = _crate.RootDataset.GetProperty<Part>("conformsTo") ??
+                  throw new NullReferenceException("No profile found in RootDataset");
+
+    var validateId = $"#validate - {Guid.NewGuid()}";
+    var validateAction = new ContextEntity(_crate, validateId);
+    validateAction.SetProperty("startTime", DateTime.Now);
+    validateAction.SetProperty("@type", "AssessAction");
+    validateAction.SetProperty("additionalType", new Part() { Id = "https://w3id.org/shp#ValidationCheck" });
+
+    validateAction.SetProperty("name", $"Validation against Five Safes RO-Crate profile: approved");
+    validateAction.SetProperty("actionStatus", status);
+    validateAction.SetProperty("object", new Part { Id = _crate.RootDataset.Id });
+    validateAction.SetProperty("instrument", new Part() { Id = profile.Id });
+    validateAction.SetProperty("endTime", DateTime.Now);
+    _crate.Add(validateAction);
+  }
+
+  public void AddSignOff()
+  {
+    var signOffEntity = new ContextEntity(identifier: $"#signoff-{Guid.NewGuid()}");
+    signOffEntity.SetProperty("@type", "AssessAction");
+    signOffEntity.SetProperty("additionalType", new Part { Id = "https://w3id.org/shp#SignOff" });
+    signOffEntity.SetProperty("name", "");
+    signOffEntity.SetProperty("endTime", DateTime.Now);
+    var projectId = _crate.Entities.Keys.First(x => x.StartsWith("#project-"));
+    signOffEntity.SetProperty("object", new Part[]
+    {
+      new() { Id = _crate.RootDataset.Id },
+      new() { Id = GetWorkflowUrl() },
+      new() { Id = projectId },
+    });
+    // Todo: set up agreement policy
+    // signOffEntity.SetProperty("instrument", );
+    // var agreementPolicyEntity = new CreativeWork(identifier:"");
+    // Todo: fix type bug in ROCrates.Net
+    // agreementPolicyEntity.SetProperty("@type", "CreativeWork");
+    // agreementPolicyEntity.SetProperty("name", "");
+
+    _crate.Add(signOffEntity); // Todo: add agreementPolicyEntity when that is set up
+  }
+
   /// <summary>
   /// Construct the Workflow URL from WorkflowOptions.
   /// </summary>
@@ -260,5 +296,17 @@ public class RQuestWorkflowCrateBuilder
   {
     return Url.Combine(_workflowOptions.BaseUrl, _workflowOptions.Id.ToString())
       .SetQueryParam("version", _workflowOptions.Version.ToString());
+  }
+
+  private string GetStatus(string status)
+  {
+    return status switch
+    {
+      ActionStatus.CompletedActionStatus => "completed",
+      ActionStatus.ActiveActionStatus => "active",
+      ActionStatus.FailedActionStatus => "failed",
+      ActionStatus.PotentialActionStatus => "potential",
+      _ => ""
+    };
   }
 }
