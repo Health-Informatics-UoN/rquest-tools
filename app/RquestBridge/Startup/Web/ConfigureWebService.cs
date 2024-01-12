@@ -28,7 +28,8 @@ public static class ConfigureWebService
       .Configure<MinioOptions>(b.Configuration.GetSection("Minio"))
       .Configure<HutchDatabaseConnectionDetails>(b.Configuration.GetSection("HutchAgent:DBConnection"))
       .Configure<HutchAgentOptions>(b.Configuration.GetSection("HutchAgent:API"))
-      .Configure<AssessActionsOptions>(b.Configuration.GetSection("AssessActions"));
+      .Configure<AssessActionsOptions>(b.Configuration.GetSection("AssessActions"))
+      .Configure<AgreementPolicyOptions>(b.Configuration.GetSection("AgreementPolicy"));
 
     // Add HttpClients
     b.Services.AddHttpClient<RQuestTaskApiClient>();
