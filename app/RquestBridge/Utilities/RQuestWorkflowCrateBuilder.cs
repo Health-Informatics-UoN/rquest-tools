@@ -15,11 +15,10 @@ public class RQuestWorkflowCrateBuilder
   private readonly CrateAgentOptions _crateAgentOptions;
   private readonly CrateProjectOptions _crateProjectOptions;
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
-  private readonly CrateProfileOptions _crateProfileOptions;
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
-    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions,
+    CrateOrganizationOptions crateOrganizationOptions,
     string archivePayloadDirectoryPath)
   {
     _workflowOptions = workflowOptions;
@@ -27,21 +26,19 @@ public class RQuestWorkflowCrateBuilder
     _crateAgentOptions = crateAgentOptions;
     _crateProjectOptions = crateProjectOptions;
     _crateOrganizationOptions = crateOrganizationOptions;
-    _crateProfileOptions = crateProfileOptions;
 
     _crate.Initialise(archivePayloadDirectoryPath);
   }
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
-    CrateOrganizationOptions crateOrganizationOptions, CrateProfileOptions crateProfileOptions)
+    CrateOrganizationOptions crateOrganizationOptions)
   {
     _workflowOptions = workflowOptions;
     _publishingOptions = publishingOptions;
     _crateAgentOptions = crateAgentOptions;
     _crateProjectOptions = crateProjectOptions;
     _crateOrganizationOptions = crateOrganizationOptions;
-    _crateProfileOptions = crateProfileOptions;
   }
 
   /// <summary>
@@ -74,8 +71,6 @@ public class RQuestWorkflowCrateBuilder
     if (_crate.Entities.TryGetValue(workflowUri, out var mainEntity))
     {
       mainEntity.SetProperty("name", _workflowOptions.Name);
-
-      _crate.Entities.TryGetValue(_crateProfileOptions.Id, out var profile);
 
       mainEntity.SetProperty("distribution", new Part
       {
