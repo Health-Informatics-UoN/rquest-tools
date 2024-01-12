@@ -150,7 +150,6 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
       builder.AddSignOff();
     }
 
-    // Todo: save the crate
     var crate = builder.GetROCrate();
     crate.Save(archive.PayloadDirectoryPath);
     await archive.WriteTagManifestSha512();
