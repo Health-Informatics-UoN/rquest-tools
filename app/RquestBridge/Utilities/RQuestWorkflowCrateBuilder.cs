@@ -9,12 +9,12 @@ namespace RquestBridge.Utilities;
 
 public class RQuestWorkflowCrateBuilder
 {
-  private ROCrate _crate = new ROCrate();
-  private readonly WorkflowOptions _workflowOptions;
-  private readonly CratePublishingOptions _publishingOptions;
   private readonly CrateAgentOptions _crateAgentOptions;
-  private readonly CrateProjectOptions _crateProjectOptions;
   private readonly CrateOrganizationOptions _crateOrganizationOptions;
+  private readonly CrateProjectOptions _crateProjectOptions;
+  private readonly CratePublishingOptions _publishingOptions;
+  private readonly WorkflowOptions _workflowOptions;
+  private ROCrate _crate = new ROCrate();
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
     CrateAgentOptions crateAgentOptions, CrateProjectOptions crateProjectOptions,
@@ -278,6 +278,7 @@ public class RQuestWorkflowCrateBuilder
       new() { Id = GetWorkflowUrl() },
       new() { Id = projectId },
     });
+    signOffEntity.SetProperty("actionStatus", ActionStatus.CompletedActionStatus);
     // Todo: set up agreement policy
     // signOffEntity.SetProperty("instrument", );
     // var agreementPolicyEntity = new CreativeWork(identifier:"");
