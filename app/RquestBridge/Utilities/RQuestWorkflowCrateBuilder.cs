@@ -30,6 +30,8 @@ public class RQuestWorkflowCrateBuilder
     _agreementPolicy = agreementPolicy;
 
     _crate.Initialise(archivePayloadDirectoryPath);
+    AddProject();
+    AddOrganisation();
   }
 
   public RQuestWorkflowCrateBuilder(WorkflowOptions workflowOptions, CratePublishingOptions publishingOptions,
@@ -42,6 +44,9 @@ public class RQuestWorkflowCrateBuilder
     _crateProjectOptions = crateProjectOptions;
     _crateOrganizationOptions = crateOrganizationOptions;
     _agreementPolicy = agreementPolicy;
+
+    AddProject();
+    AddOrganisation();
   }
 
   /// <summary>
@@ -190,21 +195,21 @@ public class RQuestWorkflowCrateBuilder
   /// </summary>
   public void AddAgent()
   {
-    var organisation = AddOrganisation();
-    var project = AddProject();
+    var organisation = _crate.Entities.Values.First(x => x.Id == _crateOrganizationOptions.Id);
+    var project = _crate.Entities.Values.First(x => x.Id.StartsWith("#project-"));
     var agentEntity = new Entity(identifier: _crateAgentOptions.Id);
     agentEntity.SetProperty("@type", _crateAgentOptions.Type);
     agentEntity.SetProperty("name", _crateAgentOptions.Name);
     agentEntity.SetProperty("affiliation", new Part() { Id = organisation.Id });
     agentEntity.AppendTo("memberOf", project);
-    _crate.Add(agentEntity, organisation, project);
+    _crate.Add(agentEntity);
   }
 
   /// <summary>
   /// Adds Project Entity as configured
   /// </summary>
   /// <returns></returns>
-  private Entity AddProject()
+  private void AddProject()
   {
     var projectEntity = new Entity(identifier: $"#project-{Guid.NewGuid()}");
     projectEntity.SetProperty("@type", _crateProjectOptions.Type);
@@ -212,19 +217,19 @@ public class RQuestWorkflowCrateBuilder
     projectEntity.SetProperty("identifier", _crateProjectOptions.Identifiers);
     projectEntity.SetProperty("funding", _crateProjectOptions.Funding);
     projectEntity.SetProperty("member", _crateProjectOptions.Member);
-    return projectEntity;
+    _crate.Add(projectEntity);
   }
 
   /// <summary>
   /// Adds Organisation Entity as configured.
   /// </summary>
   /// <returns></returns>
-  private Entity AddOrganisation()
+  private void AddOrganisation()
   {
     var orgEntity = new Entity(identifier: _crateOrganizationOptions.Id);
     orgEntity.SetProperty("@type", _crateOrganizationOptions.Type);
     orgEntity.SetProperty("name", _crateOrganizationOptions.Name);
-    return orgEntity;
+    _crate.Add(orgEntity);
   }
 
   public void AddCheckValueAssessAction(string status, DateTime startTime)
