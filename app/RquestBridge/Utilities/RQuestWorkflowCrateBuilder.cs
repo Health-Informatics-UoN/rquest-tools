@@ -232,7 +232,7 @@ public class RQuestWorkflowCrateBuilder
     _crate.Add(orgEntity);
   }
 
-  public void AddCheckValueAssessAction(string status, DateTime startTime)
+  public void AddCheckValueAssessAction(string status, DateTime startTime, Part validator)
   {
     var checkActionId = $"#check-{Guid.NewGuid()}";
     var checkAction = new ContextEntity(_crate, checkActionId);
@@ -248,12 +248,12 @@ public class RQuestWorkflowCrateBuilder
     instrument.SetProperty("@type", "DefinedTerm");
     instrument.SetProperty("name", "sha-512 algorithm");
     checkAction.SetProperty("instrument", new Part() { Id = instrument.Id });
-    // TODO: set agent
+    checkAction.SetProperty("agent", validator);
     checkAction.SetProperty("endTime", DateTime.Now);
     _crate.Add(checkAction, instrument);
   }
 
-  public void AddValidateCheck(string status)
+  public void AddValidateCheck(string status, Part validator)
   {
     var profile = _crate.RootDataset.GetProperty<Part>("conformsTo") ??
                   throw new NullReferenceException("No profile found in RootDataset");
@@ -268,6 +268,7 @@ public class RQuestWorkflowCrateBuilder
     validateAction.SetProperty("actionStatus", status);
     validateAction.SetProperty("object", new Part { Id = _crate.RootDataset.Id });
     validateAction.SetProperty("instrument", new Part() { Id = profile.Id });
+    validateAction.SetProperty("agent", validator);
     validateAction.SetProperty("endTime", DateTime.Now);
     _crate.Add(validateAction);
   }
@@ -277,8 +278,10 @@ public class RQuestWorkflowCrateBuilder
     var signOffEntity = new ContextEntity(identifier: $"#signoff-{Guid.NewGuid()}");
     signOffEntity.SetProperty("@type", "AssessAction");
     signOffEntity.SetProperty("additionalType", new Part { Id = "https://w3id.org/shp#SignOff" });
-    signOffEntity.SetProperty("name", "");
+    signOffEntity.SetProperty("name", "Sign-off of execution according to Agreement policy");
     signOffEntity.SetProperty("endTime", DateTime.Now);
+    _crate.Entities.TryGetValue(_crateAgentOptions.Id, out var agent);
+    signOffEntity.SetProperty("agent", new Part() { Id = agent!.Id });
     var projectId = _crate.Entities.Keys.First(x => x.StartsWith("#project-"));
     signOffEntity.SetProperty("object", new Part[]
     {

@@ -6,10 +6,12 @@ using FiveSafes.Net.Utilities;
 using Flurl;
 using Microsoft.Extensions.Options;
 using ROCrates;
+using ROCrates.Models;
 using RquestBridge.Config;
 using RquestBridge.Constants;
 using RquestBridge.Dto;
 using RquestBridge.Utilities;
+using File = System.IO.File;
 
 namespace RquestBridge.Services;
 
@@ -122,6 +124,7 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
   {
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
       _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath, _agreementPolicyOptions);
+    var validator = new Part() { Id = $"validator-{Guid.NewGuid()}" };
     if (_assessActionsOptions.CheckValue)
     {
       var manifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.ManifestPath);
@@ -133,17 +136,17 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
 
       if (bothFilesExist && checkSumsMatch)
       {
-        builder.AddCheckValueAssessAction(ActionStatus.CompletedActionStatus, DateTime.Now);
+        builder.AddCheckValueAssessAction(ActionStatus.CompletedActionStatus, DateTime.Now, validator);
       }
       else
       {
-        builder.AddCheckValueAssessAction(ActionStatus.FailedActionStatus, DateTime.Now);
+        builder.AddCheckValueAssessAction(ActionStatus.FailedActionStatus, DateTime.Now, validator);
       }
     }
 
     if (_assessActionsOptions.Validate)
     {
-      builder.AddValidateCheck(ActionStatus.CompletedActionStatus);
+      builder.AddValidateCheck(ActionStatus.CompletedActionStatus, validator);
     }
 
     if (_assessActionsOptions.SignOff)
