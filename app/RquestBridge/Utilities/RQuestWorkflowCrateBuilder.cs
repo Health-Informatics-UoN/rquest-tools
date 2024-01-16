@@ -250,6 +250,7 @@ public class RQuestWorkflowCrateBuilder
     checkAction.SetProperty("instrument", new Part() { Id = instrument.Id });
     checkAction.SetProperty("agent", validator);
     checkAction.SetProperty("endTime", DateTime.Now);
+    _crate.RootDataset.AppendTo("mentions", checkAction);
     _crate.Add(checkAction, instrument);
   }
 
@@ -270,6 +271,8 @@ public class RQuestWorkflowCrateBuilder
     validateAction.SetProperty("instrument", new Part() { Id = profile.Id });
     validateAction.SetProperty("agent", validator);
     validateAction.SetProperty("endTime", DateTime.Now);
+    _crate.RootDataset.AppendTo("mentions", validateAction);
+
     _crate.Add(validateAction);
   }
 
@@ -296,6 +299,7 @@ public class RQuestWorkflowCrateBuilder
     agreementPolicyEntity.SetProperty("@type", "CreativeWork");
     agreementPolicyEntity.SetProperty("name", _agreementPolicy.Name);
 
+    _crate.RootDataset.AppendTo("mentions", signOffEntity);
     _crate.Add(signOffEntity, agreementPolicyEntity);
   }
 
