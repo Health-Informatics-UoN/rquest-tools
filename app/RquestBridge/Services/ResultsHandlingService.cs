@@ -21,10 +21,9 @@ public class ResultsHandlingService(MinioService minioService, IOptions<BridgeOp
   /// </param>
   public async Task HandleResults(FinalOutcomeWebHookModel payload)
   {
-    var pathToResults = Path.Combine(_bridgeOptions.WorkingDirectoryBase, payload.File);
+    var pathToResults = Path.Combine(_bridgeOptions.WorkingDirectoryBase, $"{payload.SubId}-{payload.File}");
     var resultsDirectory =
       Path.Combine(_bridgeOptions.WorkingDirectoryBase, Path.GetFileNameWithoutExtension(pathToResults));
-    var resultsFile = Path.Combine(resultsDirectory, "data", RquestQuery.ResultFileName);
 
     // Get file from S3
     await minioService.GetFromStore(payload.File, pathToResults);
@@ -32,8 +31,13 @@ public class ResultsHandlingService(MinioService minioService, IOptions<BridgeOp
     // Unzip results
     ZipFile.ExtractToDirectory(pathToResults, resultsDirectory);
 
+    // Get results file
+    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(resultsDirectory, "data"));
+
+    var resultsFile = directoryInfo.EnumerateFiles($"outputs/outputs/*", SearchOption.AllDirectories).First();
+
     // Read results object
-    var resultsJson = await File.ReadAllTextAsync(resultsFile);
+    var resultsJson = await File.ReadAllTextAsync(resultsFile.FullName);
 
     var results = JsonSerializer.Deserialize<RquestQueryResult>(resultsJson);
     if (results is null)
