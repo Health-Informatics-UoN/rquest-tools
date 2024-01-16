@@ -116,11 +116,7 @@ namespace RquestBridge.Services
         jobId,
         _rQuestOptions.CollectionId);
 
-      // var response = (await _client.PostAsync(
-      //     requestUri, AsHttpJsonString(result)))
-      //   .EnsureSuccessStatusCode();
-
-      var response = await requestUri.PostJsonAsync(result);
+      var response = await requestUri.WithBasicAuth(_apiOptions.Username, _apiOptions.Password).PostJsonAsync(result);
 
       var body = await response.ResponseMessage.Content.ReadAsStringAsync();
 
