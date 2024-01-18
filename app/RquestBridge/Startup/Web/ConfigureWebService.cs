@@ -1,3 +1,4 @@
+using Microsoft.FeatureManagement;
 using RquestBridge.Config;
 using RquestBridge.Services;
 using RquestBridge.Services.Hosted;
@@ -12,6 +13,8 @@ public static class ConfigureWebService
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     b.Services.AddEndpointsApiExplorer();
     b.Services.AddSwaggerGen();
+    b.Services.AddFeatureManagement(
+      b.Configuration.GetSection("Flags"));
 
     // Add Options
     b.Services
@@ -24,7 +27,9 @@ public static class ConfigureWebService
       .Configure<BridgeOptions>(b.Configuration.GetSection("Bridge"))
       .Configure<MinioOptions>(b.Configuration.GetSection("Minio"))
       .Configure<HutchDatabaseConnectionDetails>(b.Configuration.GetSection("HutchAgent:DBConnection"))
-      .Configure<HutchAgentOptions>(b.Configuration.GetSection("HutchAgent:API"));
+      .Configure<HutchAgentOptions>(b.Configuration.GetSection("HutchAgent:API"))
+      .Configure<AssessActionsOptions>(b.Configuration.GetSection("AssessActions"))
+      .Configure<AgreementPolicyOptions>(b.Configuration.GetSection("AgreementPolicy"));
 
     // Add HttpClients
     b.Services.AddHttpClient<RQuestTaskApiClient>();

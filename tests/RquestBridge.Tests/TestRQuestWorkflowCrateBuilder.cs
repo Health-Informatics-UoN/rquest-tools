@@ -29,9 +29,9 @@ public class TestRQuestWorkflowCrateBuilder
       MemberOf = new List<Part> { new() { Id = projectOptions.Id } },
       Name = "Alice Day"
     };
-    var profileOptions = new CrateProfileOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddAgent();
@@ -80,9 +80,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
-    var profileOptions = new CrateProfileOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddLicense();
@@ -112,9 +112,9 @@ public class TestRQuestWorkflowCrateBuilder
       Name = "trefx"
     };
     var agentOptions = new CrateAgentOptions();
-    var profileOptions = new CrateProfileOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddAgent();
@@ -143,9 +143,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
-    var profileOptions = new CrateProfileOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddCreateAction(RquestQuery.FileName, true);
@@ -176,9 +176,9 @@ public class TestRQuestWorkflowCrateBuilder
     var organisationOptions = new CrateOrganizationOptions();
     var projectOptions = new CrateProjectOptions();
     var agentOptions = new CrateAgentOptions();
-    var profileOptions = new CrateProfileOptions();
+    var agreementOptions = new AgreementPolicyOptions();
     var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
-      organisationOptions, profileOptions);
+      organisationOptions, agreementOptions);
 
     // Act
     builder.AddCreateAction(RquestQuery.FileName, false);
@@ -193,5 +193,41 @@ public class TestRQuestWorkflowCrateBuilder
     var ids = objectProperty.Select(x => x.Id).ToList();
     Assert.Contains(RquestQuery.FileName, ids);
     Assert.Contains("#input_is_distribution", ids);
+  }
+
+  [Fact]
+  public void AddSignOff_Adds_AssessActionAsConfigured()
+  {
+    // Arrange
+    var publishingOptions = new CratePublishingOptions();
+    var workflowOptions = new WorkflowOptions
+    {
+      Name = "test-body",
+      Id = 471,
+      Version = 3
+    };
+    var organisationOptions = new CrateOrganizationOptions();
+    var projectOptions = new CrateProjectOptions();
+    var agentOptions = new CrateAgentOptions();
+    var agreementOptions = new AgreementPolicyOptions
+      { Id = "https://agreement.example.org/agreement", Name = "Test Agreement Policy" };
+    var builder = new RQuestWorkflowCrateBuilder(workflowOptions, publishingOptions, agentOptions, projectOptions,
+      organisationOptions, agreementOptions);
+
+    // Act
+    builder.AddSignOff();
+    var crate = builder.GetROCrate();
+    var signOffActionId = crate.Entities.Keys.First(x => x.StartsWith("#signoff-"));
+    crate.Entities.TryGetValue(signOffActionId, out var signOffAction);
+
+    //Assert
+    Assert.NotNull(signOffAction);
+    var objectProperty = signOffAction.GetProperty<List<Part>>("object");
+    Assert.NotNull(objectProperty);
+    var ids = objectProperty.Select(x => x.Id).ToList();
+    Assert.Contains("./", ids);
+    var instrument = signOffAction.GetProperty<Part>("instrument");
+    Assert.NotNull(instrument);
+    Assert.Equal(agreementOptions.Id, instrument.Id);
   }
 }
