@@ -32,7 +32,7 @@ public class ResultsHandlingService(MinioService minioService, IOptions<BridgeOp
     ZipFile.ExtractToDirectory(pathToResults, resultsDirectory);
 
     // Get results file
-    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(resultsDirectory, "data"));
+    var directoryInfo = new DirectoryInfo(Path.Combine(resultsDirectory, "data"));
 
     var resultsFile = directoryInfo.EnumerateFiles($"outputs/outputs/*", SearchOption.AllDirectories).First();
 
