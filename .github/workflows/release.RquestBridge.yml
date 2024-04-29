@@ -1,4 +1,4 @@
-name: Release to hutchstacl/rquest-bridge
+name: Release to Docker Hub
 
 on:
   push:
