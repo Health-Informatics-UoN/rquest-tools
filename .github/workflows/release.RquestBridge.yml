@@ -41,7 +41,7 @@ jobs:
         with:
           images: ${{ env.namespace }}/${{ env.repo-name }}
           tags: |
-            ${{ github.sha }}
+            ${{ github.event.pull_request.head.sha }}
             latest
 
       - name: Build and push Docker images
