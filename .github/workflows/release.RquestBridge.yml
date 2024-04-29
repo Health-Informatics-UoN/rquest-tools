@@ -1,0 +1,51 @@
+name: Release to hutchstacl/rquest-bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag/version number
+        required: true
+        type: string
+      is-latest:
+        description: Should this be release be tagged with "latest"
+        required: false
+        type: boolean
+  pull_request:
+    branches: [main]
+    paths:
+      - app/RquestBridge/**
+      - test/RquestBridge.Tests/**
+      - .github/workflows/release.RquestBridge.yml
+
+env:
+  namespace: hutchstack
+  repo-name: rquest-bridge
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Docker Login
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Metadata action
+        id: meta
+        uses: docker/metadata-action@v5.5.1
+        with:
+          images: ${{ env.namespace }}/${{ env.repo-name }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: .
+          file: app/RquestBridge/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
