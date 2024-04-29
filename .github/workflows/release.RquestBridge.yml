@@ -1,16 +1,12 @@
 name: Release to hutchstacl/rquest-bridge
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: The tag/version number
-        required: true
-        type: string
-      is-latest:
-        description: Should this be release be tagged with "latest"
-        required: false
-        type: boolean
+  push:
+    branches: [main]
+    paths:
+      - app/RquestBridge/**
+      - test/RquestBridge.Tests/**
+      - .github/workflows/release.RquestBridge.yml
   pull_request:
     branches: [main]
     paths:
@@ -40,6 +36,8 @@ jobs:
         uses: docker/metadata-action@v5.5.1
         with:
           images: ${{ env.namespace }}/${{ env.repo-name }}
+          tags: |
+            type=schedule,pattern={{date 'YYYYMMDD-hhmmss'}}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5.3.0
