@@ -22,6 +22,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date + '%Y-%m-%dT%H:%M:%S')"
+
       - name: Check out the repo
         uses: actions/checkout@v4
 
@@ -37,7 +41,7 @@ jobs:
         with:
           images: ${{ env.namespace }}/${{ env.repo-name }}
           tags: |
-            type=sha,prefix=,format=long
+            type=raw,value=${{ steps.date.outputs.date }}
             latest
 
       - name: Build and push Docker images
