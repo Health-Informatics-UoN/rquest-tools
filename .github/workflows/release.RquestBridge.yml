@@ -37,7 +37,7 @@ jobs:
         with:
           images: ${{ env.namespace }}/${{ env.repo-name }}
           tags: |
-            type=sha,prefix=
+            type=sha,prefix=,format=long
             latest
 
       - name: Build and push Docker images
