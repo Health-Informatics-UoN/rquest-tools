@@ -1,4 +1,4 @@
-name: Release to hutchstacl/rquest-bridge
+name: Release to hutchstacl/rquest-bridge nightly
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
         with:
           images: ${{ env.namespace }}/${{ env.repo-name }}
           tags: |
-            type=schedule,pattern={{date 'YYYYMMDD-hhmmss'}}
+            type=sha
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5.3.0
