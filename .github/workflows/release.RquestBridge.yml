@@ -7,12 +7,6 @@ on:
       - app/RquestBridge/**
       - test/RquestBridge.Tests/**
       - .github/workflows/release.RquestBridge.yml
-  pull_request:
-    branches: [main]
-    paths:
-      - app/RquestBridge/**
-      - test/RquestBridge.Tests/**
-      - .github/workflows/release.RquestBridge.yml
 
 env:
   namespace: hutchstack
