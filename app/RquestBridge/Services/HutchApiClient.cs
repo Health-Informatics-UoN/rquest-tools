@@ -11,16 +11,20 @@ public class HutchApiClient
 {
   private readonly HttpClient _client;
   private readonly HutchAgentOptions _hutchAgentOptions;
+
+  private readonly HutchDatabaseConnectionDetails _hutchDbAccess;
   private readonly ILogger<HutchApiClient> _logger;
   private readonly MinioOptions _minioOptions;
 
   public HutchApiClient(
     HttpClient client,
     IOptions<HutchAgentOptions> hutchAgentOptions,
-    ILogger<HutchApiClient> logger, IOptions<MinioOptions> minioOptions)
+    ILogger<HutchApiClient> logger, IOptions<MinioOptions> minioOptions,
+    IOptions<HutchDatabaseConnectionDetails> hutchDbAccess)
   {
     _client = client;
     _logger = logger;
+    _hutchDbAccess = hutchDbAccess.Value;
     _minioOptions = minioOptions.Value;
     _hutchAgentOptions = hutchAgentOptions.Value;
   }
@@ -50,6 +54,14 @@ public class HutchApiClient
         Secure = _minioOptions.Secure
       }
     };
+
+// conditionally pass on db details?
+    // TODO: much more robust version needed
+    if (!string.IsNullOrWhiteSpace(_hutchDbAccess.Hostname) && !string.IsNullOrWhiteSpace(_hutchDbAccess.Database))
+    {
+      payload.DataAccess = _hutchDbAccess;
+    }
+
     // POST to HutchAgent
     var response = await _client.PostAsync(requestUri, AsHttpJsonString(payload));
     _logger.LogInformation(response.StatusCode.ToString());
