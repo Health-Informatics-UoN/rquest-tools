@@ -11,10 +11,10 @@ public class HutchApiClient
 {
   private readonly HttpClient _client;
   private readonly HutchAgentOptions _hutchAgentOptions;
+
+  private readonly HutchDatabaseConnectionDetails _hutchDbAccess;
   private readonly ILogger<HutchApiClient> _logger;
   private readonly MinioOptions _minioOptions;
-
-private readonly HutchDatabaseConnectionDetails _hutchDbAccess;
 
   public HutchApiClient(
     HttpClient client,

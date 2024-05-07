@@ -122,13 +122,13 @@ public class CrateGenerationService(ILogger<CrateGenerationService> logger,
 
   public async Task AssessBagIt(BagItArchive archive)
   {
-logger.LogDebug("Performing BagIt Assessments");
+    logger.LogDebug("Performing BagIt Assessments");
     var builder = new RQuestWorkflowCrateBuilder(_workflowOptions, _publishingOptions, _crateAgentOptions,
       _crateProjectOptions, _crateOrganizationOptions, archive.PayloadDirectoryPath, _agreementPolicyOptions);
     var validator = new Part() { Id = $"validator-{Guid.NewGuid()}" };
     if (_assessActionsOptions.CheckValue)
     {
-logger.LogDebug("CheckValue AssessAction...");
+      logger.LogDebug("CheckValue AssessAction...");
       var manifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.ManifestPath);
       var tagManifestPath = Path.Combine(archive.ArchiveRootPath, BagItConstants.TagManifestPath);
 
@@ -138,37 +138,38 @@ logger.LogDebug("CheckValue AssessAction...");
 
       if (bothFilesExist && checkSumsMatch)
       {
-logger.LogDebug("CheckValue Successful");
+        logger.LogDebug("CheckValue Successful");
         builder.AddCheckValueAssessAction(ActionStatus.CompletedActionStatus, DateTime.Now, validator);
       }
       else
       {
-logger.LogDebug("CheckValue Failure");
+        logger.LogDebug("CheckValue Failure");
         builder.AddCheckValueAssessAction(ActionStatus.FailedActionStatus, DateTime.Now, validator);
       }
-logger.LogDebug("Recorded CheckValue outcome");
+
+      logger.LogDebug("Recorded CheckValue outcome");
     }
 
     if (_assessActionsOptions.Validate)
     {
-logger.LogDebug("Validate Profile AssessAction...");
+      logger.LogDebug("Validate Profile AssessAction...");
       builder.AddValidateCheck(ActionStatus.CompletedActionStatus, validator);
-logger.LogDebug("Recorded Validate outcome");
+      logger.LogDebug("Recorded Validate outcome");
     }
 
     if (_assessActionsOptions.SignOff)
     {
-logger.LogDebug("SignOff AssessAction");
+      logger.LogDebug("SignOff AssessAction");
       builder.AddSignOff();
-logger.LogDebug("Recorded SignOff outcome");
+      logger.LogDebug("Recorded SignOff outcome");
     }
 
     var crate = builder.GetROCrate();
     crate.Save(archive.PayloadDirectoryPath);
-logger.LogDebug("Crate saved.");
+    logger.LogDebug("Crate saved.");
     await archive.WriteTagManifestSha512();
     await archive.WriteManifestSha512();
-logger.LogDebug("Updated BagIt Checksums");
+    logger.LogDebug("Updated BagIt Checksums");
   }
 
   /// <summary>

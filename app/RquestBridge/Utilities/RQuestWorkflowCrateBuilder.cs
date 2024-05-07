@@ -122,7 +122,7 @@ public class RQuestWorkflowCrateBuilder
     createAction.AppendTo("object", isAvailabilityEntity);
 
     _crate.Add(createAction);
-_crate.RootDataset.AppendTo("mentions", createAction);
+    _crate.RootDataset.AppendTo("mentions", createAction);
   }
 
   /// <summary>
