@@ -10,7 +10,6 @@ namespace RquestBridge.Services;
 
 public class RQuestAvailabilityPollingService(RQuestTaskApiClient taskApi,
   ILogger<RQuestAvailabilityPollingService> logger,
-  RabbitJobQueueService jobQueue,
   CrateGenerationService crateGenerationService,
   HutchApiClient hutchApiClient,
   MinioService minioService,
@@ -80,11 +79,5 @@ public class RQuestAvailabilityPollingService(RQuestTaskApiClient taskApi,
       JobId = jobPayload.Uuid
     };
     return job;
-  }
-
-  private void SendToQueue(RQuestJob jobPayload, string queueName)
-  {
-    jobQueue.SendMessage(queueName, jobPayload);
-    logger.LogInformation("Sent to Queue {Body}", JsonSerializer.Serialize(jobPayload));
   }
 }
