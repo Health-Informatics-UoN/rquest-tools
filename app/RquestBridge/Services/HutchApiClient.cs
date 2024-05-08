@@ -7,27 +7,17 @@ using RquestBridge.Models;
 
 namespace RquestBridge.Services;
 
-public class HutchApiClient
+public class HutchApiClient(HttpClient client,
+  IOptions<HutchAgentOptions> hutchAgentOptions,
+  ILogger<HutchApiClient> logger, IOptionsSnapshot<MinioOptions> minioOptions,
+  IOptions<HutchDatabaseConnectionDetails> hutchDbAccess)
 {
-  private readonly HttpClient _client;
-  private readonly HutchAgentOptions _hutchAgentOptions;
+  private readonly HutchAgentOptions _hutchAgentOptions = hutchAgentOptions.Value;
 
-  private readonly HutchDatabaseConnectionDetails _hutchDbAccess;
-  private readonly ILogger<HutchApiClient> _logger;
-  private readonly MinioOptions _minioOptions;
+  private readonly HutchDatabaseConnectionDetails _hutchDbAccess = hutchDbAccess.Value;
 
-  public HutchApiClient(
-    HttpClient client,
-    IOptions<HutchAgentOptions> hutchAgentOptions,
-    ILogger<HutchApiClient> logger, IOptions<MinioOptions> minioOptions,
-    IOptions<HutchDatabaseConnectionDetails> hutchDbAccess)
-  {
-    _client = client;
-    _logger = logger;
-    _hutchDbAccess = hutchDbAccess.Value;
-    _minioOptions = minioOptions.Value;
-    _hutchAgentOptions = hutchAgentOptions.Value;
-  }
+  // send externalised version of Minio options
+  private readonly MinioOptions _minioOptions = minioOptions.Get(MinioOptions.External);
 
   private StringContent AsHttpJsonString<T>(T value)
     => new StringContent(
@@ -63,7 +53,7 @@ public class HutchApiClient
     }
 
     // POST to HutchAgent
-    var response = await _client.PostAsync(requestUri, AsHttpJsonString(payload));
-    _logger.LogInformation(response.StatusCode.ToString());
+    var response = await client.PostAsync(requestUri, AsHttpJsonString(payload));
+    logger.LogInformation("{Status}", response.StatusCode.ToString());
   }
 }

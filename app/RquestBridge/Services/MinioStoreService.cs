@@ -12,10 +12,11 @@ public class MinioService
   private readonly IMinioClient _minioClient;
   private readonly MinioOptions _options;
 
-  public MinioService(ILogger<MinioService> logger, IOptions<MinioOptions> options)
+  public MinioService(ILogger<MinioService> logger, IOptionsSnapshot<MinioOptions> options)
   {
     _logger = logger;
-    _options = options.Value;
+    // Get the system Minio options to connect
+    _options = options.Get(MinioOptions.System);
     _minioClient = new MinioClient()
       .WithEndpoint(_options.Host)
       .WithCredentials(_options.AccessKey, _options.SecretKey)
