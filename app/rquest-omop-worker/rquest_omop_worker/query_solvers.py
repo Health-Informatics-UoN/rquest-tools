@@ -73,7 +73,7 @@ class AvailibilityQuerySolver:
                 concept_ids.add(rule.value)
         concept_query = (
             # order must be .concept_id, .domain_id
-            select([Concept.concept_id, Concept.domain_id])
+            select(Concept.concept_id, Concept.domain_id)
             .where(Concept.concept_id.in_(concept_ids))
             .distinct()
         )
@@ -260,7 +260,7 @@ class CodeDistributionQuerySolver:
             table = self.allowed_domains_map[k]
             concept_col = self.domain_concept_id_map[k]
             stmnt = (
-                select([func.count(table.person_id), concept_col])
+                select(func.count(table.person_id), concept_col)
                 .group_by(concept_col)
             )
             res = pd.read_sql(stmnt, self.db_manager.engine.connect())
@@ -275,7 +275,7 @@ class CodeDistributionQuerySolver:
 
         # Get descriptions
         concept_query = (
-            select([Concept.concept_id, Concept.concept_name])
+            select(Concept.concept_id, Concept.concept_name)
             .where(Concept.concept_id.in_(concepts))
         )
         concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
