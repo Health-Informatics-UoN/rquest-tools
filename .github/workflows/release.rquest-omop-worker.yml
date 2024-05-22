@@ -1,0 +1,51 @@
+# This workflow is intended to be used for publishing
+# C#/.NET apps on merging to `main`.
+#
+# These releases will be tagged with the SHA of the merge commit.
+#
+# This is NOT intended for stable, semver'd releases. Rather, publishing 
+# the bleeding-edge version.
+
+name: Release to Docker Hub (unstable)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - app/rquest-omop-worker/** # trigger on changes to the app
+      - .github/workflows/release.rquest-omop-worker.yml # trigger on changes to this file
+
+env:
+  namespace: hutchstack # the organisation name or username to publish to
+  repo-name: rquest-omop-worker # the name of the docker image (must be lowercase)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Docker Login
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Metadata action
+        id: meta
+        uses: docker/metadata-action@v5.5.1
+        with:
+          images: ${{ env.namespace }}/${{ env.repo-name }}
+          tags: |
+            ${{ github.sha }}
+            latest
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: . # the root of the repo
+          file: app/rquest-omop-worker/Dockerfile # the path to the Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
