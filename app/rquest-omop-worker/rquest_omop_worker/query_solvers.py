@@ -73,11 +73,11 @@ class AvailibilityQuerySolver:
                 concept_ids.add(rule.value)
         concept_query = (
             # order must be .concept_id, .domain_id
-            select([Concept.concept_id, Concept.domain_id])
+            select(Concept.concept_id, Concept.domain_id)
             .where(Concept.concept_id.in_(concept_ids))
             .distinct()
         )
-        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine)
+        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
         concept_dict = {
             str(concept_id): domain_id for concept_id, domain_id in concepts_df.values
         }
@@ -108,21 +108,21 @@ class AvailibilityQuerySolver:
                     )
                     .distinct()
                 )
-                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine)
+                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
             elif group.rules[0].operator == "=":
                 stmnt = (
                     select(concept_table.person_id)
                     .where(boolean_rule_col == group.rules[0].value)
                     .distinct()
                 )
-                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine)
+                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
             elif group.rules[0].operator == "!=":
                 stmnt = (
                     select(concept_table.person_id)
                     .where(boolean_rule_col != group.rules[0].value)
                     .distinct()
                 )
-                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine)
+                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
             for i, rule in enumerate(group.rules[1:], start=1):
                 concept = concepts.get(rule.value)
                 concept_table = self.concept_table_map.get(concept)
@@ -143,7 +143,7 @@ class AvailibilityQuerySolver:
                         .distinct()
                     )
                     rule_df = pd.read_sql_query(
-                        sql=stmnt, con=self.db_manager.engine
+                        sql=stmnt, con=self.db_manager.engine.connect()
                     )
                     main_df = main_df.merge(
                         right=rule_df,
@@ -158,7 +158,7 @@ class AvailibilityQuerySolver:
                         .where(boolean_rule_col == rule.value)
                         .distinct()
                     )
-                    rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine)
+                    rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
                     main_df = main_df.merge(
                         right=rule_df,
                         how=merge_method(group.rules_operator),
@@ -172,7 +172,7 @@ class AvailibilityQuerySolver:
                         .where(boolean_rule_col != rule.value)
                         .distinct()
                     )
-                    rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine)
+                    rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
                     main_df = main_df.merge(
                         right=rule_df,
                         how=merge_method(group.rules_operator),
@@ -260,10 +260,10 @@ class CodeDistributionQuerySolver:
             table = self.allowed_domains_map[k]
             concept_col = self.domain_concept_id_map[k]
             stmnt = (
-                select([func.count(table.person_id), concept_col])
+                select(func.count(table.person_id), concept_col)
                 .group_by(concept_col)
             )
-            res = pd.read_sql(stmnt, self.db_manager.engine)
+            res = pd.read_sql(stmnt, self.db_manager.engine.connect())
             counts.extend(res.iloc[:, 0])
             concepts.extend(res.iloc[:, 1])
             categories.extend([k] * len(res))
@@ -275,10 +275,10 @@ class CodeDistributionQuerySolver:
 
         # Get descriptions
         concept_query = (
-            select([Concept.concept_id, Concept.concept_name])
+            select(Concept.concept_id, Concept.concept_name)
             .where(Concept.concept_id.in_(concepts))
         )
-        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine)
+        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
         for _, row in concepts_df.iterrows():
             df.loc[df["OMOP"] == row["concept_id"], "OMOP_DESCR"] = row["concept_name"]
 
