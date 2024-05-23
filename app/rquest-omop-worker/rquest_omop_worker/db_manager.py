@@ -1,7 +1,8 @@
-from typing import Any
+from typing import Any, Union
 
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.engine import URL
+from sqlalchemy.engine import URL as SQLAURL
+from trino.sqlalchemy import URL as TrinoURL
 
 
 class BaseDBManager:
@@ -78,7 +79,7 @@ class SyncDBManager(BaseDBManager):
         drivername: str,
         schema: str = None,
     ) -> None:
-        url = URL.create(
+        url = SQLAURL.create(
             drivername=drivername,
             username=username,
             password=password,
@@ -115,3 +116,40 @@ class SyncDBManager(BaseDBManager):
 
     def list_tables(self) -> list:
         return self.inspector.get_table_names()
+
+
+class TrinoDBManager(BaseDBManager):
+    def __init__(
+        self,
+        username: str,
+        host: str,
+        port: int,
+        catalog: str,
+        password: Union[str, None] = None,
+        drivername: Union[str, None] = None,
+        schema: Union[str, None] = None,
+        database: Union[str, None] = None,
+    ) -> None:
+        """Create a DB manager that interacts with Trino.
+
+        Args:
+            username (str): The username on the Trino server.
+            password (Union[str, None]): (optional) The password for the Trino server.
+            host (str): The host of the Trino server.
+            port (int): The port of the Trino server.
+            database (Union[str, None]): Ignored.
+            drivername (str): (Union[str, None]): Ignored.
+            schema (Union[str, None]): (optional) The schema in the database.
+            catalog (str): The catalog on the Trino server.
+        """
+        url = TrinoURL(
+            username=username,
+            password=password,
+            host=host,
+            port=port,
+            schema=schema,
+            catalog=catalog
+        )
+
+        self.engine = create_engine(url)
+        self.inspector = inspect(self.engine)
