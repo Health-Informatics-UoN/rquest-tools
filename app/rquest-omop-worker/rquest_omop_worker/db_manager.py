@@ -153,3 +153,40 @@ class TrinoDBManager(BaseDBManager):
 
         self.engine = create_engine(url)
         self.inspector = inspect(self.engine)
+    
+    def execute_and_fetch(self, stmnt: Any) -> list:
+        """Execute a SQL statement and return a list of rows containing the
+        results of the query.
+
+        Args:
+            stmnt (Any): The SQL statement to be executed.
+
+        Returns:
+            list: The results of the SQL statement.
+        """
+        with self.engine.begin() as conn:
+            result = conn.execute(statement=stmnt)
+            rows = result.all()
+        # Need to call `dispose` - not automatic
+        self.engine.dispose()
+        return rows
+    
+    def execute(self, stmnt: Any) -> None:
+        """Execute a SQL statement. Useful for when results aren't expected back, such as
+        updating or deleting.
+
+        Args:
+            stmnt (Any): The SQL statement to be executed.
+        """
+        with self.engine.begin() as conn:
+            conn.execute(statement=stmnt)
+        # Need to call `dispose` - not automatic
+        self.engine.dispose()
+
+    def list_tables(self) -> list:
+        """Get a list of tables in the database.
+
+        Returns:
+            list: The tables in the database.
+        """
+        return self.inspector.get_table_names()
