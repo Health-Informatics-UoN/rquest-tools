@@ -143,7 +143,7 @@ class TrinoDBManager(BaseDBManager):
             catalog (str): The catalog on the Trino server.
         """
         url = TrinoURL(
-            username=username,
+            user=username,
             password=password,
             host=host,
             port=port,
