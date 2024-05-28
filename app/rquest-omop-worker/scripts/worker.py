@@ -105,7 +105,7 @@ def main() -> None:
     if bool(os.getenv("USE_TRINO", False)):
         datasource_db_port = os.getenv("DATASOURCE_DB_PORT", 8080)
         db_manager = TrinoDBManager(
-            username=os.getenv("DATASOURCE_DB_USERNAME"),
+            username=os.getenv("DATASOURCE_DB_USERNAME", "trino-user"),
             password=os.getenv("DATASOURCE_DB_PASSWORD"),
             host=os.getenv("DATASOURCE_DB_HOST"),
             port=int(datasource_db_port),
@@ -132,7 +132,6 @@ def main() -> None:
         query = AvailabilityQuery.from_dict(query_dict)
         result = query_solvers.solve_availability(db_manager=db_manager, query=query)
         result.count = apply_filters_v2(result.count, result_modifers)
-        print(result.to_dict())
         try:
             save_to_output(result, args.output)
             logger.info(f"Saved results to {args.output}")
