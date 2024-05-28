@@ -70,7 +70,7 @@ class AvailibilityQuerySolver:
         concept_ids = set()
         for group in self.query.cohort.groups:
             for rule in group.rules:
-                concept_ids.add(rule.value)
+                concept_ids.add(int(rule.value))
         concept_query = (
             # order must be .concept_id, .domain_id
             select(Concept.concept_id, Concept.domain_id)
@@ -100,7 +100,7 @@ class AvailibilityQuerySolver:
                     select(concept_table.person_id)
                     .where(
                         and_(
-                            boolean_rule_col == group.rules[0].value,
+                            boolean_rule_col == int(group.rules[0].value),
                             numeric_rule_col.between(
                                 group.rules[0].min_value, group.rules[0].max_value
                             ),
@@ -112,14 +112,14 @@ class AvailibilityQuerySolver:
             elif group.rules[0].operator == "=":
                 stmnt = (
                     select(concept_table.person_id)
-                    .where(boolean_rule_col == group.rules[0].value)
+                    .where(boolean_rule_col == int(group.rules[0].value))
                     .distinct()
                 )
                 main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
             elif group.rules[0].operator == "!=":
                 stmnt = (
                     select(concept_table.person_id)
-                    .where(boolean_rule_col != group.rules[0].value)
+                    .where(boolean_rule_col != int(group.rules[0].value))
                     .distinct()
                 )
                 main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
@@ -134,7 +134,7 @@ class AvailibilityQuerySolver:
                         select(concept_table.person_id.label(f"person_id_{i}"))
                         .where(
                             and_(
-                                boolean_rule_col == rule.value,
+                                boolean_rule_col == int(rule.value),
                                 numeric_rule_col.between(
                                     rule.min_value, rule.max_value
                                 ),
@@ -155,7 +155,7 @@ class AvailibilityQuerySolver:
                 elif rule.operator == "=":
                     stmnt = (
                         select(concept_table.person_id.label(f"person_id_{i}"))
-                        .where(boolean_rule_col == rule.value)
+                        .where(boolean_rule_col == int(rule.value))
                         .distinct()
                     )
                     rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
@@ -169,7 +169,7 @@ class AvailibilityQuerySolver:
                 elif rule.operator == "!=":
                     stmnt = (
                         select(concept_table.person_id.label(f"person_id_{i}"))
-                        .where(boolean_rule_col != rule.value)
+                        .where(boolean_rule_col != int(rule.value))
                         .distinct()
                     )
                     rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
