@@ -151,7 +151,7 @@ class TrinoDBManager(BaseDBManager):
             catalog=catalog
         )
 
-        self.engine = create_engine(url)
+        self.engine = create_engine(url, connect_args={"http_scheme": "http"})
         self.inspector = inspect(self.engine)
     
     def execute_and_fetch(self, stmnt: Any) -> list:
