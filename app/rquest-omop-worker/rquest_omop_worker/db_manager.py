@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Optional
 
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import URL as SQLAURL
@@ -77,8 +77,14 @@ class SyncDBManager(BaseDBManager):
         port: int,
         database: str,
         drivername: str,
-        schema: str = None,
+        schema: Optional[str] = None,
     ) -> None:
+        if not isinstance(username, str): raise TypeError("`username` must be a string")
+        if not isinstance(password, str): raise TypeError("`password` must be a string")
+        if not isinstance(host, str): raise TypeError("`host` must be a string")
+        if not isinstance(port, int): raise TypeError("`port` must be an integer")
+        if not isinstance(database, str): raise TypeError("`database` must be a string")
+
         url = SQLAURL.create(
             drivername=drivername,
             username=username,
@@ -125,10 +131,10 @@ class TrinoDBManager(BaseDBManager):
         host: str,
         port: int,
         catalog: str,
-        password: Union[str, None] = None,
-        drivername: Union[str, None] = None,
-        schema: Union[str, None] = None,
-        database: Union[str, None] = None,
+        password: Optional[str] = None,
+        drivername: Optional[str] = None,
+        schema: Optional[str] = None,
+        database: Optional[str] = None,
     ) -> None:
         """Create a DB manager that interacts with Trino.
 
@@ -142,6 +148,12 @@ class TrinoDBManager(BaseDBManager):
             schema (Union[str, None]): (optional) The schema in the database.
             catalog (str): The catalog on the Trino server.
         """
+        # check required args
+        if not isinstance(username, str): raise TypeError("`username` must be a string")
+        if not isinstance(host, str): raise TypeError("`host` must be a string")
+        if not isinstance(port, int): raise TypeError("`port` must be an integer")
+        if not isinstance(catalog, str): raise TypeError("`catalog` must be a string")
+
         url = TrinoURL(
             user=username,
             password=password,
