@@ -38,12 +38,12 @@ def get_results_modifiers_from_str(params: str) -> list:
     Returns:
         list: The list of parameter dicts of results modifiers
     """
-    params = json.loads(params)
-    if type(params) is not list:
+    deserialised_params = json.loads(params)
+    if not isinstance(deserialised_params, list):
         raise ValueError(
             f"{get_results_modifiers_from_str.__name__} requires a JSON list"
         )
-    return params
+    return deserialised_params
 
 
 def low_number_suppression(

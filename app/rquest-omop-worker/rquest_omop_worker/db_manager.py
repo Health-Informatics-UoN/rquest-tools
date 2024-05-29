@@ -1,7 +1,8 @@
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.engine import URL
+from sqlalchemy.engine import URL as SQLAURL
+from trino.sqlalchemy import URL as TrinoURL
 
 
 class BaseDBManager:
@@ -76,9 +77,15 @@ class SyncDBManager(BaseDBManager):
         port: int,
         database: str,
         drivername: str,
-        schema: str = None,
+        schema: Optional[str] = None,
     ) -> None:
-        url = URL.create(
+        if not isinstance(username, str): raise TypeError("`username` must be a string")
+        if not isinstance(password, str): raise TypeError("`password` must be a string")
+        if not isinstance(host, str): raise TypeError("`host` must be a string")
+        if not isinstance(port, int): raise TypeError("`port` must be an integer")
+        if not isinstance(database, str): raise TypeError("`database` must be a string")
+
+        url = SQLAURL.create(
             drivername=drivername,
             username=username,
             password=password,
@@ -114,4 +121,84 @@ class SyncDBManager(BaseDBManager):
         self.engine.dispose()
 
     def list_tables(self) -> list:
+        return self.inspector.get_table_names()
+
+
+class TrinoDBManager(BaseDBManager):
+    def __init__(
+        self,
+        username: str,
+        host: str,
+        port: int,
+        catalog: str,
+        password: Optional[str] = None,
+        drivername: Optional[str] = None,
+        schema: Optional[str] = None,
+        database: Optional[str] = None,
+    ) -> None:
+        """Create a DB manager that interacts with Trino.
+
+        Args:
+            username (str): The username on the Trino server.
+            password (Union[str, None]): (optional) The password for the Trino server.
+            host (str): The host of the Trino server.
+            port (int): The port of the Trino server.
+            database (Union[str, None]): Ignored.
+            drivername (str): (Union[str, None]): Ignored.
+            schema (Union[str, None]): (optional) The schema in the database.
+            catalog (str): The catalog on the Trino server.
+        """
+        # check required args
+        if not isinstance(username, str): raise TypeError("`username` must be a string")
+        if not isinstance(host, str): raise TypeError("`host` must be a string")
+        if not isinstance(port, int): raise TypeError("`port` must be an integer")
+        if not isinstance(catalog, str): raise TypeError("`catalog` must be a string")
+
+        url = TrinoURL(
+            user=username,
+            password=password,
+            host=host,
+            port=port,
+            schema=schema,
+            catalog=catalog
+        )
+
+        self.engine = create_engine(url, connect_args={"http_scheme": "http"})
+        self.inspector = inspect(self.engine)
+    
+    def execute_and_fetch(self, stmnt: Any) -> list:
+        """Execute a SQL statement and return a list of rows containing the
+        results of the query.
+
+        Args:
+            stmnt (Any): The SQL statement to be executed.
+
+        Returns:
+            list: The results of the SQL statement.
+        """
+        with self.engine.begin() as conn:
+            result = conn.execute(statement=stmnt)
+            rows = result.all()
+        # Need to call `dispose` - not automatic
+        self.engine.dispose()
+        return rows
+    
+    def execute(self, stmnt: Any) -> None:
+        """Execute a SQL statement. Useful for when results aren't expected back, such as
+        updating or deleting.
+
+        Args:
+            stmnt (Any): The SQL statement to be executed.
+        """
+        with self.engine.begin() as conn:
+            conn.execute(statement=stmnt)
+        # Need to call `dispose` - not automatic
+        self.engine.dispose()
+
+    def list_tables(self) -> list:
+        """Get a list of tables in the database.
+
+        Returns:
+            list: The tables in the database.
+        """
         return self.inspector.get_table_names()

@@ -8,7 +8,7 @@ from rquest_omop_worker import query_solvers
 from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from rquest_omop_worker.rquest_dto.result import RquestResult
 from rquest_omop_worker.obfuscation import get_results_modifiers_from_str, apply_filters_v2
-from rquest_omop_worker.db_manager import SyncDBManager
+from rquest_omop_worker.db_manager import SyncDBManager, TrinoDBManager
 
 parser = argparse.ArgumentParser(
     prog="rquest-omop-worker",
@@ -102,16 +102,35 @@ def main() -> None:
         exit()
 
     logger.info("Setting up database connection...")
-    datasource_db_port = os.getenv("DATASOURCE_DB_PORT")
-    db_manager = SyncDBManager(
-        username=os.getenv("DATASOURCE_DB_USERNAME"),
-        password=os.getenv("DATASOURCE_DB_PASSWORD"),
-        host=os.getenv("DATASOURCE_DB_HOST"),
-        port=int(datasource_db_port) if datasource_db_port is not None else None,
-        database=os.getenv("DATASOURCE_DB_DATABASE"),
-        drivername=os.getenv("DATASOURCE_DB_DRIVERNAME", config.DEFAULT_DB_DRIVER),
-        schema=os.getenv("DATASOURCE_DB_SCHEMA"),
-    )
+    if bool(os.getenv("USE_TRINO", False)):
+        datasource_db_port = os.getenv("DATASOURCE_DB_PORT", 8080)
+        try:
+            db_manager = TrinoDBManager(
+                username=os.getenv("DATASOURCE_DB_USERNAME", "trino-user"),
+                password=os.getenv("DATASOURCE_DB_PASSWORD"),
+                host=os.getenv("DATASOURCE_DB_HOST"),
+                port=int(datasource_db_port),
+                schema=os.getenv("DATASOURCE_DB_SCHEMA"),
+                catalog=os.getenv("DATASOURCE_DB_CATALOG")
+            )
+        except TypeError as e:
+            logger.error(str(e)) 
+            exit()
+    else:
+        datasource_db_port = os.getenv("DATASOURCE_DB_PORT")
+        try:
+            db_manager = SyncDBManager(
+                username=os.getenv("DATASOURCE_DB_USERNAME"),
+                password=os.getenv("DATASOURCE_DB_PASSWORD"),
+                host=os.getenv("DATASOURCE_DB_HOST"),
+                port=int(datasource_db_port) if datasource_db_port is not None else None,
+                database=os.getenv("DATASOURCE_DB_DATABASE"),
+                drivername=os.getenv("DATASOURCE_DB_DRIVERNAME", config.DEFAULT_DB_DRIVER),
+                schema=os.getenv("DATASOURCE_DB_SCHEMA"),
+            )
+        except TypeError as e:
+            logger.error(str(e))
+            exit()
 
     logger.info("Processing query...")
     with open(args.body) as body:
