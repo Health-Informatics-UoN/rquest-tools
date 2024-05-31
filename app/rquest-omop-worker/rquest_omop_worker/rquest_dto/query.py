@@ -93,6 +93,7 @@ class DistributionQuery(BaseDto):
 
         Raises:
             TypeError: "Distribution queries must have values for: 'owner', 'code', 'analysis', 'uuid' and 'collection'"
+            ValueError: `dict_` contains an incorrect value for `code`.
 
         Returns:
             Self: `DistributionQuery` object.
