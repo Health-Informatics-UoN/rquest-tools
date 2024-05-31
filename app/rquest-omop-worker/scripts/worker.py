@@ -5,7 +5,7 @@ import argparse
 import json
 import rquest_omop_worker.config as config
 from rquest_omop_worker import query_solvers
-from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, CodeDistributionQuery
+from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from rquest_omop_worker.rquest_dto.result import RquestResult
 from rquest_omop_worker.obfuscation import get_results_modifiers_from_str, apply_filters_v2
 from rquest_omop_worker.db_manager import SyncDBManager, TrinoDBManager
@@ -146,7 +146,7 @@ def main() -> None:
         except ValueError as e:
             logger.error(str(e), exc_info=True)
     else:
-        query = CodeDistributionQuery.from_dict(query_dict)
+        query = DistributionQuery.from_dict(query_dict)
         result = query_solvers.solve_distribution(db_manager=db_manager, query=query)
         try:
             save_to_output(result, args.output)
