@@ -1,3 +1,4 @@
+from rquest_omop_worker.enums import DistributionQueryType
 from rquest_omop_worker.rquest_dto.base_dto import BaseDto
 from rquest_omop_worker.rquest_dto.cohort import Cohort
 
@@ -57,7 +58,7 @@ class DistributionQuery(BaseDto):
     def __init__(
         self,
         owner: str,
-        code: str,
+        code: DistributionQueryType,
         analysis: str,
         uuid: str,
         collection: str,
@@ -77,7 +78,7 @@ class DistributionQuery(BaseDto):
         """
         return {
             "owner": self.owner,
-            "code": self.code,
+            "code": self.code.value,
             "analysis": self.analysis,
             "uuid": self.uuid,
             "collection": self.collection,
@@ -90,7 +91,25 @@ class DistributionQuery(BaseDto):
         Args:
             dict_ (dict): Mapping containing the `DistributionQuery`'s attributes.
 
+        Raises:
+            TypeError: "Distribution queries must have values for: 'owner', 'code', 'analysis', 'uuid' and 'collection'"
+
         Returns:
             Self: `DistributionQuery` object.
         """
-        return cls(**dict_)
+
+        owner = dict_.get("owner")
+        code = dict_.get("code")
+        analysis = dict_.get("analysis")
+        uuid = dict_.get("uuid")
+        collection = dict_.get("collection")
+
+        if any(v is None for v in [owner, code, analysis, uuid, collection]):
+            raise TypeError(
+                "Distribution queries must have values for: 'owner', 'code', 'analysis', 'uuid' and 'collection'"
+            )
+        
+        if code_enum := DistributionQueryType.get_value(code):
+            return cls(owner, code_enum, analysis, uuid, collection)
+        else:
+            raise ValueError(f"{code} is not a valid distribution query type. Valid values are: {DistributionQueryType.DEMOGRAPHICS.value}, {DistributionQueryType.GENERIC.value} or {DistributionQueryType.ICD_MAIN.value}")
