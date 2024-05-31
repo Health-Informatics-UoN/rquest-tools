@@ -161,7 +161,9 @@ def main() -> None:
             )
             save_to_output(result, args.output)
             logger.info(f"Saved results to {args.output}")
-        except TypeError as te:  # raised if the distribution query json is wrong
+        except TypeError as te:  # raised if the distribution query json format is wrong
             logger.error(str(te), exc_info=True)
-        except ValueError as ve:  # raised if there was an issue saving the output
+        except ValueError as ve:
+            # raised if there was an issue saving the output or 
+            # the query json has incorrect values
             logger.error(str(ve), exc_info=True)
