@@ -108,8 +108,10 @@ class DistributionQuery(BaseDto):
             raise TypeError(
                 "Distribution queries must have values for: 'owner', 'code', 'analysis', 'uuid' and 'collection'"
             )
-        
+
         if code_enum := DistributionQueryType.get_value(code):
             return cls(owner, code_enum, analysis, uuid, collection)
         else:
-            raise ValueError(f"{code} is not a valid distribution query type. Valid values are: {DistributionQueryType.DEMOGRAPHICS.value}, {DistributionQueryType.GENERIC.value} or {DistributionQueryType.ICD_MAIN.value}")
+            raise ValueError(
+                f"'{code}' is not a valid distribution query type. Valid values are: '{DistributionQueryType.DEMOGRAPHICS.value}', '{DistributionQueryType.GENERIC.value}' or '{DistributionQueryType.ICD_MAIN.value}'"
+            )
