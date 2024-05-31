@@ -288,7 +288,6 @@ class CodeDistributionQuerySolver:
         # Convert df to tab separated string
         results = list(["\t".join(df.columns)])
         for _, row in df.iterrows():
-            print(row)
             results.append("\t".join([str(r) for r in row.values]))
         
         return os.linesep.join(results), len(df)
