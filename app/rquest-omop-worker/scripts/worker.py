@@ -7,7 +7,10 @@ import rquest_omop_worker.config as config
 from rquest_omop_worker import query_solvers
 from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from rquest_omop_worker.rquest_dto.result import RquestResult
-from rquest_omop_worker.obfuscation import get_results_modifiers_from_str, apply_filters_v2
+from rquest_omop_worker.obfuscation import (
+    get_results_modifiers_from_str,
+    apply_filters_v2,
+)
 from rquest_omop_worker.db_manager import SyncDBManager, TrinoDBManager
 
 parser = argparse.ArgumentParser(
@@ -25,14 +28,14 @@ parser.add_argument(
     "--availability",
     dest="is_availability",
     action="store_true",
-    help="The query is a availability query"
+    help="The query is a availability query",
 )
 parser.add_argument(
     "-d",
     "--distribution",
     dest="is_distribution",
     action="store_true",
-    help="The query is a distribution query"
+    help="The query is a distribution query",
 )
 parser.add_argument(
     "-o",
@@ -41,7 +44,7 @@ parser.add_argument(
     required=False,
     type=str,
     default="output.json",
-    help="The path to the output file"
+    help="The path to the output file",
 )
 parser.add_argument(
     "-m",
@@ -52,6 +55,7 @@ parser.add_argument(
     default="[]",  # when parsed will produce an empty list
     help="The results modifiers",
 )
+
 
 def save_to_output(result: RquestResult, destination: str) -> None:
     """Save the result to a JSON file.
@@ -111,10 +115,10 @@ def main() -> None:
                 host=os.getenv("DATASOURCE_DB_HOST"),
                 port=int(datasource_db_port),
                 schema=os.getenv("DATASOURCE_DB_SCHEMA"),
-                catalog=os.getenv("DATASOURCE_DB_CATALOG")
+                catalog=os.getenv("DATASOURCE_DB_CATALOG"),
             )
         except TypeError as e:
-            logger.error(str(e)) 
+            logger.error(str(e))
             exit()
     else:
         datasource_db_port = os.getenv("DATASOURCE_DB_PORT")
@@ -123,9 +127,13 @@ def main() -> None:
                 username=os.getenv("DATASOURCE_DB_USERNAME"),
                 password=os.getenv("DATASOURCE_DB_PASSWORD"),
                 host=os.getenv("DATASOURCE_DB_HOST"),
-                port=int(datasource_db_port) if datasource_db_port is not None else None,
+                port=(
+                    int(datasource_db_port) if datasource_db_port is not None else None
+                ),
                 database=os.getenv("DATASOURCE_DB_DATABASE"),
-                drivername=os.getenv("DATASOURCE_DB_DRIVERNAME", config.DEFAULT_DB_DRIVER),
+                drivername=os.getenv(
+                    "DATASOURCE_DB_DRIVERNAME", config.DEFAULT_DB_DRIVER
+                ),
                 schema=os.getenv("DATASOURCE_DB_SCHEMA"),
             )
         except TypeError as e:
@@ -148,7 +156,9 @@ def main() -> None:
     else:
         try:
             query = DistributionQuery.from_dict(query_dict)
-            result = query_solvers.solve_distribution(db_manager=db_manager, query=query)
+            result = query_solvers.solve_distribution(
+                db_manager=db_manager, query=query
+            )
             save_to_output(result, args.output)
             logger.info(f"Saved results to {args.output}")
         except TypeError as te:  # raised if the distribution query json is wrong
