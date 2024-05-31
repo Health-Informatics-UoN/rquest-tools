@@ -256,6 +256,7 @@ class CodeDistributionQuerySolver:
         counts = list()
         concepts = list()
         categories = list()
+        biobanks = list()
         for k in self.allowed_domains_map:
             table = self.allowed_domains_map[k]
             concept_col = self.domain_concept_id_map[k]
@@ -267,11 +268,13 @@ class CodeDistributionQuerySolver:
             counts.extend(res.iloc[:, 0])
             concepts.extend(res.iloc[:, 1])
             categories.extend([k] * len(res))
+            biobanks.extend([self.query.collection] * len(res))
 
         df["COUNT"] = counts
         df["OMOP"] = concepts
         df["CATEGORY"] = categories
         df["CODE"] = df["OMOP"].apply(lambda x: f"OMOP:{x}")
+        df["BIOBANK"] = biobanks
 
         # Get descriptions
         concept_query = (
@@ -285,6 +288,7 @@ class CodeDistributionQuerySolver:
         # Convert df to tab separated string
         results = list(["\t".join(df.columns)])
         for _, row in df.iterrows():
+            print(row)
             results.append("\t".join([str(r) for r in row.values]))
         
         return os.linesep.join(results), len(df)
