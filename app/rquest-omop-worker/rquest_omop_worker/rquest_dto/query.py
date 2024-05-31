@@ -51,7 +51,7 @@ class AvailabilityQuery(BaseDto):
         return cls(cohort=cohort, **dict_)
 
 
-class DistributionQuery(BaseDto):
+class CodeDistributionQuery(BaseDto):
     """Python representation of an RQuest Distribution Query"""
 
     def __init__(

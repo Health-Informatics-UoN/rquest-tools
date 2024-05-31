@@ -18,7 +18,7 @@ from rquest_omop_worker.entities import (
     DrugExposure,
     ProcedureOccurrence,
 )
-from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
+from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, CodeDistributionQuery
 from rquest_omop_worker.rquest_dto.file import File
 from rquest_omop_worker.rquest_dto.result import RquestResult
 from rquest_omop_worker.obfuscation import get_results_modifiers, apply_filters
@@ -238,7 +238,7 @@ class CodeDistributionQuerySolver:
         "CATEGORY"
     ]
 
-    def __init__(self, db_manager: SyncDBManager, query: DistributionQuery) -> None:
+    def __init__(self, db_manager: SyncDBManager, query: CodeDistributionQuery) -> None:
         self.db_manager = db_manager
         self.query = query
 
@@ -323,7 +323,7 @@ def solve_availability(db_manager: SyncDBManager, query: AvailabilityQuery) -> R
     return result
 
 
-def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> RquestResult:
+def solve_distribution(db_manager: SyncDBManager, query: CodeDistributionQuery) -> RquestResult:
     """Solve RQuest distribution queries.
 
     Args:
