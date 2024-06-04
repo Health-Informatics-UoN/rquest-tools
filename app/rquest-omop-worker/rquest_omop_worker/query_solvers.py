@@ -321,6 +321,57 @@ class DemographicsDistributionQuerySolver:
     def __init__(self, db_manager: SyncDBManager, query: DistributionQuery) -> None:
         self.db_manager = db_manager
         self.query = query
+    
+    def solve_query(self) -> Tuple[str, int]:
+        """Build table of distribution query and return as a TAB separated string
+        along with the number of rows.
+
+        Returns:
+            Tuple[str, int]: The table as a string and the number of rows.
+        """
+        # Prepare the empty results data frame
+        df = pd.DataFrame(columns=self.output_cols)
+
+        # Get the counts for each concept ID
+        counts = list()
+        concepts = list()
+        categories = list()
+        biobanks = list()
+        for k in self.allowed_domains_map:
+            table = self.allowed_domains_map[k]
+            concept_col = self.domain_concept_id_map[k]
+            stmnt = (
+                select(func.count(table.person_id), concept_col)
+                .group_by(concept_col)
+            )
+            res = pd.read_sql(stmnt, self.db_manager.engine.connect())
+            counts.extend(res.iloc[:, 0])
+            concepts.extend(res.iloc[:, 1])
+            categories.extend(["DEMOGRAPHICS"] * len(res))
+            biobanks.extend([self.query.collection] * len(res))
+
+        df["COUNT"] = counts
+        df["CATEGORY"] = categories
+        df["CODE"] = concepts
+        df["BIOBANK"] = biobanks
+        print(df.head())
+
+        # Get descriptions
+        concept_query = (
+            select(Concept.concept_id, Concept.concept_name)
+            .where(Concept.concept_id.in_(concepts))
+        )
+        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
+        print(concepts_df.head())
+        # for _, row in concepts_df.iterrows():
+        #     df.loc[df["OMOP"] == row["concept_id"], "OMOP_DESCR"] = row["concept_name"]
+
+        # Convert df to tab separated string
+        results = list(["\t".join(df.columns)])
+        for _, row in df.iterrows():
+            results.append("\t".join([str(r) for r in row.values]))
+        
+        return os.linesep.join(results), len(df)
 
 
 def solve_availability(db_manager: SyncDBManager, query: AvailabilityQuery) -> RquestResult:
