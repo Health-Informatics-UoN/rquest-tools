@@ -21,7 +21,7 @@ from rquest_omop_worker.entities import (
 from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from rquest_omop_worker.rquest_dto.file import File
 from rquest_omop_worker.rquest_dto.result import RquestResult
-from rquest_omop_worker.obfuscation import get_results_modifiers, apply_filters
+from rquest_omop_worker.enums import DistributionQueryType
 import rquest_omop_worker.config as config
 
 
@@ -199,7 +199,12 @@ class AvailibilityQuerySolver:
         return group0_df.shape[0]  # the number of rows
 
 
-class CodeDistributionQuerySolver:
+class BaseDistributionQuerySolver:
+    def solve_query(self) -> Tuple[str, int]:
+        raise NotImplementedError
+
+
+class CodeDistributionQuerySolver(BaseDistributionQuerySolver):
     allowed_domains_map = {
         "Condition": ConditionOccurrence,
         "Ethnicity": Person,
@@ -293,7 +298,7 @@ class CodeDistributionQuerySolver:
         return os.linesep.join(results), len(df)
 
 
-class DemographicsDistributionQuerySolver:
+class DemographicsDistributionQuerySolver(BaseDistributionQuerySolver):
     allowed_domains_map = {
         "Gender": Person,
     }
@@ -407,6 +412,24 @@ def solve_availability(db_manager: SyncDBManager, query: AvailabilityQuery) -> R
     return result
 
 
+def _get_distribution_solver(db_manager: SyncDBManager, query: DistributionQuery) -> BaseDistributionQuerySolver:
+    """Return a distribution query solver depending on the query.
+    If `query.code` is "GENERIC", return a `CodeDistributionQuerySolver`.
+    If `query.code` is "DEMOGRAPHICS", return a `DemographicsDistributionQuerySolver`.
+
+    Args:
+        db_manager (SyncDBManager): The database manager.
+        query (DistributionQuery): The distribution query to solve.
+
+    Returns:
+        BaseDistributionQuerySolver: The solver for the distribution query type.
+    """
+    if query.code == DistributionQueryType.GENERIC:
+        return CodeDistributionQuerySolver(db_manager, query)
+    if query.code == DistributionQueryType.DEMOGRAPHICS:
+        return DemographicsDistributionQuerySolver(db_manager, query)
+
+
 def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> RquestResult:
     """Solve RQuest distribution queries.
 
@@ -418,7 +441,7 @@ def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> R
         DistributionResult: Result object for the query
     """
     logger = logging.getLogger(config.LOGGER_NAME)
-    solver = CodeDistributionQuerySolver(db_manager, query)
+    solver = _get_distribution_solver(db_manager, query)
     try:
         res, count = solver.solve_query()
         # Convert file data to base64
