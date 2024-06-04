@@ -293,6 +293,36 @@ class CodeDistributionQuerySolver:
         return os.linesep.join(results), len(df)
 
 
+class DemographicsDistributionQuerySolver:
+    allowed_domains_map = {
+        "Gender": Person,
+    }
+    domain_concept_id_map = {
+        "Gender": Person.gender_concept_id,
+    }
+    output_cols = [
+        "BIOBANK",
+        "CODE",
+        "DESCRIPTION",
+        "COUNT",
+        "MIN",
+        "Q1",
+        "MEDIAN",
+        "MEAN",
+        "Q3",
+        "MAX",
+        "ALTERNATIVES",
+        "DATASET",
+        "OMOP",
+        "OMOP_DESCR",
+        "CATEGORY"
+    ]
+
+    def __init__(self, db_manager: SyncDBManager, query: DistributionQuery) -> None:
+        self.db_manager = db_manager
+        self.query = query
+
+
 def solve_availability(db_manager: SyncDBManager, query: AvailabilityQuery) -> RquestResult:
     """Solve RQuest availability queries.
 
