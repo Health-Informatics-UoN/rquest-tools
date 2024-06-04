@@ -16,7 +16,7 @@ class RquestResult(BaseDto):
         count: int = 0,
         datasets_count: int = 0,
         files: List[File] = None,
-        message: Union[str, None] = None,
+        message: str = "",
         protocol_version: str = "v2",
     ) -> None:
         self.uuid = uuid
