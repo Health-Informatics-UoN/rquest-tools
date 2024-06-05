@@ -342,34 +342,53 @@ class DemographicsDistributionQuerySolver(BaseDistributionQuerySolver):
         concepts = list()
         categories = list()
         biobanks = list()
+        datasets = list()
+        codes = list()
+        descriptions = list()
+        alternatives = list()
         for k in self.allowed_domains_map:
             table = self.allowed_domains_map[k]
             concept_col = self.domain_concept_id_map[k]
+
+            # People count statement
             stmnt = (
                 select(func.count(table.person_id), concept_col)
                 .group_by(concept_col)
             )
-            res = pd.read_sql(stmnt, self.db_manager.engine.connect())
-            counts.extend(res.iloc[:, 0])
-            concepts.extend(res.iloc[:, 1])
-            categories.extend(["DEMOGRAPHICS"] * len(res))
-            biobanks.extend([self.query.collection] * len(res))
 
+            # Concept description statement
+            concept_query = (
+                select(Concept.concept_id, Concept.concept_name)
+                .where(Concept.concept_id.in_(concepts))
+            )
+
+            # Get the data
+            res = pd.read_sql(stmnt, self.db_manager.engine.connect())
+            concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
+            combined = res.merge(concepts_df, left_on=concept_col.name, right_on=Concept.concept_id.name, how="left")
+            
+            # Compile the data
+            counts.append(res.iloc[:, 0].sum())
+            concepts.extend(res.iloc[:, 1])
+            categories.append("DEMOGRAPHICS")
+            biobanks.append(self.query.collection)
+            datasets.append(table.__tablename__)
+            descriptions.append(k)
+            codes.append(k.upper())
+
+            alternative = "^"
+            for _, row in combined.iterrows():
+                alternative += f"{row[Concept.concept_name.name]}|{row.iloc[0]}^"
+            alternatives.append(alternative)
+            
+        # Fill out the results table
         df["COUNT"] = counts
         df["CATEGORY"] = categories
-        df["CODE"] = concepts
+        df["CODE"] = codes
         df["BIOBANK"] = biobanks
-        print(df.head())
-
-        # Get descriptions
-        concept_query = (
-            select(Concept.concept_id, Concept.concept_name)
-            .where(Concept.concept_id.in_(concepts))
-        )
-        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
-        print(concepts_df.head())
-        # for _, row in concepts_df.iterrows():
-        #     df.loc[df["OMOP"] == row["concept_id"], "OMOP_DESCR"] = row["concept_name"]
+        df["DATASET"] = datasets
+        df["DESCRIPTION"] = descriptions
+        df["ALTERNATIVES"] =  alternatives
 
         # Convert df to tab separated string
         results = list(["\t".join(df.columns)])
@@ -466,7 +485,7 @@ def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> R
             collection_id=query.collection
         )
     except Exception as e:
-        logger.error(str(e))
+        logger.error(str(e), exc_info=1)
         result = RquestResult(
             uuid=query.uuid,
             status="error",
