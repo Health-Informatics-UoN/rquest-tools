@@ -77,7 +77,9 @@ class AvailibilityQuerySolver:
             .where(Concept.concept_id.in_(concept_ids))
             .distinct()
         )
-        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
+        concepts_df = pd.read_sql_query(
+            concept_query, con=self.db_manager.engine.connect()
+        )
         concept_dict = {
             str(concept_id): domain_id for concept_id, domain_id in concepts_df.values
         }
@@ -108,21 +110,27 @@ class AvailibilityQuerySolver:
                     )
                     .distinct()
                 )
-                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
+                main_df = pd.read_sql_query(
+                    sql=stmnt, con=self.db_manager.engine.connect()
+                )
             elif group.rules[0].operator == "=":
                 stmnt = (
                     select(concept_table.person_id)
                     .where(boolean_rule_col == int(group.rules[0].value))
                     .distinct()
                 )
-                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
+                main_df = pd.read_sql_query(
+                    sql=stmnt, con=self.db_manager.engine.connect()
+                )
             elif group.rules[0].operator == "!=":
                 stmnt = (
                     select(concept_table.person_id)
                     .where(boolean_rule_col != int(group.rules[0].value))
                     .distinct()
                 )
-                main_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
+                main_df = pd.read_sql_query(
+                    sql=stmnt, con=self.db_manager.engine.connect()
+                )
             for i, rule in enumerate(group.rules[1:], start=1):
                 concept = concepts.get(rule.value)
                 concept_table = self.concept_table_map.get(concept)
@@ -158,7 +166,9 @@ class AvailibilityQuerySolver:
                         .where(boolean_rule_col == int(rule.value))
                         .distinct()
                     )
-                    rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
+                    rule_df = pd.read_sql_query(
+                        sql=stmnt, con=self.db_manager.engine.connect()
+                    )
                     main_df = main_df.merge(
                         right=rule_df,
                         how=merge_method(group.rules_operator),
@@ -172,7 +182,9 @@ class AvailibilityQuerySolver:
                         .where(boolean_rule_col != int(rule.value))
                         .distinct()
                     )
-                    rule_df = pd.read_sql_query(sql=stmnt, con=self.db_manager.engine.connect())
+                    rule_df = pd.read_sql_query(
+                        sql=stmnt, con=self.db_manager.engine.connect()
+                    )
                     main_df = main_df.merge(
                         right=rule_df,
                         how=merge_method(group.rules_operator),
@@ -240,7 +252,7 @@ class CodeDistributionQuerySolver(BaseDistributionQuerySolver):
         "DATASET",
         "OMOP",
         "OMOP_DESCR",
-        "CATEGORY"
+        "CATEGORY",
     ]
 
     def __init__(self, db_manager: SyncDBManager, query: DistributionQuery) -> None:
@@ -265,9 +277,8 @@ class CodeDistributionQuerySolver(BaseDistributionQuerySolver):
         for k in self.allowed_domains_map:
             table = self.allowed_domains_map[k]
             concept_col = self.domain_concept_id_map[k]
-            stmnt = (
-                select(func.count(table.person_id), concept_col)
-                .group_by(concept_col)
+            stmnt = select(func.count(table.person_id), concept_col).group_by(
+                concept_col
             )
             res = pd.read_sql(stmnt, self.db_manager.engine.connect())
             counts.extend(res.iloc[:, 0])
@@ -282,11 +293,12 @@ class CodeDistributionQuerySolver(BaseDistributionQuerySolver):
         df["BIOBANK"] = biobanks
 
         # Get descriptions
-        concept_query = (
-            select(Concept.concept_id, Concept.concept_name)
-            .where(Concept.concept_id.in_(concepts))
+        concept_query = select(Concept.concept_id, Concept.concept_name).where(
+            Concept.concept_id.in_(concepts)
         )
-        concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
+        concepts_df = pd.read_sql_query(
+            concept_query, con=self.db_manager.engine.connect()
+        )
         for _, row in concepts_df.iterrows():
             df.loc[df["OMOP"] == row["concept_id"], "OMOP_DESCR"] = row["concept_name"]
 
@@ -294,7 +306,7 @@ class CodeDistributionQuerySolver(BaseDistributionQuerySolver):
         results = list(["\t".join(df.columns)])
         for _, row in df.iterrows():
             results.append("\t".join([str(r) for r in row.values]))
-        
+
         return os.linesep.join(results), len(df)
 
 
@@ -320,13 +332,13 @@ class DemographicsDistributionQuerySolver(BaseDistributionQuerySolver):
         "DATASET",
         "OMOP",
         "OMOP_DESCR",
-        "CATEGORY"
+        "CATEGORY",
     ]
 
     def __init__(self, db_manager: SyncDBManager, query: DistributionQuery) -> None:
         self.db_manager = db_manager
         self.query = query
-    
+
     def solve_query(self) -> Tuple[str, int]:
         """Build table of distribution query and return as a TAB separated string
         along with the number of rows.
@@ -351,22 +363,27 @@ class DemographicsDistributionQuerySolver(BaseDistributionQuerySolver):
             concept_col = self.domain_concept_id_map[k]
 
             # People count statement
-            stmnt = (
-                select(func.count(table.person_id), concept_col)
-                .group_by(concept_col)
+            stmnt = select(func.count(table.person_id), concept_col).group_by(
+                concept_col
             )
 
             # Concept description statement
-            concept_query = (
-                select(Concept.concept_id, Concept.concept_name)
-                .where(Concept.concept_id.in_(concepts))
+            concept_query = select(Concept.concept_id, Concept.concept_name).where(
+                Concept.concept_id.in_(concepts)
             )
 
             # Get the data
             res = pd.read_sql(stmnt, self.db_manager.engine.connect())
-            concepts_df = pd.read_sql_query(concept_query, con=self.db_manager.engine.connect())
-            combined = res.merge(concepts_df, left_on=concept_col.name, right_on=Concept.concept_id.name, how="left")
-            
+            concepts_df = pd.read_sql_query(
+                concept_query, con=self.db_manager.engine.connect()
+            )
+            combined = res.merge(
+                concepts_df,
+                left_on=concept_col.name,
+                right_on=Concept.concept_id.name,
+                how="left",
+            )
+
             # Compile the data
             counts.append(res.iloc[:, 0].sum())
             concepts.extend(res.iloc[:, 1])
@@ -380,7 +397,7 @@ class DemographicsDistributionQuerySolver(BaseDistributionQuerySolver):
             for _, row in combined.iterrows():
                 alternative += f"{row[Concept.concept_name.name]}|{row.iloc[0]}^"
             alternatives.append(alternative)
-            
+
         # Fill out the results table
         df["COUNT"] = counts
         df["CATEGORY"] = categories
@@ -388,17 +405,19 @@ class DemographicsDistributionQuerySolver(BaseDistributionQuerySolver):
         df["BIOBANK"] = biobanks
         df["DATASET"] = datasets
         df["DESCRIPTION"] = descriptions
-        df["ALTERNATIVES"] =  alternatives
+        df["ALTERNATIVES"] = alternatives
 
         # Convert df to tab separated string
         results = list(["\t".join(df.columns)])
         for _, row in df.iterrows():
             results.append("\t".join([str(r) for r in row.values]))
-        
+
         return os.linesep.join(results), len(df)
 
 
-def solve_availability(db_manager: SyncDBManager, query: AvailabilityQuery) -> RquestResult:
+def solve_availability(
+    db_manager: SyncDBManager, query: AvailabilityQuery
+) -> RquestResult:
     """Solve RQuest availability queries.
 
     Args:
@@ -413,25 +432,21 @@ def solve_availability(db_manager: SyncDBManager, query: AvailabilityQuery) -> R
     try:
         count_ = solver.solve_query()
         result = RquestResult(
-            status="ok",
-            count=count_,
-            collection_id=query.collection,
-            uuid=query.uuid
+            status="ok", count=count_, collection_id=query.collection, uuid=query.uuid
         )
         logger.info("Solved availability query")
     except Exception as e:
         logger.error(str(e))
         result = RquestResult(
-            status="error",
-            count=0,
-            collection_id=query.collection,
-            uuid=query.uuid
+            status="error", count=0, collection_id=query.collection, uuid=query.uuid
         )
 
     return result
 
 
-def _get_distribution_solver(db_manager: SyncDBManager, query: DistributionQuery) -> BaseDistributionQuerySolver:
+def _get_distribution_solver(
+    db_manager: SyncDBManager, query: DistributionQuery
+) -> BaseDistributionQuerySolver:
     """Return a distribution query solver depending on the query.
     If `query.code` is "GENERIC", return a `CodeDistributionQuerySolver`.
     If `query.code` is "DEMOGRAPHICS", return a `DemographicsDistributionQuerySolver`.
@@ -449,7 +464,9 @@ def _get_distribution_solver(db_manager: SyncDBManager, query: DistributionQuery
         return DemographicsDistributionQuerySolver(db_manager, query)
 
 
-def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> RquestResult:
+def solve_distribution(
+    db_manager: SyncDBManager, query: DistributionQuery
+) -> RquestResult:
     """Solve RQuest distribution queries.
 
     Args:
@@ -474,7 +491,7 @@ def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> R
             sensitive=True,
             reference="",
             size=size,
-            type_="BCOS"
+            type_="BCOS",
         )
         result = RquestResult(
             uuid=query.uuid,
@@ -482,17 +499,17 @@ def solve_distribution(db_manager: SyncDBManager, query: DistributionQuery) -> R
             count=count,
             datasets_count=1,
             files=[result_file],
-            collection_id=query.collection
+            collection_id=query.collection,
         )
     except Exception as e:
-        logger.error(str(e), exc_info=1)
+        logger.error(str(e))
         result = RquestResult(
             uuid=query.uuid,
             status="error",
             count=0,
             datasets_count=0,
             files=[],
-            collection_id=query.collection
+            collection_id=query.collection,
         )
 
     return result
