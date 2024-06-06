@@ -39,7 +39,9 @@ public static class ConfigureWebService
     // Add Services
     b.Services
       .AddScoped<RQuestAvailabilityPollingService>()
+      .AddScoped<RQuestDistributionPollingService>()
       .AddHostedService<RQuestPollingHostedService>()
+      .AddHostedService<DistributionPollingHostedService>()
       .AddTransient<CrateGenerationService>()
       .AddTransient<MinioService>()
       .AddTransient<ResultsHandlingService>();
