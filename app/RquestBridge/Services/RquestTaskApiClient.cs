@@ -65,7 +65,6 @@ namespace RquestBridge.Services
         rQuestOptions.Host,
         _apiOptions.EndpointBase,
         _apiOptions.FetchQueryEndpoint,
-        // Currently this method only looks for "Availability Queries""
         rQuestOptions.CollectionId + typeSuffix);
       var result = await _client.GetAsync(
         requestUri);
