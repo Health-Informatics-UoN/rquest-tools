@@ -23,6 +23,7 @@ from rquest_omop_worker.rquest_dto.file import File
 from rquest_omop_worker.rquest_dto.result import RquestResult
 from rquest_omop_worker.enums import DistributionQueryType
 import rquest_omop_worker.config as config
+from rquest_omop_worker.constants import DISTRIBUTION_TYPE_FILE_NAMES_MAP
 
 
 class AvailibilityQuerySolver:
@@ -487,7 +488,7 @@ def solve_distribution(
         result_file = File(
             data=res_b64,
             description="Result of code.distribution anaylsis",
-            name="code.distribution",
+            name=DISTRIBUTION_TYPE_FILE_NAMES_MAP.get(query.analysis, ""),
             sensitive=True,
             reference="",
             size=size,
