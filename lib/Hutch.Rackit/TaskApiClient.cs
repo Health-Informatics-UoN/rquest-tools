@@ -20,11 +20,6 @@ public class TaskApiClient(
   /// </summary>
   private readonly ApiClientOptions _options = configuredOptions.Value; // TODO: how to handle required?
 
-  // TODO: How to options builder?!
-  // public async Task<T?> FetchQuery<T>(Action<ApiClientOptions> ApiClientOptions options) where T : class, new() {
-
-  // }
-
   public async Task<T?> FetchQuery<T>() where T : TaskApiBaseResponse, new()
     => await FetchQuery<T>(_options);
 
