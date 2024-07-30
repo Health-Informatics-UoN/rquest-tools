@@ -42,6 +42,8 @@ public class TaskApiClient(
 
     request.Headers.Authorization = new AuthenticationHeaderValue("Basic", options.BasicCredentials);
 
+    logger.LogDebug(JsonSerializer.Serialize(request.Headers));
+
     var result = await client.SendAsync(request);
 
     if (result.IsSuccessStatusCode)
@@ -68,7 +70,9 @@ public class TaskApiClient(
     }
     else
     {
+      var body = await result.Content.ReadAsStringAsync();
       logger.LogError("Fetch Query Endpoint Request failed: {StatusCode}", result.StatusCode);
+      logger.LogDebug("Failure Response Body:\n{Body}", body);
       throw new RackitApiClientException($"Fetch Query Endpoint Request failed: {result.StatusCode}");
     }
   }

@@ -31,5 +31,5 @@ public class ApiClientOptions
   /// <see cref="Username"/> and <see cref="Password"/> correctly Base64 encoded for use in a Basic Auth header
   /// </summary>
   public string BasicCredentials => Convert.ToBase64String(
-    Encoding.UTF8.GetBytes($"{Username}:${Password}"));
+    Encoding.UTF8.GetBytes(Username + ":" + Password));
 }
