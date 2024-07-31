@@ -4,16 +4,13 @@ using Hutch.Rackit.Models.TaskApi;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+// Set up the client's dependencies so we can pass them in
 var options = Options.Create(new ApiClientOptions
 {
   // Fill in your connection details
-  BaseUrl = "https://example.com",
-  CollectionId = "collection_id",
-  Username = "user",
-  Password = "password",
 });
 
-var httpClient = new HttpClient(); // Don't do this in a real app
+var httpClient = new HttpClient(); // Don't just do this in a real app
 
 using var factory = LoggerFactory.Create(o =>
 {
@@ -22,8 +19,12 @@ using var factory = LoggerFactory.Create(o =>
 });
 var logger = factory.CreateLogger<TaskApiClient>();
 
-logger.LogInformation("options: {Options}", JsonSerializer.Serialize(options));
 
+logger.LogInformation(
+  "Default Options: {Options}",
+  JsonSerializer.Serialize(options.Value, new JsonSerializerOptions { WriteIndented = true }));
+
+// Do some API stuff!
 var client = new TaskApiClient(httpClient, options, logger);
 
 var result = await client.FetchQuery<AvailabilityQuery>();
