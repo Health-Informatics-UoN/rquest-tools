@@ -32,6 +32,36 @@ In future, expect:
 - GitHub releases
 - Nuget.org packages for releases
 
+# Documentation
+
+## Task Api Client Reference
+
+RACKit currently provides a limited client for interacting with the RQuest Task API. In future further API surface of RQuest may also be covered by this library.
+
+### Configuration
+
+The Task API Client requires some information about the instance of RQuest it is connecting to:
+
+- BaseUrl - the url of RQuest, that API endpoints can be appended to
+- CollectionId - a default Collection ID
+
+### FetchQuery()
+
+`FetchQuery()` will ask the API if there are any query jobs waiting of the specified query type, for the requested collection.
+
+It requires some configuration information that can be:
+- passed directly as arguments
+- configured as default options on the service
+- passed as overrides in an options object which will fall back to the service's defaults for any omitted values.
+
+e.g.
+
+```csharp
+
+
+await FetchQuery<AvailabilityQuery>("https://example.com")
+```
+
 # Contributing
 
 Hutch.Rackit is © 2024 University of Nottingham and available under the MIT License.
