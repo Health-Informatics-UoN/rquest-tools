@@ -67,7 +67,11 @@ public class FetchQueryTests
       _fetchQueryEndpoint,
       _configuredOptions.CollectionId + jobTypeSuffix)
       )
-      .WithHeaders("Authorization", "Basic " + _configuredOptions.BasicCredentials)
+      .WithHeaders("Authorization",
+        "Basic " +
+        TaskApiClient.EncodeCredentialsForBasicAuth(
+          _configuredOptions.Username!,
+          _configuredOptions.Password!))
       .Respond(HttpStatusCode.NoContent);
 
     var client = new TaskApiClient(
@@ -108,7 +112,11 @@ public class FetchQueryTests
       _fetchQueryEndpoint,
       overrideOptions.CollectionId + jobTypeSuffix)
       )
-      .WithHeaders("Authorization", "Basic " + overrideOptions.BasicCredentials)
+      .WithHeaders("Authorization",
+        "Basic " +
+        TaskApiClient.EncodeCredentialsForBasicAuth(
+          overrideOptions.Username!,
+          overrideOptions.Password!))
       .Respond(HttpStatusCode.NoContent);
 
     var client = new TaskApiClient(
@@ -134,7 +142,7 @@ public class FetchQueryTests
   {
     var response = new AvailabilityQuery
     {
-      Collection = _configuredOptions.CollectionId,
+      Collection = _configuredOptions.CollectionId!,
       Uuid = "86",
       Owner = "user1",
       Cohort = new()
@@ -169,7 +177,7 @@ public class FetchQueryTests
     {
       Analysis = "DISTRIBUTION",
       Code = "GENERIC",
-      Collection = _configuredOptions.CollectionId,
+      Collection = _configuredOptions.CollectionId!,
       Uuid = "86",
       Owner = "user1",
     };

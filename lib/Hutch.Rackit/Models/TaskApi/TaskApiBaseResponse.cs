@@ -4,6 +4,8 @@ namespace Hutch.Rackit.Models.TaskApi;
 
 public abstract class TaskApiBaseResponse
 {
+  internal TaskApiBaseResponse() { } // Prevents the base class being derived from outside the assembly
+
   /// <summary>
   /// The unique Job ID assigned by the API
   /// </summary>

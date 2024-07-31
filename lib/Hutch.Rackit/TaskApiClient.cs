@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Flurl;
 using Hutch.Rackit.Models.TaskApi;
@@ -9,6 +10,9 @@ using Microsoft.Extensions.Options;
 
 namespace Hutch.Rackit;
 
+/// <summary>
+/// A client for interacting with the Task Api endpoints
+/// </summary>
 public class TaskApiClient(
   HttpClient client,
   IOptions<ApiClientOptions> configuredOptions,
@@ -18,12 +22,51 @@ public class TaskApiClient(
   /// <summary>
   /// Default options for the service as configured
   /// </summary>
-  private readonly ApiClientOptions _options = configuredOptions.Value; // TODO: how to handle required?
+  public ApiClientOptions Options = configuredOptions.Value;
 
-  public async Task<T?> FetchQuery<T>() where T : TaskApiBaseResponse, new()
-    => await FetchQuery<T>(_options);
+  /// <summary>
+  /// Encode a username and password into the combined base64 format
+  /// expected for a Basic Authentication header.
+  /// </summary>
+  /// <param name="username">The username to be included in the encoded result</param>
+  /// <param name="password">The password to use in the encoded result</param>
+  /// <returns>A base64 string of the input parameters</returns>
+  internal static string EncodeCredentialsForBasicAuth(string username, string password)
+    => Convert.ToBase64String(Encoding.UTF8.GetBytes(username + ":" + password));
 
-  public async Task<T?> FetchQuery<T>(ApiClientOptions options) where T : TaskApiBaseResponse, new()
+  /// <summary>
+  /// Calls <see cref="FetchQuery"/>, optionally with the options specified in the provided object.
+  /// 
+  /// Any missing options will fall back to the service's default configured options.
+  /// </summary>
+  /// <typeparam name="T">The type of query (and response model to be returned)</typeparam>
+  /// <param name="options">The options specified to override the defaults</param>
+  /// <returns>A model of the requested query type if one was found; <c>null</c> if not.</returns>
+  /// <exception cref="ArgumentException">A required option is missing becuase it wasn't provided and is not present in the service defaults</exception>
+  public async Task<T?> FetchQuery<T>(ApiClientOptions? options = null) where T : TaskApiBaseResponse, new()
+  {
+    static string exceptionMessage(string propertyName)
+      => $"The property '{propertyName}' was not specified, and no default is available to fall back to.";
+
+    return await FetchQuery<T>(
+      options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(exceptionMessage(nameof(options.BaseUrl))),
+      options?.CollectionId ?? Options.CollectionId ?? throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
+      options?.Username ?? Options.Username ?? throw new ArgumentException(exceptionMessage(nameof(options.Username))),
+      options?.Password ?? Options.Password ?? throw new ArgumentException(exceptionMessage(nameof(options.Password)))
+    );
+  }
+
+  /// <summary>
+  /// Fetch the next query, if any, of the requested type.
+  /// </summary>
+  /// <typeparam name="T">The type of query (and response model to be returned)</typeparam>
+  /// <param name="baseUrl">Base URL of the API instance to connect to.</param>
+  /// <param name="collectionId">Collection ID to fetch query for.</param>
+  /// <param name="username">Username to use when connecting to the API.</param>
+  /// <param name="password">Password to use when connecting to the API.</param>
+  /// <returns>A model of the requested query type if one was found; <c>null</c> if not.</returns>
+  /// <exception cref="RackitApiClientException">An unknown type was requested, or an otherwise unexpected error occurred while interacting with the API.</exception>
+  public async Task<T?> FetchQuery<T>(string baseUrl, string collectionId, string username, string password) where T : TaskApiBaseResponse, new()
   {
     var typeSuffix = new T() switch
     {
@@ -33,16 +76,17 @@ public class TaskApiClient(
     };
 
     var requestUrl = Url.Combine(
-      options.BaseUrl,
+      baseUrl,
       TaskApiEndpoints.Base,
       TaskApiEndpoints.FetchQuery,
-      options.CollectionId + typeSuffix);
+      collectionId + typeSuffix);
 
+    // TODO: reusable request helper?
     using var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", options.BasicCredentials);
-
-    logger.LogDebug(JsonSerializer.Serialize(request.Headers));
+    request.Headers.Authorization = new AuthenticationHeaderValue(
+      "Basic",
+      EncodeCredentialsForBasicAuth(username, password));
 
     var result = await client.SendAsync(request);
 
@@ -50,7 +94,7 @@ public class TaskApiClient(
     {
       if (result.StatusCode == HttpStatusCode.NoContent)
       {
-        logger.LogInformation("No Query Jobs waiting for {CollectionId}", options.CollectionId);
+        logger.LogInformation("No Query Jobs waiting for {CollectionId}", collectionId);
         return null;
       }
 
