@@ -42,7 +42,7 @@ public class TaskApiClient(
   /// <typeparam name="T">The type of query (and response model to be returned)</typeparam>
   /// <param name="options">The options specified to override the defaults</param>
   /// <returns>A model of the requested query type if one was found; <c>null</c> if not.</returns>
-  /// <exception cref="ArgumentException">A required option is missing becuase it wasn't provided and is not present in the service defaults</exception>
+  /// <exception cref="ArgumentException">A required option is missing because it wasn't provided and is not present in the service defaults</exception>
   public async Task<T?> FetchQuery<T>(ApiClientOptions? options = null) where T : TaskApiBaseResponse, new()
   {
     static string exceptionMessage(string propertyName)
@@ -118,6 +118,75 @@ public class TaskApiClient(
       logger.LogError("Fetch Query Endpoint Request failed: {StatusCode}", result.StatusCode);
       logger.LogDebug("Failure Response Body:\n{Body}", body);
       throw new RackitApiClientException($"Fetch Query Endpoint Request failed: {result.StatusCode}");
+    }
+  }
+
+  private static StringContent AsHttpJsonString<T>(T value)
+      => new(
+        JsonSerializer.Serialize(value),
+        Encoding.UTF8,
+        "application/json");
+
+  /// <summary>
+  /// Post to the Results endpoint, and handle the response correctly.
+  /// </summary>
+  /// <param name="jobId">Job ID to submit results for.</param>
+  /// <param name="result">The results to submit.</param>
+  /// <param name="options">The options specified to override the defaults</param>
+  /// <exception cref="ArgumentException">A required option is missing because it wasn't provided and is not present in the service defaults</exception>
+  public async Task SubmitResult(string jobId, Result result, ApiClientOptions? options = null)
+  {
+    static string exceptionMessage(string propertyName)
+      => $"The property '{propertyName}' was not specified, and no default is available to fall back to.";
+
+    await SubmitResult(
+      options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(exceptionMessage(nameof(options.BaseUrl))),
+      options?.CollectionId ?? Options.CollectionId ?? throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
+      options?.Username ?? Options.Username ?? throw new ArgumentException(exceptionMessage(nameof(options.Username))),
+      options?.Password ?? Options.Password ?? throw new ArgumentException(exceptionMessage(nameof(options.Password))),
+      jobId,
+      result
+    );
+  }
+
+  /// <summary>
+  /// Post to the Results endpoint, and handle the response correctly.
+  /// </summary>
+  /// <param name="baseUrl">Base URL of the API instance to connect to.</param>
+  /// <param name="collectionId">Collection ID to submit results for.</param>
+  /// <param name="username">Username to use when connecting to the API.</param>
+  /// <param name="password">Password to use when connecting to the API.</param>
+  /// <param name="jobId">Job ID to submit results for.</param>
+  /// <param name="result">The results to submit.</param>
+  /// <exception cref="RackitApiClientException">An unsuccessful response was received from the remote Task API.</exception>
+  public async Task SubmitResult(string baseUrl, string collectionId, string username, string password, string jobId, Result result)
+  {
+    var requestUrl = Url.Combine(
+      baseUrl,
+      TaskApiEndpoints.Base,
+      TaskApiEndpoints.SubmitResult,
+      jobId,
+      collectionId);
+
+    using var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
+
+    request.Headers.Authorization = new AuthenticationHeaderValue(
+      "Basic",
+      EncodeCredentialsForBasicAuth(username, password));
+
+    request.Content = AsHttpJsonString(result);
+
+    var response = await client.SendAsync(request);
+
+    var body = await response.Content.ReadAsStringAsync();
+
+    if (body != "Job saved" || !response.IsSuccessStatusCode)
+    {
+      const string message = "Unsuccessful Response from Submit Results Endpoint";
+      logger.LogError(message);
+      logger.LogDebug("Response Body: {Body}", body);
+
+      throw new RackitApiClientException(message);
     }
   }
 }
