@@ -1,7 +1,7 @@
 # Publish RACKit nuget packages to the dev feed (Github Packages)
 
 # This happens automatically for `main` to function as effective "nightlies"
-# TODO: But should be doable manually for any ref
+# But can be done manually for any ref
 
 # NOTE: dev feed packages are pre-release versioned by UTC build timestamp, to ensure correct precedence.
 # source ref and commit hash are recorded as metadata for informational / feed selection use, but this doesn't affect precedence (per semver).
@@ -13,10 +13,6 @@ name: Publish Hutch.RACKit Dev Feed
 
 on:
   workflow_dispatch:
-  # TODO: testing
-  pull_request:
-    branches: [main]
-    paths: [lib/Hutch.Rackit/**]
   push:
     branches: [main]
     paths: [lib/Hutch.Rackit/**]
@@ -65,7 +61,8 @@ jobs:
           --name github
           "https://nuget.pkg.github.com/health-informatics-uon/index.json"
 
-      - name: Publish to Github Packages Nuget # TODO: API Key? Or covered by authenticated source?
+      - name: Publish to Github Packages Nuget
         run: >-
           dotnet nuget push *.nupkg
+          --api-key ${{ secrets.GITHUB_TOKEN }}
           --source github
