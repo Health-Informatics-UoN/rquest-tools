@@ -35,7 +35,7 @@ public class TaskApiClient(
     => Convert.ToBase64String(Encoding.UTF8.GetBytes(username + ":" + password));
 
   /// <summary>
-  /// Calls <see cref="FetchQuery"/>, optionally with the options specified in the provided object.
+  /// Calls <see cref="FetchQueryAsync"/>, optionally with the options specified in the provided object.
   /// 
   /// Any missing options will fall back to the service's default configured options.
   /// </summary>
@@ -43,12 +43,12 @@ public class TaskApiClient(
   /// <param name="options">The options specified to override the defaults</param>
   /// <returns>A model of the requested query type if one was found; <c>null</c> if not.</returns>
   /// <exception cref="ArgumentException">A required option is missing because it wasn't provided and is not present in the service defaults</exception>
-  public async Task<T?> FetchQuery<T>(ApiClientOptions? options = null) where T : TaskApiBaseResponse, new()
+  public async Task<T?> FetchQueryAsync<T>(ApiClientOptions? options = null) where T : TaskApiBaseResponse, new()
   {
     static string exceptionMessage(string propertyName)
       => $"The property '{propertyName}' was not specified, and no default is available to fall back to.";
 
-    return await FetchQuery<T>(
+    return await FetchQueryAsync<T>(
       options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(exceptionMessage(nameof(options.BaseUrl))),
       options?.CollectionId ?? Options.CollectionId ?? throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
       options?.Username ?? Options.Username ?? throw new ArgumentException(exceptionMessage(nameof(options.Username))),
@@ -66,7 +66,7 @@ public class TaskApiClient(
   /// <param name="password">Password to use when connecting to the API.</param>
   /// <returns>A model of the requested query type if one was found; <c>null</c> if not.</returns>
   /// <exception cref="RackitApiClientException">An unknown type was requested, or an otherwise unexpected error occurred while interacting with the API.</exception>
-  public async Task<T?> FetchQuery<T>(string baseUrl, string collectionId, string username, string password) where T : TaskApiBaseResponse, new()
+  public async Task<T?> FetchQueryAsync<T>(string baseUrl, string collectionId, string username, string password) where T : TaskApiBaseResponse, new()
   {
     var typeSuffix = new T() switch
     {
@@ -134,12 +134,12 @@ public class TaskApiClient(
   /// <param name="result">The results to submit.</param>
   /// <param name="options">The options specified to override the defaults</param>
   /// <exception cref="ArgumentException">A required option is missing because it wasn't provided and is not present in the service defaults</exception>
-  public async Task SubmitResult(string jobId, Result result, ApiClientOptions? options = null)
+  public async Task SubmitResultAsync(string jobId, Result result, ApiClientOptions? options = null)
   {
     static string exceptionMessage(string propertyName)
       => $"The property '{propertyName}' was not specified, and no default is available to fall back to.";
 
-    await SubmitResult(
+    await SubmitResultAsync(
       options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(exceptionMessage(nameof(options.BaseUrl))),
       options?.CollectionId ?? Options.CollectionId ?? throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
       options?.Username ?? Options.Username ?? throw new ArgumentException(exceptionMessage(nameof(options.Username))),
@@ -159,7 +159,7 @@ public class TaskApiClient(
   /// <param name="jobId">Job ID to submit results for.</param>
   /// <param name="result">The results to submit.</param>
   /// <exception cref="RackitApiClientException">An unsuccessful response was received from the remote Task API.</exception>
-  public async Task SubmitResult(string baseUrl, string collectionId, string username, string password, string jobId, Result result)
+  public async Task SubmitResultAsync(string baseUrl, string collectionId, string username, string password, string jobId, Result result)
   {
     var requestUrl = Url.Combine(
       baseUrl,

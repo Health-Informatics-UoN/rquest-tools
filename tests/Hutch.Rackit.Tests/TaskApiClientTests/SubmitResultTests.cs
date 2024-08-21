@@ -7,7 +7,7 @@ using RichardSzalay.MockHttp;
 
 namespace Hutch.Rackit.Tests.TaskApiClientTests;
 
-public class PostResultTests
+public class SubmitResultTests
 {
   private static readonly ApiClientOptions _configuredOptions = new()
   {
@@ -42,7 +42,7 @@ public class PostResultTests
       Options.Create(_configuredOptions),
       _logger);
 
-    await Assert.ThrowsAsync<RackitApiClientException>(() => client.SubmitResult(_jobId, new()));
+    await Assert.ThrowsAsync<RackitApiClientException>(() => client.SubmitResultAsync(_jobId, new()));
   }
 
   [Fact]
@@ -63,7 +63,7 @@ public class PostResultTests
       Options.Create(_configuredOptions),
       _logger);
 
-    await Assert.ThrowsAsync<RackitApiClientException>(() => client.SubmitResult(_jobId, new()));
+    await Assert.ThrowsAsync<RackitApiClientException>(() => client.SubmitResultAsync(_jobId, new()));
   }
 
   [Fact]
@@ -84,7 +84,7 @@ public class PostResultTests
       Options.Create(_configuredOptions),
       _logger);
 
-    await client.SubmitResult(_jobId, new());
+    await client.SubmitResultAsync(_jobId, new());
 
     // Implicit assertion that nothing throws
   }
@@ -115,7 +115,7 @@ public class PostResultTests
       Options.Create(_configuredOptions),
       _logger);
 
-    await client.SubmitResult(_jobId, new());
+    await client.SubmitResultAsync(_jobId, new());
 
     // Implicit assertion that nothing throws
   }
@@ -152,7 +152,7 @@ public class PostResultTests
       Options.Create(_configuredOptions),
       _logger);
 
-    await client.SubmitResult(_jobId, new(), overrideOptions);
+    await client.SubmitResultAsync(_jobId, new(), overrideOptions);
 
     // Implicit assertion that nothing throws
   }
