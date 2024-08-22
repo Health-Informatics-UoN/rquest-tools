@@ -15,6 +15,7 @@ authors = [
 dependencies = [
   "SQLAlchemy~=2.0.30",
   "pandas~=1.4.4",
+  "numpy~=1.26.3", # explicit numpy 1.x to avoid installing 2.x
   "psycopg2~=2.9.3",  # support postgres by default
   "requests~=2.31.0",
   "trino[sqlalchemy]~=0.328.0"
