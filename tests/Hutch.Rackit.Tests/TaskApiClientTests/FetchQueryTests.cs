@@ -45,8 +45,8 @@ public class FetchQueryTests
 
     TaskApiBaseResponse? result = jobTypeSuffix switch
     {
-      ".a" => await client.FetchQuery<AvailabilityQuery>(),
-      ".b" => await client.FetchQuery<DistributionQuery>(),
+      ".a" => await client.FetchQueryAsync<AvailabilityQuery>(),
+      ".b" => await client.FetchQueryAsync<DistributionQuery>(),
       _ => null
     };
 
@@ -81,8 +81,8 @@ public class FetchQueryTests
 
     TaskApiBaseResponse? result = jobTypeSuffix switch
     {
-      ".a" => await client.FetchQuery<AvailabilityQuery>(),
-      ".b" => await client.FetchQuery<DistributionQuery>(),
+      ".a" => await client.FetchQueryAsync<AvailabilityQuery>(),
+      ".b" => await client.FetchQueryAsync<DistributionQuery>(),
       _ => null
     };
 
@@ -126,8 +126,8 @@ public class FetchQueryTests
 
     TaskApiBaseResponse? result = jobTypeSuffix switch
     {
-      ".a" => await client.FetchQuery<AvailabilityQuery>(overrideOptions),
-      ".b" => await client.FetchQuery<DistributionQuery>(overrideOptions),
+      ".a" => await client.FetchQueryAsync<AvailabilityQuery>(overrideOptions),
+      ".b" => await client.FetchQueryAsync<DistributionQuery>(overrideOptions),
       _ => null
     };
 
@@ -166,7 +166,7 @@ public class FetchQueryTests
       Options.Create(_configuredOptions),
       _logger);
 
-    var result = await client.FetchQuery<AvailabilityQuery>();
+    var result = await client.FetchQueryAsync<AvailabilityQuery>();
 
     Assert.IsType<AvailabilityQuery>(result);
   }
@@ -196,7 +196,7 @@ public class FetchQueryTests
       Options.Create(_configuredOptions),
       _logger);
 
-    var result = await client.FetchQuery<DistributionQuery>();
+    var result = await client.FetchQueryAsync<DistributionQuery>();
 
     Assert.IsType<DistributionQuery>(result);
   }

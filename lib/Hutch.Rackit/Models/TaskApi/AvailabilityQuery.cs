@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Hutch.Rackit.Models.TaskApi;
 
+// TODO: Should models be shared by RACKit and the query library? and therefore in a lib of their own?
 public class AvailabilityQuery : TaskApiBaseResponse
 {
   [JsonPropertyName("cohort")]

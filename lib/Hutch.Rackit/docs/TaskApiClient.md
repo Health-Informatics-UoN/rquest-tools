@@ -22,22 +22,22 @@ client.Options = new ApiClientOptions {
 };
 
 // Specify all details
-await client.FetchQuery<AvailabilityQuery>(
+await client.FetchQueryAsync<AvailabilityQuery>(
   "https://override.example.com",
   "RQ-Collection-123",
   "user1",
   "password1");
 
 // Use all defaults as specified when constructing the client / via DI
-await client.FetchQuery<AvailabilityQuery>();
+await client.FetchQueryAsync<AvailabilityQuery>();
 
 // Override some details - any omitted will fall back to the defaults
-await client.FetchQuery<AvailabilityQuery>(new () {
+await client.FetchQueryAsync<AvailabilityQuery>(new () {
   CollectionId = "RQ-Collection-XYZ"
 });
 ```
 
-## `FetchQuery()`
+## `FetchQueryAsync()`
 
 Fetch Query interacts with the Task API's `/nextjob` endpoint, to retrieve the next query job of a certain type for a given collection, if there is one.
 
@@ -48,10 +48,52 @@ The RACKit TaskApiClient currently supports the following query types:
 To specify the query type you want to fetch, specify the .NET Type for the query response model:
 
 ```csharp
-await FetchQuery<AvailabilityQuery>();
-await FetchQuery<DistributionQuery>();
+await FetchQueryAsync<AvailabilityQuery>();
+await FetchQueryAsync<DistributionQuery>();
 ```
 
 FetchQuery returns null if there are no query jobs in the queue.
 
-`FetchQuery()` only requires the `ApiClientOptions` arguments.
+`FetchQueryAsync()` only requires the `ApiClientOptions` arguments.
+
+## `SubmitResultAsync()`
+
+Submit Result interacts with the Task API's `/result` endpoint, to submit the result for a job from a given collection.
+
+SubmitResult will throw an exception if the request was not accepted by the remote Task API.
+
+`SubmitResultAsync()` requires a `jobId` and a `result` payload, and also accepts the `ApiClientOptions` arguments.
+
+Task API Job Result payloads are consistent regardless of job type, however there are two approaches to results submission: with or without results files.
+
+### Without results files
+
+> [!NOTE]
+> This is typical for Availability Queries.
+
+Without results files, usage is quite straightforward:
+
+```csharp
+// Collection Id and Job Id can be retrieved from the job per the response to `FetchQueryAsync()`
+await SubmitResultAsync(
+  jobId: "a030666b-2aed-4657-a126-498355ce89c4",
+  result: new Result() {
+    Uuid = "a030666b-2aed-4657-a126-498355ce89c4",
+    CollectionId = "RQ-Collection-XYZ",
+    Status = "OK",
+    Message = "Results",
+    Results = new()
+    {
+      Count = 123,
+      DatasetCount = 1,
+      Files = [] // When results files are not used, this should be an empty array
+    }
+});
+```
+
+### With results files
+
+> [!NOTE]
+> This is typical for Distribution Queries.
+
+With results files, guidance is yet to be provided, pending implementation of the ResultsFile API client methods.
