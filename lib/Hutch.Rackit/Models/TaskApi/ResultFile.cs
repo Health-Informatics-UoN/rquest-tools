@@ -3,8 +3,7 @@ using System.Text.Json.Serialization;
 namespace Hutch.Rackit.Models.TaskApi;
 
 /// <summary>
-/// This class represents an individual file in the list <c>QueryResult.Files</c>.
-/// <seealso cref="QueryResult"/>
+/// This class represents an individual file in the <c>Files<c> property of a <seealso cref="QueryResult"/>.
 /// </summary>
 public class ResultFile
 {
