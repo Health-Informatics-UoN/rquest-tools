@@ -94,7 +94,7 @@ public class TaskApiClient(
     {
       if (result.StatusCode == HttpStatusCode.NoContent)
       {
-        logger.LogInformation("No Jobs of the requeusted type waiting for {CollectionId}", collectionId);
+        logger.LogDebug("No Jobs of the requested type waiting for {CollectionId}", collectionId);
         return null;
       }
 

@@ -87,7 +87,7 @@ if (analysisJob is not null)
       .WithData( // encodes the data and sets FileData and FileSize properties for us
         """
         BIOBANK	CODE	COUNT	DESCRIPTION	MIN	Q1	MEDIAN	MEAN	Q3	MAX	ALTERNATIVES	DATASET	OMOP	OMOP_DESCR	CATEGORY
-        RQ-CC-d8e8c4aa-a8af-4229-b479-618788c44122	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
+        <collection id>	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
         """)
     ]
   };
