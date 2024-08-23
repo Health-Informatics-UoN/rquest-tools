@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hutch.Rackit.Models.TaskApi;
+namespace Hutch.Rackit.TaskApi.Models;
 
 public class CollectionAnalysisJob : TaskApiBaseResponse
 {

@@ -4,11 +4,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Flurl;
-using Hutch.Rackit.Models.TaskApi;
+using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Hutch.Rackit;
+namespace Hutch.Rackit.TaskApi;
 
 /// <summary>
 /// A client for interacting with the Task Api endpoints
@@ -200,7 +200,7 @@ internal static class JobTypeSuffixes
   /// Availability jobs
   /// </summary>
   public const string Availability = ".a";
-  
+
   /// <summary>
   /// Analysis jobs against the Collection as a whole, such as AnalyticsGenePhewas, Code Distribution, Demographics Distribution, ICD Distribution
   /// </summary>

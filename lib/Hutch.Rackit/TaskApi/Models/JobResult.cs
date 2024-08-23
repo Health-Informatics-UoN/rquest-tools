@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hutch.Rackit.Models.TaskApi;
+namespace Hutch.Rackit.TaskApi.Models;
 
 /// <summary>
 /// This class represents the overall result of a job from the Task API.

@@ -1,7 +1,8 @@
 using System.Net;
 using System.Text.Json;
 using Flurl;
-using Hutch.Rackit.Models.TaskApi;
+using Hutch.Rackit.TaskApi;
+using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;

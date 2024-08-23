@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hutch.Rackit.Models.TaskApi;
+namespace Hutch.Rackit.TaskApi.Models;
 
 /// <summary>
 /// This class represents the <c>queryResult</c> field in a <seealso cref="JobResult"/> object.
