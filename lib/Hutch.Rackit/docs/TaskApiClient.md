@@ -64,12 +64,16 @@ SubmitResult will throw an exception if the request was not accepted by the remo
 
 `SubmitResultAsync()` requires a `jobId` and a `result` payload, and also accepts the `ApiClientOptions` arguments.
 
-Task API Job Result payloads are consistent regardless of job type, however there are two approaches to results submission: with or without results files.
+Task API Job Result payloads are consistent regardless of job type, however there are three approaches to results submission:
+
+- Without results files
+- With inline results files
+- With referenced results files
 
 ### Without results files
 
 > [!NOTE]
-> This is typical for Availability Queries.
+> This is typical for Availability Jobs.
 
 Without results files, usage is quite straightforward:
 
@@ -91,9 +95,46 @@ await SubmitResultAsync(
 });
 ```
 
-### With results files
+### With inline results files
 
 > [!NOTE]
-> This is typical for Distribution Queries.
+> This is typical for Distribution Jobs, or other jobs where the results files are not too large.
 
-With results files, guidance is yet to be provided, pending implementation of the ResultsFile API client methods.
+With inline results files, usage is very similar to without, except that the files array includes objects describing the inline files, with file data included as a base 64 encoded string:
+
+```csharp
+// Collection Id and Job Id can be retrieved from the job per the response to `FetchQueryAsync()`
+await SubmitResultAsync(
+  jobId: "a030666b-2aed-4657-a126-498355ce89c4",
+  result: new Result() {
+    Uuid = "a030666b-2aed-4657-a126-498355ce89c4",
+    CollectionId = "RQ-Collection-XYZ",
+    Status = "OK",
+    Message = "Results",
+    Results = new()
+    {
+      Count = 123, // e.g. row count of TSV file data
+      DatasetCount = 1,
+      Files = [
+        new ResultFile
+        {
+          FileDescription = "code.distribution analysis results",
+        }
+        .WithData( // encodes the data and sets FileData and FileSize properties for us
+          """
+          BIOBANK	CODE	COUNT	DESCRIPTION	MIN	Q1	MEDIAN	MEAN	Q3	MAX	ALTERNATIVES	DATASET	OMOP	OMOP_DESCR	CATEGORY
+          <collection id>	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
+          """)]
+    }
+});
+```
+
+Note that here we use the `WithData()` extension, which will take a plain string of tab separated data, or existing binary data, and do the base64 encoding for us. It is also possible to prepare the file data manually and directly assign the `FileData` and `FileSize` properties of the `ResultFile` object.
+
+### With referenced results files
+
+In this scenario, the Results File endpoint is first used to upload any file data, in the same `ResultFile` object format with base 64 encoding as when using inline files.
+
+Once uploaded, the `/result` endpoint can then be used without including the file data.
+
+Guidance here is yet to be finalised, as RACKit doesn't yet implement the separate Results File endpoint.
