@@ -22,39 +22,40 @@ client.Options = new ApiClientOptions {
 };
 
 // Specify all details
-await client.FetchQueryAsync<AvailabilityQuery>(
+await client.FetchNextJobAsync<AvailabilityJob>(
   "https://override.example.com",
   "RQ-Collection-123",
   "user1",
   "password1");
 
 // Use all defaults as specified when constructing the client / via DI
-await client.FetchQueryAsync<AvailabilityQuery>();
+await client.FetchNextJobAsync<AvailabilityJob>();
 
 // Override some details - any omitted will fall back to the defaults
-await client.FetchQueryAsync<AvailabilityQuery>(new () {
+await client.FetchNextJobAsync<AvailabilityJob>(new () {
   CollectionId = "RQ-Collection-XYZ"
 });
 ```
 
-## `FetchQueryAsync()`
+## `FetchNextJobAsync()`
 
-Fetch Query interacts with the Task API's `/nextjob` endpoint, to retrieve the next query job of a certain type for a given collection, if there is one.
+Fetch Next Job interacts with the Task API's `/nextjob` endpoint, to retrieve the next job of a certain type for a given collection, if there is one.
 
-The RACKit TaskApiClient currently supports the following query types:
+The RACKit TaskApiClient currently supports the following job types:
 - Availability
-- Distribution
+- CollectionAnalysis
+  - Distribution
 
-To specify the query type you want to fetch, specify the .NET Type for the query response model:
+To specify the job type you want to fetch, specify the .NET Type for the query response model:
 
 ```csharp
-await FetchQueryAsync<AvailabilityQuery>();
-await FetchQueryAsync<DistributionQuery>();
+await FetchQueryAsync<AvailabilityJob>();
+await FetchQueryAsync<CollectionAnalysisJob>();
 ```
 
-FetchQuery returns null if there are no query jobs in the queue.
+`FetchNextJob` returns null if there are no jobs in the queue.
 
-`FetchQueryAsync()` only requires the `ApiClientOptions` arguments.
+`FetchNextJobAsync()` only requires the `ApiClientOptions` arguments.
 
 ## `SubmitResultAsync()`
 
