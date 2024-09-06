@@ -1,5 +1,6 @@
 using System.Net;
 using Flurl;
+using Hutch.Rackit.TaskApi;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;

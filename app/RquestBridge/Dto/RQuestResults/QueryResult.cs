@@ -12,5 +12,5 @@ public class QueryResult
 
   [JsonPropertyName("datasetCount")] public int DatasetCount { get; set; } = 0;
 
-  [JsonPropertyName("files")] public List<RquestFile> Files { get; set; } = new();
+  [JsonPropertyName("files")] public List<RquestFile> Files { get; set; } = [];
 }

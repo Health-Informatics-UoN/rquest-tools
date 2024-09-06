@@ -1,11 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace Hutch.Rackit.Models.TaskApi;
+namespace Hutch.Rackit.TaskApi.Models;
 
 /// <summary>
 /// This class represents the overall result of a job from the Task API.
 /// </summary>
-public class Result
+public class JobResult
 {
   [JsonPropertyName("status")] public string Status { get; set; } = string.Empty;
 

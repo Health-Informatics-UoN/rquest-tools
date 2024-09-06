@@ -1,7 +1,8 @@
 using System.Net;
 using System.Text.Json;
 using Flurl;
-using Hutch.Rackit.Models.TaskApi;
+using Hutch.Rackit.TaskApi;
+using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -25,8 +26,8 @@ public class FetchQueryTests
   private readonly ILogger<TaskApiClient> _logger = Mock.Of<ILogger<TaskApiClient>>();
 
   [Theory]
-  [InlineData(".a")] // Availability Queries
-  [InlineData(".b")] // Distribution Queries
+  [InlineData(".a")] // Availability Jobs
+  [InlineData(".b")] // Collection Analysis Jobs
   public async void ReturnsNullIfNoJobs(string jobTypeSuffix)
   {
     var http = new MockHttpMessageHandler();
@@ -45,8 +46,8 @@ public class FetchQueryTests
 
     TaskApiBaseResponse? result = jobTypeSuffix switch
     {
-      ".a" => await client.FetchQueryAsync<AvailabilityQuery>(),
-      ".b" => await client.FetchQueryAsync<DistributionQuery>(),
+      ".a" => await client.FetchNextJobAsync<AvailabilityJob>(),
+      ".b" => await client.FetchNextJobAsync<CollectionAnalysisJob>(),
       _ => null
     };
 
@@ -54,8 +55,8 @@ public class FetchQueryTests
   }
 
   [Theory]
-  [InlineData(".a")] // Availability Queries
-  [InlineData(".b")] // Distribution Queries
+  [InlineData(".a")] // Availability Jobs
+  [InlineData(".b")] // Collection Analysis Jobs
   public async void UsesServiceConfiguredOptionsByDefault(string jobTypeSuffix)
   {
     var http = new MockHttpMessageHandler();
@@ -81,8 +82,8 @@ public class FetchQueryTests
 
     TaskApiBaseResponse? result = jobTypeSuffix switch
     {
-      ".a" => await client.FetchQueryAsync<AvailabilityQuery>(),
-      ".b" => await client.FetchQueryAsync<DistributionQuery>(),
+      ".a" => await client.FetchNextJobAsync<AvailabilityJob>(),
+      ".b" => await client.FetchNextJobAsync<CollectionAnalysisJob>(),
       _ => null
     };
 
@@ -92,8 +93,8 @@ public class FetchQueryTests
   }
 
   [Theory]
-  [InlineData(".a")] // Availability Queries
-  [InlineData(".b")] // Distribution Queries
+  [InlineData(".a")] // Availability Jobs
+  [InlineData(".b")] // Collection Analysis Jobs
   public async void UsesOverrideOptions(string jobTypeSuffix)
   {
     var http = new MockHttpMessageHandler();
@@ -126,8 +127,8 @@ public class FetchQueryTests
 
     TaskApiBaseResponse? result = jobTypeSuffix switch
     {
-      ".a" => await client.FetchQueryAsync<AvailabilityQuery>(overrideOptions),
-      ".b" => await client.FetchQueryAsync<DistributionQuery>(overrideOptions),
+      ".a" => await client.FetchNextJobAsync<AvailabilityJob>(overrideOptions),
+      ".b" => await client.FetchNextJobAsync<CollectionAnalysisJob>(overrideOptions),
       _ => null
     };
 
@@ -140,7 +141,7 @@ public class FetchQueryTests
   [Fact]
   public async void AvailabilityQueryReturnsAvailabilityQuery()
   {
-    var response = new AvailabilityQuery
+    var response = new AvailabilityJob
     {
       Collection = _configuredOptions.CollectionId!,
       Uuid = "86",
@@ -166,14 +167,14 @@ public class FetchQueryTests
       Options.Create(_configuredOptions),
       _logger);
 
-    var result = await client.FetchQueryAsync<AvailabilityQuery>();
+    var result = await client.FetchNextJobAsync<AvailabilityJob>();
 
-    Assert.IsType<AvailabilityQuery>(result);
+    Assert.IsType<AvailabilityJob>(result);
   }
   [Fact]
   public async void DistributionQueryReturnsDistributionQuery()
   {
-    var response = new DistributionQuery
+    var response = new CollectionAnalysisJob
     {
       Analysis = "DISTRIBUTION",
       Code = "GENERIC",
@@ -196,8 +197,8 @@ public class FetchQueryTests
       Options.Create(_configuredOptions),
       _logger);
 
-    var result = await client.FetchQueryAsync<DistributionQuery>();
+    var result = await client.FetchNextJobAsync<CollectionAnalysisJob>();
 
-    Assert.IsType<DistributionQuery>(result);
+    Assert.IsType<CollectionAnalysisJob>(result);
   }
 }
