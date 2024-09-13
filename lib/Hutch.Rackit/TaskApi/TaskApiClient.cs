@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Flurl;
@@ -33,6 +34,37 @@ public class TaskApiClient(
   /// <returns>A base64 string of the input parameters</returns>
   internal static string EncodeCredentialsForBasicAuth(string username, string password)
     => Convert.ToBase64String(Encoding.UTF8.GetBytes(username + ":" + password));
+
+  /// <summary>
+  /// Repeatedly calls <see cref="FetchNextJobAsync"/> and returns jobs when found.
+  /// </summary>
+  /// <typeparam name="T">The type of job (and response model to be returned)</typeparam>
+  /// <param name="options">The options specified to override the defaults</param>
+  /// <param name="cancellationToken">A token used to cancel the polling loop</param>
+  /// <returns>The next job of the requested type, when available.</returns>
+  public async IAsyncEnumerable<T> PollJobQueue<T>(
+    ApiClientOptions? options = null,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    where T : TaskApiBaseResponse, new()
+  {
+    while (true)
+    {
+      if (cancellationToken.IsCancellationRequested) break;
+
+      var job = await FetchNextJobAsync<T>(options);
+
+      if (job is not null) yield return job;
+
+      try
+      {
+        await Task.Delay(options?.PollingFrequency ?? Options.PollingFrequency, cancellationToken);
+      }
+      catch (TaskCanceledException)
+      {
+        break;
+      }
+    }
+  }
 
   /// <summary>
   /// Calls <see cref="FetchNextJobAsync"/>, optionally with the options specified in the provided object.
