@@ -47,6 +47,8 @@ public class TaskApiClient(
     [EnumeratorCancellation] CancellationToken cancellationToken = default)
     where T : TaskApiBaseResponse, new()
   {
+    var pollingFrequency = options?.PollingFrequency ?? Options.PollingFrequency;
+
     while (true)
     {
       if (cancellationToken.IsCancellationRequested) break;
@@ -55,9 +57,13 @@ public class TaskApiClient(
 
       if (job is not null) yield return job;
 
+      // negative frequency runs only once, regardless whether job is found
+      if (pollingFrequency < 0) break;
+
       try
       {
-        await Task.Delay(options?.PollingFrequency ?? Options.PollingFrequency, cancellationToken);
+        if (pollingFrequency > 0) // 0 frequency runs without delay
+          await Task.Delay(pollingFrequency, cancellationToken); // all other values cause a delay in ms
       }
       catch (TaskCanceledException)
       {
