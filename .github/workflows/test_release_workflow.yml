@@ -1,10 +1,5 @@
 name: test_release_workflow.yml
-on:
-  pull_request:
-    paths:
-      - app/Hutch.Relay/**
-      - test/Hutch.Relay.Tests/**
-      - .github/workflows/release.Hutch.Relay.yml
+on: [push]
 
 env:
   namespace: hutchstack
