@@ -5,6 +5,8 @@
   - app/RquestBridge/**/*
 "Area: Rquest Omop Worker":
   - app/rquest-omop-worker/**/*
+"Area: Hutch.Relay":
+  - app/Hutch.Relay/**/*
 "Area: Hutch.Rackit":
   - lib/Hutch.Rackit/**/*
 
