@@ -1,8 +1,6 @@
 name: test_release_workflow.yml
-on: 
-  push:
-    branches: 
-      - setup_hutch_relay
+on:
+  pull_request:
     paths:
       - app/Hutch.Relay/**
       - test/Hutch.Relay.Tests/**
