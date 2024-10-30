@@ -32,7 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/${{ env.namespace }}/${{ env.repo-name }}
           tags: |
             ${{ github.sha }}
             ${{ env.RUN_TIMESTAMP }}
