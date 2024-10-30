@@ -3,6 +3,7 @@ on: [push]
 
 env:
   namespace: hutchstack
+  image-name: hutch-relay
   repo-name: ${{ github.repository }}
   registry: ghcr.io
 
@@ -35,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ${{ env.registry }}/${{ env.repo-name }}
+          images: ${{ env.registry }}/${{ env.repo-name }}/${{ env.image-name}}
           tags: |
             ${{ github.sha }}
             ${{ env.RUN_TIMESTAMP }}
