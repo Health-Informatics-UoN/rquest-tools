@@ -3,7 +3,8 @@ on: [push]
 
 env:
   namespace: hutchstack
-  repo-name: hutch-relay
+  repo-name: ${{ github.repository }}
+  registry: ghcr.io
 
 jobs:
   publish:
@@ -32,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ghcr.io/${{ env.namespace }}/${{ env.repo-name }}
+          images: ${{ env.registry }}/${{ env.repo-name }}
           tags: |
             ${{ github.sha }}
             ${{ env.RUN_TIMESTAMP }}
@@ -46,6 +47,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-
 
