@@ -9,7 +9,7 @@ COPY ["app/Hutch.Relay/Hutch.Relay.csproj", "app/Hutch.Relay/"]
 RUN dotnet restore "app/Hutch.Relay/Hutch.Relay.csproj"
 COPY . .
 WORKDIR "/src/app/Hutch.Relay"
-RUN dotnet build "Hutch.Relay.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Hutch.Relay.csproj" -c Release -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
