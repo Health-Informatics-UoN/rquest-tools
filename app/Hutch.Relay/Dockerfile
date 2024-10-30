@@ -3,7 +3,7 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["app/Hutch.Relay/Hutch.Relay.csproj", "app/Hutch.Relay/"]
 RUN dotnet restore "app/Hutch.Relay/Hutch.Relay.csproj"
