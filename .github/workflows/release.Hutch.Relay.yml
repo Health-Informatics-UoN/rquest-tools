@@ -2,16 +2,15 @@ name: Release Hutch.Relay to Docker Hub
 
 on:
   push:
-    branches: [main]
+    
     paths:
       - app/Hutch.Relay/**
       - test/Hutch.Relay.Tests/**
       - .github/workflows/release.Hutch.Relay.yml
 
 env:
-  namespace: hutchstack
-  image-name: hutch-relay
-  repo-name: ${{ github.repository }}
+  image-name: hutch/relay
+  repo-owner: ${{ github.repository_owner }}
   registry: ghcr.io
 
 jobs:
@@ -43,7 +42,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ${{ env.registry }}/${{ env.repo-name }}/${{ env.image-name}}
+          images: ${{ env.registry }}/${{ env.repo-owner}}/${{ env.image-name}}
           tags: |
             ${{ github.sha }}
             ${{ env.RUN_TIMESTAMP }}
