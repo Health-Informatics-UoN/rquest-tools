@@ -2,7 +2,7 @@ name: Release Hutch.Relay to Docker Hub
 
 on:
   push:
-    
+    branches: [main]
     paths:
       - app/Hutch.Relay/**
       - test/Hutch.Relay.Tests/**
