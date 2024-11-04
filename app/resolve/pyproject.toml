@@ -1,7 +1,6 @@
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-python=">=3.9,<3.11"
 
 [tool.poetry]
 name = "resolve-cli"
@@ -20,6 +19,7 @@ package = [
 ]
 
 [tool.poetry.dependencies]
+python=">=3.9,<3.11"
 SQLAlchemy="^2.0.30"
 pandas="^1.4.4"
 numpy="^1.26.3" # explicit numpy 1.x to avoid installing 2.x
