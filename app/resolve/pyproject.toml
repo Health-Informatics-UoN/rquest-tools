@@ -34,7 +34,7 @@ pyodbc="^4.0.35"
 black = "^24.4.0"
 
 [tool.poetry.scripts]
-resolve-cli = "cli.worker:main"
+resolve-cli = "cli:main"
 
 #In the hatch pyproject we had these lines
 
