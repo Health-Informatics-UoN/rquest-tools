@@ -12,10 +12,9 @@ keywords = []
 authors = [
   "Daniel Lea <Daniel.Lea@nottingham.ac.uk>",
 ]
-package-mode = true
-package = [
-  {include = "core"},
-  {include = "cli"},
+include = [
+  {path = "core"},
+  {path = "cli"},
 ]
 
 [tool.poetry.dependencies]
