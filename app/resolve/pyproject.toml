@@ -1,6 +1,7 @@
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+python=">=3.9,<3.11"
 
 [tool.poetry]
 name = "resolve-cli"
@@ -12,13 +13,13 @@ keywords = []
 authors = [
   "Daniel Lea <Daniel.Lea@nottingham.ac.uk>",
 ]
-include = [
-  {path = "core"},
-  {path = "cli"},
+package-mode = true
+package = [
+  {include = "core"},
+  {include = "cli"},
 ]
 
 [tool.poetry.dependencies]
-python=">=3.9,<3.11"
 SQLAlchemy="^2.0.30"
 pandas="^1.4.4"
 numpy="^1.26.3" # explicit numpy 1.x to avoid installing 2.x
@@ -29,8 +30,11 @@ trino={version = "^0.328.0", extras = ["sqlalchemy"]}
 mysqlclient="^2.1.1"
 pyodbc="^4.0.35"
 
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+
 [tool.poetry.scripts]
-cli = "cli:main"
+resolve-cli = "cli:main"
 
 #In the hatch pyproject we had these lines
 
