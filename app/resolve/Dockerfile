@@ -1,5 +1,5 @@
 FROM python:3.10-buster
-COPY app/rquest-omop-worker /app/rquest-omop-worker
-WORKDIR /app/rquest-omop-worker
+COPY . /app/resolve
+WORKDIR /app/resolve
 RUN pip install --no-cache-dir .
-CMD [ "rquest-omop-worker" ]
+CMD [ "resolve-cli" ]
