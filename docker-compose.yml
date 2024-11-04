@@ -8,3 +8,11 @@ services:
       - 5432:5432
     environment:
       - POSTGRES_PASSWORD=postgres
+
+  resolve:
+    depends_on:
+      - db
+    image: resolve
+    build:
+      context: app/resolve
+      dockerfile: Dockerfile.cli

@@ -1,17 +1,12 @@
 from typing import List
-from rquest_omop_worker.rquest_dto.base_dto import BaseDto
-from rquest_omop_worker.rquest_dto.rule import Rule
+from core.rquest_dto.base_dto import BaseDto
+from core.rquest_dto.rule import Rule
 
 
 class Group(BaseDto):
     """Python representation of a group based on [ItemList](https://schema.org/ItemList)."""
 
-    def __init__(
-        self,
-        rules: List[Rule],
-        rules_operator: str,
-        **kwargs
-    ) -> None:
+    def __init__(self, rules: List[Rule], rules_operator: str, **kwargs) -> None:
         self.rules = rules
         self.rules_operator = rules_operator
 

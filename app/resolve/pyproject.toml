@@ -12,9 +12,10 @@ keywords = []
 authors = [
   "Daniel Lea <Daniel.Lea@nottingham.ac.uk>",
 ]
-include = [
-  {path = "core"},
-  {path = "cli"},
+package-mode = true
+packages = [
+    { include = "core" },
+    { include = "cli" },
 ]
 
 [tool.poetry.dependencies]
@@ -33,7 +34,7 @@ pyodbc="^4.0.35"
 black = "^24.4.0"
 
 [tool.poetry.scripts]
-resolve-cli = "cli:main"
+resolve-cli = "cli.worker:main"
 
 #In the hatch pyproject we had these lines
 
