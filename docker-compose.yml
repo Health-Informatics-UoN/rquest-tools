@@ -16,3 +16,13 @@ services:
     build:
       context: app/resolve
       dockerfile: Dockerfile.cli
+    volumes:
+      - ./app/resolve:/resolve
+    environment:
+      - DATASOURCE_DB_USERNAME=postgres
+      - DATASOURCE_DB_PASSWORD=postgres
+      - DATASOURCE_DB_DATABASE=postgres
+      - DATASOURCE_DB_DRIVERNAME=postgresql
+      - DATASOURCE_DB_SCHEMA=public
+      - DATASOURCE_DB_PORT=5432
+      - DATASOURCE_DB_HOST=localhost

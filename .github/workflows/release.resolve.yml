@@ -3,14 +3,14 @@
 #
 # These releases will be tagged with the SHA of the merge commit.
 #
-# This is NOT intended for stable, semver'd releases. Rather, publishing 
+# This is NOT intended for stable, semver'd releases. Rather, publishing
 # the bleeding-edge version.
 
 name: Release to Docker Hub (unstable)
 
 on:
   push:
-    branches: [pre-setup]
+    branches: [main]
     paths:
       - app/resolve/** # trigger on changes to the app
       - .github/workflows/release.resolve.yml # trigger on changes to this file
