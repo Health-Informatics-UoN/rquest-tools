@@ -10,7 +10,7 @@ name: Release to Docker Hub (unstable)
 
 on:
   push:
-    branches: [main]
+    branches: [pre-setup]
     paths:
       - app/resolve/** # trigger on changes to the app
       - .github/workflows/release.resolve.yml # trigger on changes to this file
