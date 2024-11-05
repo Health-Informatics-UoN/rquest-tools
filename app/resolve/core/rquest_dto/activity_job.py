@@ -1,13 +1,9 @@
-from rquest_omop_worker.rquest_dto.base_dto import BaseDto
+from core.rquest_dto.base_dto import BaseDto
 
 
 class ActivityJob(BaseDto):
     def __init__(
-        self,
-        type_: str,
-        job_id: str,
-        activity_source_id: int,
-        payload: dict
+        self, type_: str, job_id: str, activity_source_id: int, payload: dict
     ) -> None:
         self.type_ = type_
         self.job_id = job_id
