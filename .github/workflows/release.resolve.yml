@@ -17,7 +17,7 @@ on:
 
 env:
   namespace: hutchstack # the organisation name or username to publish to
-  repo-name: hutch-cohort-discovery # the name of the docker image (must be lowercase)
+  repo-name: resolve # the name of the docker image (must be lowercase)
 
 jobs:
   publish:
