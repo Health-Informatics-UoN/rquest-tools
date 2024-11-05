@@ -8,3 +8,20 @@ services:
       - 5432:5432
     environment:
       - POSTGRES_PASSWORD=postgres
+  resolve:
+    depends_on:
+      - db
+    image: resolve
+    build:
+      context: app/resolve
+      dockerfile: Dockerfile.daemon
+    volumes:
+      - ./rquest-query.json:/resolve/rquest-query.json
+    environment:
+      - DATASOURCE_DB_USERNAME=postgres
+      - DATASOURCE_DB_PASSWORD=postgres
+      - DATASOURCE_DB_DATABASE=postgres
+      - DATASOURCE_DB_DRIVERNAME=postgresql
+      - DATASOURCE_DB_SCHEMA=public
+      - DATASOURCE_DB_PORT=5432
+      - DATASOURCE_DB_HOST=localhost
