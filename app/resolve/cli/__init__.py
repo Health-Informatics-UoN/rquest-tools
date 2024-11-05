@@ -3,18 +3,18 @@ import sys
 import logging
 import argparse
 import json
-import rquest_omop_worker.config as config
-from rquest_omop_worker import query_solvers
-from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
-from rquest_omop_worker.rquest_dto.result import RquestResult
-from rquest_omop_worker.obfuscation import (
+import core.config as config
+from core import query_solvers
+from core.rquest_dto.query import AvailabilityQuery, DistributionQuery
+from core.rquest_dto.result import RquestResult
+from core.obfuscation import (
     get_results_modifiers_from_str,
     apply_filters_v2,
 )
-from rquest_omop_worker.db_manager import SyncDBManager, TrinoDBManager
+from core.db_manager import SyncDBManager, TrinoDBManager
 
 parser = argparse.ArgumentParser(
-    prog="rquest-omop-worker",
+    prog="resolve-cli",
     description="This program takes a JSON string containing an RQuest query and solves it.",
 )
 parser.add_argument(
@@ -164,6 +164,6 @@ def main() -> None:
         except TypeError as te:  # raised if the distribution query json format is wrong
             logger.error(str(te), exc_info=True)
         except ValueError as ve:
-            # raised if there was an issue saving the output or 
+            # raised if there was an issue saving the output or
             # the query json has incorrect values
             logger.error(str(ve), exc_info=True)

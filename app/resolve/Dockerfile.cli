@@ -1,0 +1,9 @@
+FROM python:3.10-buster
+COPY . /app/resolve
+WORKDIR /app/resolve
+
+RUN pip install poetry
+
+RUN poetry install
+
+ENTRYPOINT ["poetry", "run", "resolve-cli"]

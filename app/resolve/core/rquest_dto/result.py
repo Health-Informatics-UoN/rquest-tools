@@ -1,6 +1,6 @@
 from typing import List, Union
-from rquest_omop_worker.rquest_dto.base_dto import BaseDto
-from rquest_omop_worker.rquest_dto.file import File
+from core.rquest_dto.base_dto import BaseDto
+from core.rquest_dto.file import File
 
 
 class RquestResult(BaseDto):
@@ -42,8 +42,8 @@ class RquestResult(BaseDto):
             "queryResult": {
                 "count": self.count,
                 "datasetCount": self.datasets_count,
-                "files": [f.to_dict() for f in self.files]
+                "files": [f.to_dict() for f in self.files],
             },
             "message": self.message,
-            "collection_id": self.collection_id
+            "collection_id": self.collection_id,
         }
