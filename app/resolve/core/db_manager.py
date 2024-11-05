@@ -3,6 +3,9 @@ from typing import Any, Optional
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import URL as SQLAURL
 from trino.sqlalchemy import URL as TrinoURL
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class BaseDBManager:
@@ -79,11 +82,16 @@ class SyncDBManager(BaseDBManager):
         drivername: str,
         schema: Optional[str] = None,
     ) -> None:
-        if not isinstance(username, str): raise TypeError("`username` must be a string")
-        if not isinstance(password, str): raise TypeError("`password` must be a string")
-        if not isinstance(host, str): raise TypeError("`host` must be a string")
-        if not isinstance(port, int): raise TypeError("`port` must be an integer")
-        if not isinstance(database, str): raise TypeError("`database` must be a string")
+        if not isinstance(username, str):
+            raise TypeError("`username` must be a string")
+        if not isinstance(password, str):
+            raise TypeError("`password` must be a string")
+        if not isinstance(host, str):
+            raise TypeError("`host` must be a string")
+        if not isinstance(port, int):
+            raise TypeError("`port` must be an integer")
+        if not isinstance(database, str):
+            raise TypeError("`database` must be a string")
 
         url = SQLAURL.create(
             drivername=drivername,
@@ -149,10 +157,14 @@ class TrinoDBManager(BaseDBManager):
             catalog (str): The catalog on the Trino server.
         """
         # check required args
-        if not isinstance(username, str): raise TypeError("`username` must be a string")
-        if not isinstance(host, str): raise TypeError("`host` must be a string")
-        if not isinstance(port, int): raise TypeError("`port` must be an integer")
-        if not isinstance(catalog, str): raise TypeError("`catalog` must be a string")
+        if not isinstance(username, str):
+            raise TypeError("`username` must be a string")
+        if not isinstance(host, str):
+            raise TypeError("`host` must be a string")
+        if not isinstance(port, int):
+            raise TypeError("`port` must be an integer")
+        if not isinstance(catalog, str):
+            raise TypeError("`catalog` must be a string")
 
         url = TrinoURL(
             user=username,
@@ -160,12 +172,12 @@ class TrinoDBManager(BaseDBManager):
             host=host,
             port=port,
             schema=schema,
-            catalog=catalog
+            catalog=catalog,
         )
 
         self.engine = create_engine(url, connect_args={"http_scheme": "http"})
         self.inspector = inspect(self.engine)
-    
+
     def execute_and_fetch(self, stmnt: Any) -> list:
         """Execute a SQL statement and return a list of rows containing the
         results of the query.
@@ -182,7 +194,7 @@ class TrinoDBManager(BaseDBManager):
         # Need to call `dispose` - not automatic
         self.engine.dispose()
         return rows
-    
+
     def execute(self, stmnt: Any) -> None:
         """Execute a SQL statement. Useful for when results aren't expected back, such as
         updating or deleting.

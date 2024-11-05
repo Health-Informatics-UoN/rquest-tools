@@ -1,0 +1,38 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "resolve-cli"
+version = "0.0.1"
+description = ''
+readme = "README.md"
+license = "MIT"
+keywords = []
+authors = [
+  "Daniel Lea <Daniel.Lea@nottingham.ac.uk>",
+]
+package-mode = true
+packages = [
+    { include = "core" },
+    { include = "cli" },
+]
+
+[tool.poetry.dependencies]
+python=">=3.9,<3.11"
+SQLAlchemy="^2.0.30"
+pandas="^1.4.4"
+numpy="^1.26.3" # explicit numpy 1.x to avoid installing 2.x
+psycopg2="^2.9.3"  # support postgres by default
+requests="^2.31.0"
+trino={version = "^0.328.0", extras = ["sqlalchemy"]}
+python-dotenv = "1.0.1"
+mysqlclient="^2.1.1"
+pyodbc="^4.0.35"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+
+[tool.poetry.scripts]
+resolve-cli = "cli:main"
+

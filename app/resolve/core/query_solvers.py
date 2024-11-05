@@ -8,8 +8,8 @@ from sqlalchemy import (
     select,
     func,
 )
-from rquest_omop_worker.db_manager import SyncDBManager
-from rquest_omop_worker.entities import (
+from core.db_manager import SyncDBManager
+from core.entities import (
     Concept,
     ConditionOccurrence,
     Measurement,
@@ -18,12 +18,12 @@ from rquest_omop_worker.entities import (
     DrugExposure,
     ProcedureOccurrence,
 )
-from rquest_omop_worker.rquest_dto.query import AvailabilityQuery, DistributionQuery
-from rquest_omop_worker.rquest_dto.file import File
-from rquest_omop_worker.rquest_dto.result import RquestResult
-from rquest_omop_worker.enums import DistributionQueryType
-import rquest_omop_worker.config as config
-from rquest_omop_worker.constants import DISTRIBUTION_TYPE_FILE_NAMES_MAP
+from core.rquest_dto.query import AvailabilityQuery, DistributionQuery
+from core.rquest_dto.file import File
+from core.rquest_dto.result import RquestResult
+from core.enums import DistributionQueryType
+import core.config as config
+from core.constants import DISTRIBUTION_TYPE_FILE_NAMES_MAP
 
 
 class AvailibilityQuerySolver:

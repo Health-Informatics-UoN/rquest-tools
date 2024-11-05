@@ -1,4 +1,5 @@
-from rquest_omop_worker.rquest_dto.base_dto import BaseDto
+from core.rquest_dto.base_dto import BaseDto
+
 
 class File(BaseDto):
     def __init__(
@@ -27,5 +28,5 @@ class File(BaseDto):
             "file_size": self.size,
             "file_type": self.type_,
             "file_sensitive": self.sensitive,
-            "file_reference": self.reference
+            "file_reference": self.reference,
         }
