@@ -36,19 +36,3 @@ black = "^24.4.0"
 [tool.poetry.scripts]
 resolve-cli = "cli:main"
 
-#In the hatch pyproject we had these lines
-
-#[tool.hatch.envs.mysql]
-#skip-install = true
-#extra-dependencies = [
-#  "mysqlclient~=2.1.1",
-#]
-#
-#[tool.hatch.envs.sqlserver]
-#skip-install = true
-#extra-dependencies = [
-#  "pyodbc~=4.0.35",
-#]
-
-# I think this means you could have a mysql environment or a sqlserver one and install the right client
-# We've just installed them both ¯_(ツ)_/¯
