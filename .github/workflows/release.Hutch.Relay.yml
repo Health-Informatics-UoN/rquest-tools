@@ -1,4 +1,4 @@
-name: Release Hutch.Relay to Docker Hub
+name: Release Hutch.Relay to GitHub Registry
 
 on:
   push:

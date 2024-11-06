@@ -36,4 +36,4 @@ black = "^24.4.0"
 
 [tool.poetry.scripts]
 resolve-cli = "cli:main"
-
+resolve-daemon = "daemon:main"
