@@ -1,172 +1,43 @@
-using System.Text.Json;
 using Hutch.Rackit;
-using Hutch.Rackit.TaskApi;
-using Hutch.Rackit.TaskApi.Models;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RackitUsage;
 
 
+// Choose a Sample behaviour to run
+var validArg = Enum.TryParse<Samples>(args[1], ignoreCase: true, out var sample);
+if (!validArg) sample = Samples.SimpleCheck;
 
+// If in a polling mode, how long do we run the app for?
+var pollFor = TimeSpan.FromMinutes(1);
 
-
-// Control sample app behaviour paths
-var doPolling = true;
-var pollFor = TimeSpan.FromMinutes(1); // If in polling mode, how long do we run the app for?
-
-// Set up the client's dependencies so we can pass them in
+// Configuration
 var options = Options.Create(new ApiClientOptions
 {
   // Fill in your connection details
 });
 
 
-
-
-
-var httpClient = new HttpClient(); // Don't just do this in a real app
-
-using var factory = LoggerFactory.Create(o =>
+// Run the desired sample pathway
+switch(sample)
 {
-  o.AddConsole();
-  o.SetMinimumLevel(LogLevel.Debug);
-});
-var logger = factory.CreateLogger<TaskApiClient>();
+  case Samples.SimpleCheck:
+    await new Simple(options).PollAvailability(pollFor);
+    break;
+  case Samples.SimplePolling:
+    await new Simple(options).CheckAllQueuesOnce();
+    break;
+  case Samples.GenericHostCheck:
+    break;
+  case Samples.GenericHostPolling:
+    break;
+  default:
+    throw new ArgumentOutOfRangeException();
+};
 
-
-logger.LogInformation(
-  "Default Options: {Options}",
-  JsonSerializer.Serialize(options.Value, new JsonSerializerOptions { WriteIndented = true }));
-
-// Do some API stuff!
-var client = new TaskApiClient(httpClient, options, logger);
-
-
-
-
-
-
-async Task HandleAvailabilityJob(AvailabilityJob job)
+internal enum Samples
 {
-  logger.LogInformation("Found Availability job: {Job}", JsonSerializer.Serialize(job));
-
-  await Task.Delay(10000); // Wait while we "query". Nice for the GUI to show "sent to client" vs "job done"
-
-  await client.SubmitResultAsync(job.Uuid, new()
-  {
-    Uuid = job.Uuid,
-    CollectionId = job.Collection,
-    Status = "OK",
-    Message = "Results",
-    Results = new()
-    {
-      Count = 123,
-      DatasetCount = 1,
-      Files = []
-    }
-  });
-
-  logger.LogInformation("Response sent for Availability job: {JobId}", job.Uuid);
-}
-
-
-
-
-
-
-if (doPolling)
-{
-  // start polling availability jobs
-  logger.LogInformation("Checking for Availability jobs, for the configured time");
-  logger.LogInformation("Checking for Availability jobs, for 1 minute");
-
-  // set a timer to cancel polling after  the configured time
-  // set a timer to cancel polling after 1 min
-  using var cts = new CancellationTokenSource();
-  var timer = new System.Timers.Timer(pollFor)
-  var timer = new System.Timers.Timer(TimeSpan.FromMinutes(1))
-  {
-    AutoReset = false
-  };
-  timer.Elapsed += (s, e) => { cts.Cancel(); };
-  timer.Start();
-
-  // respond to polling
-  await foreach (var job in client.PollJobQueue<AvailabilityJob>().WithCancellation(cts.Token))
-  {
-    await HandleAvailabilityJob(job);
-  }
-}
-else
-{
-
-  // Fetch an Availability job for the configured collection
-  logger.LogInformation("Checking for Availability jobs...");
-
-  var availabilityJob = await client.FetchNextJobAsync<AvailabilityJob>();
-
-  // Handle the job if there is one, by returning a stock result
-  if (availabilityJob is not null) await HandleAvailabilityJob(availabilityJob);
-  else logger.LogInformation("No Availability jobs waiting!");
-
-
-  // Fetch a CollectionAnalysis job for the configured collection
-  logger.LogInformation("Checking for Collection Analysis jobs...");
-
-  var analysisJob = await client.FetchNextJobAsync<CollectionAnalysisJob>();
-
-  // Handle the job if there is one, by returning a stock result
-  if (analysisJob is not null)
-  {
-    logger.LogInformation("Found Collection Analysis job: {Job}", JsonSerializer.Serialize(analysisJob));
-
-    await Task.Delay(10000); // Wait while we "query". Nice for the GUI to show "sent to client" vs "job done"
-
-    var codeDistributionResult = new QueryResult
-    {
-      Count = 1,
-      DatasetCount = 1,
-      Files = [
-        new ResultFile
-        {
-          FileDescription = "code.distribution analysis results",
-        }
-        .WithData( // encodes the data and sets FileData and FileSize properties for us
-          """
-          BIOBANK	CODE	COUNT	DESCRIPTION	MIN	Q1	MEDIAN	MEAN	Q3	MAX	ALTERNATIVES	DATASET	OMOP	OMOP_DESCR	CATEGORY
-          <collection id>	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
-        <collection id>	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
-          """)
-      ]
-    };
-
-    var unhandledResults = new QueryResult
-    {
-      Count = 0,
-      DatasetCount = 0,
-      Files = []
-    };
-
-    await client.SubmitResultAsync(analysisJob.Uuid, new()
-    {
-      Uuid = analysisJob.Uuid,
-      CollectionId = analysisJob.Collection,
-      Status = "OK",
-      Message = "Results",
-      Results = analysisJob.Analysis switch
-      {
-        AnalysisType.Distribution => analysisJob.Code switch
-        {
-          DistributionCode.Generic => codeDistributionResult,
-          _ => unhandledResults
-        },
-        _ => unhandledResults
-      }
-    });
-
-    logger.LogInformation("Response sent for job: {JobId}", analysisJob.Uuid);
-  }
-  else
-  {
-    logger.LogInformation("No Collection Analysis jobs waiting!");
-  }
+  SimpleCheck,
+  SimplePolling,
+  GenericHostCheck,
+  GenericHostPolling
 }
