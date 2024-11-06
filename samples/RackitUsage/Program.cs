@@ -5,14 +5,23 @@ using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+
+
+
+
 // Control sample app behaviour paths
 var doPolling = true;
+var pollFor = TimeSpan.FromMinutes(1); // If in polling mode, how long do we run the app for?
 
 // Set up the client's dependencies so we can pass them in
 var options = Options.Create(new ApiClientOptions
 {
   // Fill in your connection details
 });
+
+
+
+
 
 var httpClient = new HttpClient(); // Don't just do this in a real app
 
@@ -30,6 +39,11 @@ logger.LogInformation(
 
 // Do some API stuff!
 var client = new TaskApiClient(httpClient, options, logger);
+
+
+
+
+
 
 async Task HandleAvailabilityJob(AvailabilityJob job)
 {
@@ -54,13 +68,21 @@ async Task HandleAvailabilityJob(AvailabilityJob job)
   logger.LogInformation("Response sent for Availability job: {JobId}", job.Uuid);
 }
 
+
+
+
+
+
 if (doPolling)
 {
   // start polling availability jobs
+  logger.LogInformation("Checking for Availability jobs, for the configured time");
   logger.LogInformation("Checking for Availability jobs, for 1 minute");
 
+  // set a timer to cancel polling after  the configured time
   // set a timer to cancel polling after 1 min
   using var cts = new CancellationTokenSource();
+  var timer = new System.Timers.Timer(pollFor)
   var timer = new System.Timers.Timer(TimeSpan.FromMinutes(1))
   {
     AutoReset = false
@@ -111,6 +133,7 @@ else
         .WithData( // encodes the data and sets FileData and FileSize properties for us
           """
           BIOBANK	CODE	COUNT	DESCRIPTION	MIN	Q1	MEDIAN	MEAN	Q3	MAX	ALTERNATIVES	DATASET	OMOP	OMOP_DESCR	CATEGORY
+          <collection id>	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
         <collection id>	OMOP:443614	123	nan	nan	nan	nan	nan	nan	nan	nan	nan	443614	Chronic kidney disease stage 1	Condition
           """)
       ]
