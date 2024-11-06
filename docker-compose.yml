@@ -8,3 +8,21 @@ services:
       - 5432:5432
     environment:
       - POSTGRES_PASSWORD=postgres
+
+  rabbitmq:
+      image: rabbitmq:3-management
+      ports:
+        - 5672:5672
+        - 15672:15672
+      environment:
+        RABBITMQ_DEFAULT_USER: user
+        RABBITMQ_DEFAULT_PASS: password
+
+  relay:
+      build:
+        dockerfile: app/Hutch.Relay/Dockerfile
+      ports:
+        - 8080:8080
+        - 8081:8081
+      depends_on:
+        - rabbitmq
