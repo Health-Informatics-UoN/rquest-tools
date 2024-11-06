@@ -1,6 +1,5 @@
 import requests
 from os import environ
-import json
 import time
 import logging
 
@@ -11,7 +10,6 @@ from core.rquest_dto.result import RquestResult
 
 
 def main() -> None:
-    args = parser.parse_args()
     logger = logging.getLogger(config.LOGGER_NAME)
     result = execute_query(parser)
     if not isinstance(result, RquestResult):
@@ -19,9 +17,8 @@ def main() -> None:
     destination = environ.get("RESOLVE_DAEMON_POST_URL")
     url = f"{destination}/{result.uuid}/{result.collection_id}"
 
-    data = json.dumps(result)
     for i in range(4):
-        response = requests.post(url, data=data)
+        response = requests.post(url, data=result.to_dict())
         if response.status_code == 200:
             break
         else:
