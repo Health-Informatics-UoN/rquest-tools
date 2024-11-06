@@ -26,3 +26,11 @@ services:
         - 8081:8081
       depends_on:
         - rabbitmq
+
+  resolve:
+    depends_on:
+      - db
+    image: resolve
+    build:
+      context: app/resolve
+      dockerfile: Dockerfile.daemon
