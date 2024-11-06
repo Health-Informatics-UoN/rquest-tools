@@ -1,6 +1,7 @@
 import requests
 from os import environ
 import json
+import time
 
 from core.execute_query import execute_query
 from core.parser import parser
@@ -12,7 +13,12 @@ def main() -> None:
     if not isinstance(result, RquestResult):
         raise TypeError("Payload does not match RQuest result schema")
     destination = environ.get("RESOLVE_DAEMON_POST_URL")
-    url = f"http://{destination}/{result.uuid}/{result.collection_id}"
+    url = f"{destination}/{result.uuid}/{result.collection_id}"
 
     data = json.dumps(result)
-    requests.post(url, data=data)
+    for i in range(4):
+        response = requests.post(url, data=data)
+        if response.status_code == 200:
+            break
+        else:
+            time.sleep(5)
