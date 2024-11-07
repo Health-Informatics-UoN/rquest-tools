@@ -15,15 +15,19 @@ class SupportedMethod(Enum):
 
 
 class TaskApiClient:
+
     def __init__(
-        self, base_url: Optional[str], username: Optional[str], password: Optional[str]
+        self,
+        base_url: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
     ):
         self.base_url = base_url or settings.TASK_API_BASE_URL
         self.username = username or settings.TASK_API_USERNAME
         self.password = password or settings.TASK_API_PASSWORD
 
     def request(
-        self, method: SupportedMethod, url: str, data: Optional[dict], **kwargs
+        self, method: SupportedMethod, url: str, data: Optional[dict] = None, **kwargs
     ) -> Response:
         """
         Sends an HTTP request using the specified method to the given URL with optional data and additional parameters.
@@ -43,7 +47,9 @@ class TaskApiClient:
         )
         return response
 
-    def post(self, endpoint: Optional[str], data: dict, **kwargs) -> Response:
+    def post(
+        self, endpoint: Optional[str] = None, data: dict = dict(), **kwargs
+    ) -> Response:
         """
         Sends a POST request to the specified endpoint with data and additional parameters.
 
@@ -58,7 +64,7 @@ class TaskApiClient:
         url = f"{self.base_url}/{endpoint}"
         return self.request(SupportedMethod.POST, url, data, **kwargs)
 
-    def get(self, endpoint: Optional[str], **kwargs) -> Response:
+    def get(self, endpoint: Optional[str] = None, **kwargs) -> Response:
         """
         Sends a GET request to the specified endpoint with optional additional parameters.
 

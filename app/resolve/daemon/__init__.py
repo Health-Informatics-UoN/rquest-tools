@@ -8,11 +8,7 @@ from core.task_api_client import TaskApiClient
 
 
 def main() -> None:
-    client = TaskApiClient(
-        base_url=settings.TASK_API_BASE_URL,
-        username=settings.TASK_API_USERNAME,
-        password=settings.TASK_API_PASSWORD,
-    )
+    client = TaskApiClient()
     logger = logging.getLogger(settings.LOGGER_NAME)
     result = execute_query(parser)
     if not isinstance(result, RquestResult):
