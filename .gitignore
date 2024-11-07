@@ -242,4 +242,3 @@ _Pvt_Extensions
 .fake/
 .env
 .env.remote
-app/resolve/poetry.lock
