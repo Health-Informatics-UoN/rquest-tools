@@ -1,4 +1,7 @@
 from os import environ
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DEFAULT_DB_DRIVER = "postgresql"
 
