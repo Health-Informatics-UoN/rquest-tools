@@ -19,7 +19,8 @@ def main() -> None:
 
     for i in range(4):
         response = requests.post(return_url, data=result.to_dict())
-        if response.status_code == 200:
+        # Resolve will stop retrying to return the resolve when response was successful or there is a client error
+        if 200 <= response.status_code < 300 or 400 <= response.status_code < 500:
             break
         else:
             logger.warning(f"Resolve failed to post to {return_url} at {time.time()}")
