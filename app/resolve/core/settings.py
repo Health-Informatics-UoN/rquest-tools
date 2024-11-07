@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
-import os
+from os import environ
 
 load_dotenv()
 
 
-TASK_API_BASE_URL = os.getenv("TASK_API_BASE_URL")
+TASK_API_BASE_URL = environ.get("TASK_API_BASE_URL")
