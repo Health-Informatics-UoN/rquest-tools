@@ -3,6 +3,7 @@ from enum import Enum
 import requests
 from requests.auth import HTTPBasicAuth
 from core.settings import TASK_API_USERNAME, TASK_API_PASSWORD
+from typing import Optional
 
 
 class SupportedMethod(Enum):
@@ -13,7 +14,9 @@ class SupportedMethod(Enum):
     DELETE = "delete"
 
 
-def request(method: SupportedMethod, url: str, data: dict = None, **kwargs) -> Response:
+def request(
+    method: SupportedMethod, url: str, data: Optional[dict], **kwargs
+) -> Response:
     """
     Sends an HTTP request using the specified method to the given URL with optional data and additional parameters.
 
@@ -28,9 +31,7 @@ def request(method: SupportedMethod, url: str, data: dict = None, **kwargs) -> R
 
     """
     basicAuth = HTTPBasicAuth(TASK_API_USERNAME, TASK_API_PASSWORD)
-    if method.name == "POST":
-        response = requests.post(url=url, data=data, auth=basicAuth, **kwargs)
-        return response
-    elif method.name == "GET":
-        response = requests.get(url=url, auth=basicAuth, **kwargs)
-        return response
+    response = requests(
+        method=method.name, url=url, data=data, auth=basicAuth, **kwargs
+    )
+    return response

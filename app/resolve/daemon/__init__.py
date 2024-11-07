@@ -4,7 +4,7 @@ import core.settings as settings
 from core.execute_query import execute_query
 from core.parser import parser
 from core.rquest_dto.result import RquestResult
-from core.request import request, SupportedMethod
+from core.task_api_client import request, SupportedMethod
 from core.settings import TASK_API_BASE_URL
 
 
