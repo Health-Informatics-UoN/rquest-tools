@@ -28,7 +28,7 @@ services:
       - rabbitmq
       - db
     environment:
-      - ConnectionStrings__RelayDb=Server=db;Port=5432;Database=relay;User Id=postgres;Password=postgres
+      - ConnectionStrings__RelayDb=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
 
   resolve:
     depends_on:
