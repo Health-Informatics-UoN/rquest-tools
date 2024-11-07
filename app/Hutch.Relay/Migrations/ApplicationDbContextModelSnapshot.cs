@@ -22,6 +22,16 @@ namespace Hutch.Relay.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubNode", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubNodes");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -85,6 +95,11 @@ namespace Hutch.Relay.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -135,6 +150,10 @@ namespace Hutch.Relay.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator().HasValue("IdentityUser");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -218,6 +237,28 @@ namespace Hutch.Relay.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("RelayUserSubNode", b =>
+                {
+                    b.Property<string>("RelayUsersId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubNodesId")
+                        .HasColumnType("text");
+
+                    b.HasKey("RelayUsersId", "SubNodesId");
+
+                    b.HasIndex("SubNodesId");
+
+                    b.ToTable("RelayUserSubNode");
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelayUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.HasDiscriminator().HasValue("RelayUser");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -265,6 +306,21 @@ namespace Hutch.Relay.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RelayUserSubNode", b =>
+                {
+                    b.HasOne("Hutch.Relay.Data.Entities.RelayUser", null)
+                        .WithMany()
+                        .HasForeignKey("RelayUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hutch.Relay.Data.Entities.SubNode", null)
+                        .WithMany()
+                        .HasForeignKey("SubNodesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
