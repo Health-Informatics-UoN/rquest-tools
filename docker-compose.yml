@@ -45,5 +45,5 @@ services:
       - DATASOURCE_DB_SCHEMA=public
       - DATASOURCE_DB_PORT=5432
       - DATASOURCE_DB_HOST=db
-      - USERNAME=username
-      - PASSWORD=password
+      - TASK_API_USERNAME=username
+      - TASK_API_PASSWORD=password

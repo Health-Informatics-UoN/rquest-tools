@@ -2,7 +2,7 @@ from requests.models import Response
 from enum import Enum
 import requests
 from requests.auth import HTTPBasicAuth
-from core.settings import USERNAME, PASSWORD
+from core.settings import TASK_API_USERNAME, TASK_API_PASSWORD
 
 
 class SupportedMethod(Enum):
@@ -27,7 +27,7 @@ def request(method: SupportedMethod, url: str, data: dict = None, **kwargs) -> R
         Response: The response object returned by the requests library.
 
     """
-    basicAuth = HTTPBasicAuth(USERNAME, PASSWORD)
+    basicAuth = HTTPBasicAuth(TASK_API_USERNAME, TASK_API_PASSWORD)
     if method.name == "POST":
         response = requests.post(url=url, data=data, auth=basicAuth, **kwargs)
         return response
