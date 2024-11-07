@@ -1,16 +1,14 @@
-import requests
 import time
 import logging
-from requests.auth import HTTPBasicAuth
 import core.settings as settings
 from core.execute_query import execute_query
 from core.parser import parser
 from core.rquest_dto.result import RquestResult
-from core.settings import TASK_API_BASE_URL, USERNAME, PASSWORD
+from core.request import request, SupportedMethod
+from core.settings import TASK_API_BASE_URL
 
 
 def main() -> None:
-    basicAuth = HTTPBasicAuth(USERNAME, PASSWORD)
     logger = logging.getLogger(settings.LOGGER_NAME)
     result = execute_query(parser)
     if not isinstance(result, RquestResult):
@@ -19,7 +17,9 @@ def main() -> None:
     return_url = f"{TASK_API_BASE_URL}/{result.uuid}/{result.collection_id}"
 
     for i in range(4):
-        response = requests.post(return_url, data=result.to_dict(), auth=basicAuth)
+        response = request(
+            method=SupportedMethod.POST, url=return_url, data=result.to_dict()
+        )
         # Resolve will stop retrying to post results when response was successful or there is a client error
         if 200 <= response.status_code < 300 or 400 <= response.status_code < 500:
             break

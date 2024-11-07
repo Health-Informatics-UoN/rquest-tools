@@ -1,7 +1,7 @@
 import json
 import os
-import requests
 from typing import Union
+from core.request import request, SupportedMethod
 
 
 def get_results_modifiers(activity_source_id: int) -> list:
@@ -16,12 +16,13 @@ def get_results_modifiers(activity_source_id: int) -> list:
     Raises:
         HTTPError: raised when this function can't get the results modifiers.
     """
-    res = requests.get(
-        f"{os.getenv('MANAGER_URL')}/api/activitysources/{activity_source_id}/resultsmodifiers",
+    response = request(
+        method=SupportedMethod.GET,
+        url=f"{os.getenv('MANAGER_URL')}/api/activitysources/{activity_source_id}/resultsmodifiers",
         verify=int(os.getenv("MANAGER_VERIFY_SSL", 1)),
     )
-    res.raise_for_status()
-    modifiers = res.json()
+    response.raise_for_status()
+    modifiers = response.json()
     return modifiers
 
 
