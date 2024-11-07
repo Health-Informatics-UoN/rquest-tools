@@ -37,7 +37,7 @@ services:
       context: app/resolve
       dockerfile: Dockerfile.daemon
     environment:
-      - RESOLVE_DAEMON_POST_URL=https://relay/task/result
+      - TASK_API_BASE_URL=https://relay/task/result
       - DATASOURCE_DB_USERNAME=postgres
       - DATASOURCE_DB_PASSWORD=postgres
       - DATASOURCE_DB_DATABASE=postgres
