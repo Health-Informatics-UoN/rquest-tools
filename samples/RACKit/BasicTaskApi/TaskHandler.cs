@@ -3,17 +3,17 @@ using Hutch.Rackit.TaskApi;
 using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 
-namespace RackitUsage;
+namespace BasicTaskApi;
 
-public class JobHandler(ILogger<JobHandler> logger, TaskApiClient client)
+public class TaskHandler(ILogger<TaskHandler> logger, TaskApiClient client)
 {
-  public int JobDelayMs { get; set; } = 10000;
+  public int TaskDelayMs { get; set; } = 10000;
   
   public async Task HandleAvailabilityJob(AvailabilityJob job)
   {
     logger.LogInformation("Found Availability job: {Job}", JsonSerializer.Serialize(job));
 
-    await Task.Delay(JobDelayMs); // Wait while we "query". Nice for the GUI to show "sent to client" vs "job done"
+    await Task.Delay(TaskDelayMs); // Wait while we "query". Nice for the GUI to show "sent to client" vs "job done"
 
     await client.SubmitResultAsync(job.Uuid, new()
     {
@@ -36,7 +36,7 @@ public class JobHandler(ILogger<JobHandler> logger, TaskApiClient client)
   {
     logger.LogInformation("Found Collection Analysis job: {Job}", JsonSerializer.Serialize(job));
 
-    await Task.Delay(JobDelayMs); // Wait while we "query". Nice for the GUI to show "sent to client" vs "job done"
+    await Task.Delay(TaskDelayMs); // Wait while we "query". Nice for the GUI to show "sent to client" vs "job done"
 
     var codeDistributionResult = new QueryResult
     {
