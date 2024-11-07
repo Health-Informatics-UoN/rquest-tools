@@ -29,6 +29,7 @@ trino={version = "^0.328.0", extras = ["sqlalchemy"]}
 python-dotenv = "1.0.1"
 mysqlclient="^2.1.1"
 pyodbc="^4.0.35"
+polling = "^0.3.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.0"
