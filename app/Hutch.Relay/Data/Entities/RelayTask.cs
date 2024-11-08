@@ -1,6 +1,6 @@
 namespace Hutch.Relay.Data.Entities;
 
-public class Task
+public class RelayTask
 {
   public string Id { get; set; } = string.Empty;
   public string Collection { get; set; } = string.Empty;

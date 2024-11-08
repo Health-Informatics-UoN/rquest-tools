@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Hutch.Relay.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTaskEntities : Migration
+    public partial class Create_RelayTasks_RelaySubTasks : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Tasks",
+                name: "RelayTasks",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -22,53 +22,52 @@ namespace Hutch.Relay.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tasks", x => x.Id);
+                    table.PrimaryKey("PK_RelayTasks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubTasks",
+                name: "RelaySubTasks",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    OwnerId = table.Column<string>(type: "text", nullable: false),
-                    TaskId = table.Column<string>(type: "text", nullable: true),
+                    OwnerId = table.Column<string>(type: "text", nullable: true),
+                    RelayTaskId = table.Column<string>(type: "text", nullable: true),
                     Result = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubTasks", x => x.Id);
+                    table.PrimaryKey("PK_RelaySubTasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SubTasks_SubNodes_OwnerId",
+                        name: "FK_RelaySubTasks_RelayTasks_RelayTaskId",
+                        column: x => x.RelayTaskId,
+                        principalTable: "RelayTasks",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RelaySubTasks_SubNodes_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "SubNodes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SubTasks_Tasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "Tasks",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SubTasks_OwnerId",
-                table: "SubTasks",
+                name: "IX_RelaySubTasks_OwnerId",
+                table: "RelaySubTasks",
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SubTasks_TaskId",
-                table: "SubTasks",
-                column: "TaskId");
+                name: "IX_RelaySubTasks_RelayTaskId",
+                table: "RelaySubTasks",
+                column: "RelayTaskId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SubTasks");
+                name: "RelaySubTasks");
 
             migrationBuilder.DropTable(
-                name: "Tasks");
+                name: "RelayTasks");
         }
     }
 }

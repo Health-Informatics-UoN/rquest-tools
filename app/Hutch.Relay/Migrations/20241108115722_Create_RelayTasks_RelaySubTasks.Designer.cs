@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hutch.Relay.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241108113911_AddTaskEntities")]
-    partial class AddTaskEntities
+    [Migration("20241108115722_Create_RelayTasks_RelaySubTasks")]
+    partial class Create_RelayTasks_RelaySubTasks
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,41 +25,30 @@ namespace Hutch.Relay.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubNode", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SubNodes");
-                });
-
-            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubTask", b =>
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelaySubTask", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
                     b.Property<string>("OwnerId")
-                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RelayTaskId")
                         .HasColumnType("text");
 
                     b.Property<string>("Result")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TaskId")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("RelayTaskId");
 
-                    b.ToTable("SubTasks");
+                    b.ToTable("RelaySubTasks");
                 });
 
-            modelBuilder.Entity("Hutch.Relay.Data.Entities.Task", b =>
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelayTask", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -78,7 +67,17 @@ namespace Hutch.Relay.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("RelayTasks");
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubNode", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubNodes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -308,21 +307,19 @@ namespace Hutch.Relay.Migrations
                     b.HasDiscriminator().HasValue("RelayUser");
                 });
 
-            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubTask", b =>
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelaySubTask", b =>
                 {
                     b.HasOne("Hutch.Relay.Data.Entities.SubNode", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OwnerId");
 
-                    b.HasOne("Hutch.Relay.Data.Entities.Task", "Task")
+                    b.HasOne("Hutch.Relay.Data.Entities.RelayTask", "RelayTask")
                         .WithMany()
-                        .HasForeignKey("TaskId");
+                        .HasForeignKey("RelayTaskId");
 
                     b.Navigation("Owner");
 
-                    b.Navigation("Task");
+                    b.Navigation("RelayTask");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
