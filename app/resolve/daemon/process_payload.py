@@ -1,6 +1,4 @@
-from select import select
-
-from settings import *
+import core.settings as settings
 import json
 
 
@@ -12,7 +10,7 @@ class Process_payload:
         self.jobtype = self.set_job_type()
 
     def append_jobid(self):
-        json_payload['uuid']+='-'+COLLECTION_ID
+        json_payload['uuid']+='-'+settings.COLLECTION_ID
 
     def set_job_type(self):
         if "analysis" not in self.payload:

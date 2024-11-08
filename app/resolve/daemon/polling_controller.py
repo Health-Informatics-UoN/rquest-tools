@@ -1,5 +1,5 @@
-from settings import *
 
+import core.settings as settings
 import polling
 import requests
 
@@ -13,8 +13,8 @@ class Poll:
     def poll(self):
         if RELAY_BASE_URL is not None:
             data = polling.poll(
-                lambda: requests.get(RELAY_BASE_URL + self.collection_id_path),
-                step=POLLING_INTERVAL,
+                lambda: requests.get(settings.RELAY_BASE_URL + self.collection_id_path),
+                step=settings.POLLING_INTERVAL,
                 poll_forever=True
                 )
         else:

@@ -6,9 +6,7 @@ from core.parser import parser
 from core.rquest_dto.result import RquestResult
 from core.task_api_client import TaskApiClient
 
-from settings import *
-import requests
-import polling
+import polling_controller
 
 def main() -> None:
     print("hello rabbit world!")
@@ -35,15 +33,10 @@ def main() -> None:
             time.sleep(5)
 
 ### polling
-    retval = polling.poll(
-        lambda: requests.get(relay_base_url).status_code == 200,
-        step=polling_interval,
-        poll_forever=True)
+    ### entry point here, to start polling
+    poll = polling_controller.Poll()
+    poll.poll()
 
-    print (retval)
-
-    pass
-pass
 
 if __name__ == '__main__':
     main()
