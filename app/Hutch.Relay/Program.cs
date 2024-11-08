@@ -1,23 +1,12 @@
-using Hutch.Relay.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Hutch.Relay.Startup.Web;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
+using Hutch.Relay.Commands.Helpers;
+using Hutch.Relay.Startup.Cli;
 
-var builder = WebApplication.CreateBuilder(args);
-
-var connectionString = builder.Configuration.GetConnectionString("RelayDb");
-builder.Services.AddDbContext<ApplicationDbContext>(o => { o.UseNpgsql(connectionString); });
-
-builder.Services.AddIdentityCore<IdentityUser>().AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-app.UseHttpsRedirection();
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseAuthentication();
-app.MapControllers();
-
-app.Run();
+await new CommandLineBuilder(new CliEntrypoint())
+  .UseDefaults()
+  .UseRootCommandBypass(args, WebEntrypoint.Run)
+  .UseCliHostDefaults(args)
+  .Build()
+  .InvokeAsync(args);
