@@ -83,8 +83,8 @@ public class RelayTaskService(ApplicationDbContext db)
   /// <summary>
   /// List RelayTasks that have not been completed.
   /// </summary>
-  /// <returns>The list of uncompleted RelayTasks</returns>
-  public async Task<IEnumerable<RelayTaskModel>> ListUncomplete()
+  /// <returns>The list of incomplete RelayTasks</returns>
+  public async Task<IEnumerable<RelayTaskModel>> ListIncomplete()
   {
     var query = await db.RelayTasks
       .AsNoTracking()

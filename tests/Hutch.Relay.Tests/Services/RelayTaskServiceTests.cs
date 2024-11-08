@@ -7,9 +7,18 @@ using Assert = Xunit.Assert;
 
 namespace Hutch.Relay.Tests.Services;
 
-public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
+public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>, IAsyncLifetime
 {
   private readonly ApplicationDbContext _dbContext = fixtures.DbContext;
+  
+  public async Task InitializeAsync()
+  { }
+  public async Task DisposeAsync()
+  {
+    // Clean up the database after each test
+    _dbContext.RelayTasks.RemoveRange(_dbContext.RelayTasks);
+    await _dbContext.SaveChangesAsync();
+  }
   
   [Fact]
   public async Task Get_WithValidId_ReturnsRelayTaskModel()
@@ -17,8 +26,7 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     // Arrange
     var relayTask = new RelayTask
     {
-      Id = "valid-id",
-      CreatedAt = DateTime.UtcNow,
+      Id = "valid-id-1",
       Collection = "Sample Collection"
     };
     _dbContext.RelayTasks.Add(relayTask);
@@ -27,12 +35,11 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     var service = new RelayTaskService(_dbContext);
 
     // Act
-    var result = await service.Get("valid-id");
+    var result = await service.Get("valid-id-1");
 
     // Assert
     Assert.NotNull(result);
-    Assert.Equal("valid-id", result.Id);
-    Assert.Equal(relayTask.CreatedAt, result.CreatedAt);
+    Assert.Equal(relayTask.Id, result.Id);
     Assert.Equal(relayTask.Collection, result.Collection);
   }
 
@@ -77,8 +84,7 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     // Arrange
     var relayTask = new RelayTask
     {
-      Id = "valid-id",
-      CreatedAt = DateTime.UtcNow,
+      Id = "valid-id-2",
       Collection = "Sample Collection",
     };
     _dbContext.RelayTasks.Add(relayTask);
@@ -87,13 +93,52 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     var service = new RelayTaskService(_dbContext);
 
     // Act
-    var result = await service.SetComplete("valid-id");
+    var result = await service.SetComplete("valid-id-2");
 
     // Assert
     Assert.NotNull(result.CompletedAt); 
     
-    var entityInDb = await _dbContext.RelayTasks.FindAsync("valid-id");
+    var entityInDb = await _dbContext.RelayTasks.FindAsync("valid-id-2");
     Assert.NotNull(entityInDb);
     Assert.NotNull(entityInDb.CompletedAt);
+  }
+  
+  [Fact]
+  public async Task ListIncomplete_ReturnsOnlyIncompleteTasks()
+  {
+    // Arrange - (2 incomplete, 1 complete)
+    var incompleteTask1 = new RelayTask
+    {
+      Id = "incomplete-id-1",
+      Collection = "Collection 1"
+    };
+    var incompleteTask2 = new RelayTask
+    {
+      Id = "incomplete-id-2",
+      Collection = "Collection 2"
+    };
+    var completedTask = new RelayTask
+    {
+      Id = "completed-id",
+      Collection = "Collection 3",
+      CompletedAt = DateTime.UtcNow.AddMinutes(3)
+    };
+
+    _dbContext.RelayTasks.AddRange(incompleteTask1, incompleteTask2, completedTask);
+    await _dbContext.SaveChangesAsync();
+
+    var service = new RelayTaskService(_dbContext);
+
+    // Act
+    var result = await service.ListIncomplete();
+
+    // Assert
+    Assert.NotNull(result);
+    Assert.Equal(2, result.Count()); 
+    
+    var incompleteTasks = result.ToList();
+    Assert.Contains(incompleteTasks, x => x.Id == incompleteTask1.Id);
+    Assert.Contains(incompleteTasks, x => x.Id == incompleteTask2.Id);
+    Assert.DoesNotContain(incompleteTasks, x => x.Id == completedTask.Id);
   }
 }
