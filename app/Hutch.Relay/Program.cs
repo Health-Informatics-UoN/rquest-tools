@@ -14,7 +14,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // App specific
-builder.Services.AddTransient<RelayTaskService>();
+builder.Services
+  .AddTransient<RelayTaskService>()
+  .AddTransient<RelaySubTaskService>();
 
 var app = builder.Build();
 
