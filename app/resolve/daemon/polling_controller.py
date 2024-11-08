@@ -1,21 +1,21 @@
-
 import core.settings as settings
 import polling
-import requests
+
 
 class Poll:
 
-    def __init__(self):
-        self.collection_id_path = "/task/nextjob/{}".format(COLLECTION_ID)
-
-        pass
+    def __init__(self, client):
+        self.endpoint = "/task/nextjob/{}".format(settings.COLLECTION_ID)
+        self.client = client
 
     def poll(self):
-        if RELAY_BASE_URL is not None:
+        if settings.TASK_API_BASE_URL is not None:
             data = polling.poll(
-                lambda: requests.get(settings.RELAY_BASE_URL + self.collection_id_path),
+                lambda: self.client.get(self.endpoint),
                 step=settings.POLLING_INTERVAL,
                 poll_forever=True
                 )
         else:
-            raise Exception("RELAY_BASE_URL has not been set")
+            raise Exception("TASK_API_BASE_URL has not been set")
+
+        return data

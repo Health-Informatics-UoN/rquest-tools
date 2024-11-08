@@ -18,6 +18,16 @@ def main() -> None:
     if not isinstance(result, RquestResult):
         raise TypeError("Payload does not match RQuest result schema")
 
+
+    ### polling
+    ### entry point here, to start polling
+    poll = polling_controller.Poll(client)
+    poll.poll()
+
+
+
+
+
     return_endpoint = f"task/result/{result.uuid}/{result.collection_id}"
 
     for i in range(4):
@@ -32,10 +42,7 @@ def main() -> None:
             )
             time.sleep(5)
 
-### polling
-    ### entry point here, to start polling
-    poll = polling_controller.Poll()
-    poll.poll()
+
 
 
 if __name__ == '__main__':
