@@ -70,4 +70,30 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     Assert.NotNull(entityInDb);
     Assert.Equal(model.Collection, entityInDb.Collection);
   }
+  
+  [Fact]
+  public async Task SetComplete_ValidId_UpdatesCompletedAtAndReturnsRelayTaskModel()
+  {
+    // Arrange
+    var relayTask = new RelayTask
+    {
+      Id = "valid-id",
+      CreatedAt = DateTime.UtcNow,
+      Collection = "Sample Collection",
+    };
+    _dbContext.RelayTasks.Add(relayTask);
+    await _dbContext.SaveChangesAsync();
+
+    var service = new RelayTaskService(_dbContext);
+
+    // Act
+    var result = await service.SetComplete("valid-id");
+
+    // Assert
+    Assert.NotNull(result.CompletedAt); 
+    
+    var entityInDb = await _dbContext.RelayTasks.FindAsync("valid-id");
+    Assert.NotNull(entityInDb);
+    Assert.NotNull(entityInDb.CompletedAt);
+  }
 }
