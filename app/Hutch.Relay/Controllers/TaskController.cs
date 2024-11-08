@@ -30,10 +30,12 @@ public class TaskController : ControllerBase
   [SwaggerResponse(409)]
   public Task<IActionResult> Result(string uuid, string collectionId, [FromBody] JobResult result)
   {
-    throw new NotImplementedException();
+    // for now assume all JobResult payloads sent here are valid:
+    
+    return Task.FromResult<IActionResult>(Ok("Job saved"));
   }
 
-  # region Dummy Endpoints
+  # region Dummy NextJob
 
   private static AvailabilityJob DummyAvailability(string collectionId) => new()
   {
