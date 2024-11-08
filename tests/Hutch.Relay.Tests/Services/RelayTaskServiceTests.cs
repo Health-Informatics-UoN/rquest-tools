@@ -1,5 +1,6 @@
 using Hutch.Relay.Data;
 using Hutch.Relay.Data.Entities;
+using Hutch.Relay.Models;
 using Hutch.Relay.Services;
 using Xunit;
 using Assert = Xunit.Assert;
@@ -18,7 +19,6 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     {
       Id = "valid-id",
       CreatedAt = DateTime.UtcNow,
-      CompletedAt = DateTime.UtcNow.AddDays(1),
       Collection = "Sample Collection"
     };
     _dbContext.RelayTasks.Add(relayTask);
@@ -33,7 +33,6 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
     Assert.NotNull(result);
     Assert.Equal("valid-id", result.Id);
     Assert.Equal(relayTask.CreatedAt, result.CreatedAt);
-    Assert.Equal(relayTask.CompletedAt, result.CompletedAt);
     Assert.Equal(relayTask.Collection, result.Collection);
   }
 
@@ -45,5 +44,30 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>
   
     // Act / Assert
     await Assert.ThrowsAsync<KeyNotFoundException>(() => service.Get("DoesNotExist"));
+  }
+  
+  [Fact]
+  public async Task Create_ValidRelayTaskModel_ReturnsCreatedRelayTaskModel()
+  {
+    // Arrange
+    var model = new RelayTaskModel
+    {
+      Collection = "New Collection"
+    };
+
+    var service = new RelayTaskService(_dbContext);
+
+    // Act
+    var result = await service.Create(model);
+
+    // Assert
+    Assert.NotNull(result);
+    Assert.NotNull(result.Id);
+    Assert.Equal(model.Collection, result.Collection);
+    Assert.Null(result.CompletedAt);
+
+    var entityInDb = await _dbContext.RelayTasks.FindAsync(result.Id);
+    Assert.NotNull(entityInDb);
+    Assert.Equal(model.Collection, entityInDb.Collection);
   }
 }
