@@ -15,6 +15,7 @@ public class RelaySubTaskService(ApplicationDbContext db)
   {
     var entity = new RelaySubTask
     {
+      Id = model.Id,
       Owner = model.Owner
     };
     
