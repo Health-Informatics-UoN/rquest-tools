@@ -5,12 +5,18 @@ from core.execute_query import execute_query
 from core.parser import parser
 from core.rquest_dto.result import RquestResult
 from core.task_api_client import TaskApiClient
+from core.results_modifiers import result_modifiers
 
 
 def main() -> None:
     client = TaskApiClient()
     logger = logging.getLogger(settings.LOGGER_NAME)
+    results_modifiers = result_modifiers(
+        low_number_suppession_threshold=settings.LOW_NUMBER_SUPPRESSION_THRESHOLD,
+        rounding_taget=settings.ROUNDING_TARGET,
+    )
     result = execute_query(parser)
+
     if not isinstance(result, RquestResult):
         raise TypeError("Payload does not match RQuest result schema")
 
