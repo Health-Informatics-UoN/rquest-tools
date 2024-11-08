@@ -1,9 +1,6 @@
-from typing import Union
-
-
 def results_modifiers(
-    low_number_suppession_threshold: Union[int, None],
-    rounding_target: Union[int, None],
+    low_number_suppession_threshold: int,
+    rounding_target: int,
 ) -> list:
     results_modifiers = []
     if low_number_suppession_threshold:
