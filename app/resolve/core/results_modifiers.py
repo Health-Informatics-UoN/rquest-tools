@@ -1,20 +1,20 @@
-def result_modifiers(
+def results_modifiers(
     low_number_suppession_threshold: int,
-    rounding_taget: int,
+    rounding_target: int,
 ) -> list:
-    result_modifiers = []
+    results_modifiers = []
     if low_number_suppession_threshold:
-        result_modifiers.append(
+        results_modifiers.append(
             {
                 "id": "Low Number Suppression",
                 "threshold": low_number_suppession_threshold,
             }
         )
-    if rounding_taget:
-        result_modifiers.append(
+    if rounding_target:
+        results_modifiers.append(
             {
                 "id": "Rounding",
-                "nearest": rounding_taget,
+                "nearest": rounding_target,
             }
         )
-    return result_modifiers
+    return results_modifiers

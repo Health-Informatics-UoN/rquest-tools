@@ -5,18 +5,18 @@ from core.execute_query import execute_query
 from core.parser import parser
 from core.rquest_dto.result import RquestResult
 from core.task_api_client import TaskApiClient
-from core.results_modifiers import result_modifiers
+from core.results_modifiers import results_modifiers
 import json
 
 
 def main() -> None:
     client = TaskApiClient()
     logger = logging.getLogger(settings.LOGGER_NAME)
-    modifiers_list = result_modifiers(
+    modifiers_list = results_modifiers(
         low_number_suppession_threshold=int(
             settings.LOW_NUMBER_SUPPRESSION_THRESHOLD or 0
         ),
-        rounding_taget=int(settings.ROUNDING_TARGET or 0),
+        rounding_target=int(settings.ROUNDING_TARGET or 0),
     )
     # Getting the input from the "CLI"/local file for now
     args = parser.parse_args()
@@ -30,7 +30,7 @@ def main() -> None:
 
     return_endpoint = f"task/result/{result.uuid}/{result.collection_id}"
 
-    for i in range(4):
+    for _ in range(4):
         response = client.post(endpoint=return_endpoint, data=result.to_dict())
 
         # Resolve will stop retrying to post results when response was successful or there is a client error
