@@ -1,13 +1,13 @@
 def results_modifiers(
-    low_number_suppession_threshold: int,
+    low_number_suppression_threshold: int,
     rounding_target: int,
 ) -> list:
     results_modifiers = []
-    if low_number_suppession_threshold:
+    if low_number_suppression_threshold:
         results_modifiers.append(
             {
                 "id": "Low Number Suppression",
-                "threshold": low_number_suppession_threshold,
+                "threshold": low_number_suppression_threshold,
             }
         )
     if rounding_target:
