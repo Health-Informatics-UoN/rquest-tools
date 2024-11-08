@@ -31,6 +31,9 @@ mysqlclient="^2.1.1"
 pyodbc="^4.0.35"
 polling = "^0.3.2"
 
+[tool.poetry.group.test.dependencies]
+pytest="8.3.3"
+
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.0"
 
