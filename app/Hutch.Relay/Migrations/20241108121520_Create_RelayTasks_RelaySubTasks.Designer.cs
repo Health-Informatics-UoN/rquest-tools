@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hutch.Relay.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241108115722_Create_RelayTasks_RelaySubTasks")]
+    [Migration("20241108121520_Create_RelayTasks_RelaySubTasks")]
     partial class Create_RelayTasks_RelaySubTasks
     {
         /// <inheritdoc />
@@ -314,7 +314,7 @@ namespace Hutch.Relay.Migrations
                         .HasForeignKey("OwnerId");
 
                     b.HasOne("Hutch.Relay.Data.Entities.RelayTask", "RelayTask")
-                        .WithMany()
+                        .WithMany("SubTasks")
                         .HasForeignKey("RelayTaskId");
 
                     b.Navigation("Owner");
@@ -386,6 +386,11 @@ namespace Hutch.Relay.Migrations
                         .HasForeignKey("SubNodesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelayTask", b =>
+                {
+                    b.Navigation("SubTasks");
                 });
 #pragma warning restore 612, 618
         }

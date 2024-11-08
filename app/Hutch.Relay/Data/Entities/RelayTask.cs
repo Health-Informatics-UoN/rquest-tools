@@ -6,4 +6,5 @@ public class RelayTask
   public string Collection { get; set; } = string.Empty;
   public DateTimeOffset CreatedAt { get; set; }
   public DateTimeOffset? CompletedAt { get; set; }
+  public List<RelaySubTask> SubTasks { get; set; } = [];
 }
