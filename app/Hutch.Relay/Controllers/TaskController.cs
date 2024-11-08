@@ -106,11 +106,7 @@ public class TaskController : ControllerBase
       ? Task.FromResult<IActionResult>(NoContent())
       : Task.FromResult<IActionResult>(Ok(payload));
 
-    bool Flip()
-    {
-      var rand = RandomGen2.Next(2);
-      return rand == 1;
-    }
+    bool Flip() => RandomGen2.Next(2) == 1;
   }
 
   private static class RandomGen2
