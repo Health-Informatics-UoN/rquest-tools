@@ -1,6 +1,7 @@
 import logging
 import json
 
+from core.obfuscation import get_results_modifiers_from_str
 import core.settings as settings
 from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
@@ -30,7 +31,12 @@ def save_to_output(result: RquestResult, destination: str) -> None:
 
 def main() -> None:
     args = parser.parse_args()
-    result = execute_query(parser)
+
+    with open(args.body) as body:
+        query_dict = json.load(body)
+    results_modifier = get_results_modifiers_from_str(args.results_modifiers)
+
+    result = execute_query(query_dict, results_modifier)
     save_to_output(result, args.output)
     logger = logging.getLogger(settings.LOGGER_NAME)
     logger.info(f"Saved results to {args.output}")
