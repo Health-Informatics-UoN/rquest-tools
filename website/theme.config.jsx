@@ -1,5 +1,5 @@
 // https://nextra.site/docs/docs-theme/theme-configuration
-import { Activity } from "lucide-react";
+import { Rabbit } from "lucide-react";
 
 export default {
   logo: (
@@ -9,7 +9,7 @@ export default {
         color: "#0E7490",
       }}
     >
-      <Activity style={{ marginRight: "5px" }} />
+      <Rabbit style={{ marginRight: "5px" }} />
       <strong style={{ marginRight: "5px" }}>Hutch Tools Documentation</strong>
     </span>
   ),
@@ -18,7 +18,7 @@ export default {
   },
   head: (
     <>
-      <link rel="icon" type="image/svg+xml" href="./activity.png" />
+      <link rel="icon" type="image/svg+xml" href="./rabbit.png" />
     </>
   ),
   footer: {
