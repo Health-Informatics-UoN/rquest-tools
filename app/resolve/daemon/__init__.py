@@ -23,7 +23,7 @@ def main() -> None:
     with open(args.body) as body:
         query_dict = json.load(body)
 
-    result = execute_query(query_dict, result_modifiers=modifiers_list)
+    result = execute_query(query_dict, results_modifiers=modifiers_list)
 
     if not isinstance(result, RquestResult):
         raise TypeError("Payload does not match RQuest result schema")
