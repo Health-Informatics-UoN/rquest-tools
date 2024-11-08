@@ -13,7 +13,7 @@ from core.db_manager import SyncDBManager, TrinoDBManager
 from core.rquest_dto.result import RquestResult
 
 
-def execute_query(query_dict: Dict, result_modifers: List) -> RquestResult:
+def execute_query(query_dict: Dict, result_modifiers: List) -> RquestResult:
     """
     Executes either an availability query or a distribution query, and returns results filtered by modifiers
 
@@ -95,7 +95,7 @@ def execute_query(query_dict: Dict, result_modifers: List) -> RquestResult:
             result = query_solvers.solve_availability(
                 db_manager=db_manager, query=query
             )
-            result.count = apply_filters_v2(result.count, result_modifers)
+            result.count = apply_filters_v2(result.count, result_modifiers)
             return result
         except TypeError as te:  # raised if the distribution query json format is wrong
             logger.error(str(te), exc_info=True)
