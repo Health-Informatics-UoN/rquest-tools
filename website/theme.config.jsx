@@ -1,5 +1,5 @@
 // https://nextra.site/docs/docs-theme/theme-configuration
-import { Rabbit } from "lucide-react";
+import { Rabbit, Package, PocketKnife } from "lucide-react";
 
 export default {
   logo: (
@@ -10,7 +10,12 @@ export default {
       }}
     >
       <Rabbit style={{ marginRight: "5px" }} />
-      <strong style={{ marginRight: "5px" }}>Hutch Tools Documentation</strong>
+      +
+      <Package style={{ marginRight: "5px" }} />
+      +
+      <PocketKnife style={{ marginRight: "5px" }} />
+      =
+      <strong style={{ marginRight: "5px" }}>Hutch Tools</strong>Documentation
     </span>
   ),
   project: {
@@ -18,7 +23,9 @@ export default {
   },
   head: (
     <>
-      <link rel="icon" type="image/svg+xml" href="./rabbit.png" />
+      //<link rel="icon" type="image/svg+xml" href="./rabbit.png" /> I thought I had to use these to import the icons, but apparently not
+      //<link rel="icon" type="image/svg+xml" href="./package.png" />
+      //<link rel="icon" type="image/svg+xml" href="./pocket-knife.png" />
     </>
   ),
   footer: {
