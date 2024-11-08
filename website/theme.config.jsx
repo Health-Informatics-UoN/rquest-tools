@@ -23,18 +23,18 @@ export default {
   },
   head: (
     <>
-      //<link rel="icon" type="image/svg+xml" href="./rabbit.png" /> I thought I had to use these to import the icons, but apparently not
-      //<link rel="icon" type="image/svg+xml" href="./package.png" />
-      //<link rel="icon" type="image/svg+xml" href="./pocket-knife.png" />
+      <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     </>
   ),
   footer: {
-    text: (
+    content: (
       <span>
         ©{new Date().getFullYear()}{" "}
         <a href="https://nottingham.ac.uk" target="_blank">
-          University of Nottingham
+          <img src="/images/uon_white_text_web.png" />
         </a>
+        <br />
+        MIT licence
       </span>
     ),
   },
