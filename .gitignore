@@ -1,6 +1,7 @@
 publish.zip
 
 node_modules
+website/.next
 .DS_Store
 dist
 dist-ssr
