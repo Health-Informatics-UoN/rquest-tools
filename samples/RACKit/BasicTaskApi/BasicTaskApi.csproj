@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\Hutch.Rackit\Hutch.Rackit.csproj" />
+    <ProjectReference Include="..\..\..\lib\Hutch.Rackit\Hutch.Rackit.csproj" />
   </ItemGroup>
 
   <ItemGroup>

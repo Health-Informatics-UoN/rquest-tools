@@ -10,27 +10,43 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   rabbitmq:
-      image: rabbitmq:3-management
-      ports:
-        - 5672:5672
-        - 15672:15672
-      environment:
-        RABBITMQ_DEFAULT_USER: user
-        RABBITMQ_DEFAULT_PASS: password
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
 
   relay:
-      build:
-        dockerfile: app/Hutch.Relay/Dockerfile
-      ports:
-        - 8080:8080
-        - 8081:8081
-      depends_on:
-        - rabbitmq
+    build:
+      dockerfile: app/Hutch.Relay/Dockerfile
+    ports:
+      - 8080:8080
+      - 8081:8081
+    depends_on:
+      - rabbitmq
+      - db
+    environment:
+      - ConnectionStrings__RelayDb=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
 
   resolve:
     depends_on:
       - db
+      - relay
+      - rabbitmq
     image: resolve
     build:
       context: app/resolve
       dockerfile: Dockerfile.daemon
+    environment:
+      - TASK_API_BASE_URL=https://relay
+      - DATASOURCE_DB_USERNAME=postgres
+      - DATASOURCE_DB_PASSWORD=postgres
+      - DATASOURCE_DB_DATABASE=postgres
+      - DATASOURCE_DB_DRIVERNAME=postgresql
+      - DATASOURCE_DB_SCHEMA=public
+      - DATASOURCE_DB_PORT=5432
+      - DATASOURCE_DB_HOST=db
+      - TASK_API_USERNAME=username
+      - TASK_API_PASSWORD=password

@@ -26,4 +26,9 @@ public class ApiClientOptions
   /// Password to access the API. Passed in Basic Auth header.
   /// </summary>
   public string? Password { get; set; }
+
+  /// <summary>
+  /// Time in milliseconds that endpoint polling methods will wait between requests
+  /// </summary>
+  public int PollingFrequency { get; set; } = 5000;
 }
