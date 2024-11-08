@@ -4,7 +4,7 @@ import sys
 import logging
 import json
 
-import core.config as config
+import core.settings as settings
 from core import query_solvers
 from core.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from core.obfuscation import (
@@ -18,12 +18,12 @@ from core.rquest_dto.result import RquestResult
 def execute_query(parser: argparse.ArgumentParser) -> RquestResult:
     # Set up the logger
     LOG_FORMAT = logging.Formatter(
-        config.MSG_FORMAT,
-        datefmt=config.DATE_FORMAT,
+        settings.MSG_FORMAT,
+        datefmt=settings.DATE_FORMAT,
     )
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(LOG_FORMAT)
-    logger = logging.getLogger(config.LOGGER_NAME)
+    logger = logging.getLogger(settings.LOGGER_NAME)
     logger.setLevel(logging.INFO)
     logger.addHandler(console_handler)
 
@@ -69,7 +69,7 @@ def execute_query(parser: argparse.ArgumentParser) -> RquestResult:
                 ),
                 database=os.getenv("DATASOURCE_DB_DATABASE"),
                 drivername=os.getenv(
-                    "DATASOURCE_DB_DRIVERNAME", config.DEFAULT_DB_DRIVER
+                    "DATASOURCE_DB_DRIVERNAME", settings.DEFAULT_DB_DRIVER
                 ),
                 schema=os.getenv("DATASOURCE_DB_SCHEMA"),
             )

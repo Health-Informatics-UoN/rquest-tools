@@ -22,7 +22,7 @@ from core.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from core.rquest_dto.file import File
 from core.rquest_dto.result import RquestResult
 from core.enums import DistributionQueryType
-import core.config as config
+import core.settings as settings
 from core.constants import DISTRIBUTION_TYPE_FILE_NAMES_MAP
 
 
@@ -428,7 +428,7 @@ def solve_availability(
     Returns:
         RquestResult: Result object for the query
     """
-    logger = logging.getLogger(config.LOGGER_NAME)
+    logger = logging.getLogger(settings.LOGGER_NAME)
     solver = AvailibilityQuerySolver(db_manager, query)
     try:
         count_ = solver.solve_query()
@@ -477,7 +477,7 @@ def solve_distribution(
     Returns:
         DistributionResult: Result object for the query
     """
-    logger = logging.getLogger(config.LOGGER_NAME)
+    logger = logging.getLogger(settings.LOGGER_NAME)
     solver = _get_distribution_solver(db_manager, query)
     try:
         res, count = solver.solve_query()

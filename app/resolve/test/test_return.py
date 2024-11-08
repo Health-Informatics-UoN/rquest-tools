@@ -8,7 +8,7 @@ from core.rquest_dto.group import Group
 from core.rquest_dto.rule import Rule
 from dotenv import load_dotenv
 import os
-import core.config as config
+import core.settings as settings
 
 load_dotenv()
 
@@ -22,7 +22,7 @@ def db_manager():
         host=os.getenv("DATASOURCE_DB_HOST"),
         port=(int(datasource_db_port) if datasource_db_port is not None else None),
         database=os.getenv("DATASOURCE_DB_DATABASE"),
-        drivername=os.getenv("DATASOURCE_DB_DRIVERNAME", config.DEFAULT_DB_DRIVER),
+        drivername=os.getenv("DATASOURCE_DB_DRIVERNAME", settings.DEFAULT_DB_DRIVER),
         schema=os.getenv("DATASOURCE_DB_SCHEMA"),
     )
 

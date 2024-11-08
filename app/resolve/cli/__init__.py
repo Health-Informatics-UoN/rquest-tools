@@ -1,7 +1,7 @@
 import logging
 import json
 
-import core.config as config
+import core.settings as settings
 from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
 from core.parser import parser
@@ -19,7 +19,7 @@ def save_to_output(result: RquestResult, destination: str) -> None:
     """
     if not destination.endswith(".json"):
         raise ValueError("Please specify a JSON file (ending in '.json').")
-    logger = logging.getLogger(config.LOGGER_NAME)
+    logger = logging.getLogger(settings.LOGGER_NAME)
     try:
         with open(destination, "w") as output_file:
             file_body = json.dumps(result.to_dict())
@@ -32,5 +32,5 @@ def main() -> None:
     args = parser.parse_args()
     result = execute_query(parser)
     save_to_output(result, args.output)
-    logger = logging.getLogger(config.LOGGER_NAME)
+    logger = logging.getLogger(settings.LOGGER_NAME)
     logger.info(f"Saved results to {args.output}")
