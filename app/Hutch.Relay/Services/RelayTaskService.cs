@@ -38,7 +38,7 @@ public class RelayTaskService(ApplicationDbContext db)
   {
     var entity = new RelayTask
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = model.Id,
       Collection = model.Collection
     };
     

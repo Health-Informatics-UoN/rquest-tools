@@ -77,16 +77,16 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
       },
       Result = null
     };
-
+  
     _dbContext.RelaySubTasks.Add(relaySubTask);
     await _dbContext.SaveChangesAsync();
-
+  
     var service = new RelaySubTaskService(_dbContext);
-
+  
     // Act
     const string updatedResult = "Test Result";
     var result = await service.SetResult(relaySubTask.Id, updatedResult);
-
+  
     // Assert
     Assert.NotNull(result);
     Assert.Equal(relaySubTask.Id, result.Id);
@@ -95,7 +95,7 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
     var updatedSubTask = await _dbContext.RelaySubTasks
       .Include(st => st.Owner)
       .FirstOrDefaultAsync(st => st.Id == relaySubTask.Id);
-
+  
     Assert.NotNull(updatedSubTask);
     Assert.Equal(updatedResult, updatedSubTask.Result);
   }

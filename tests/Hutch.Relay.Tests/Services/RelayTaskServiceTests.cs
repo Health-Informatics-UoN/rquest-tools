@@ -59,6 +59,7 @@ public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>,
     // Arrange
     var model = new RelayTaskModel
     {
+      Id = "valid-id-7",
       Collection = "New Collection"
     };
 
