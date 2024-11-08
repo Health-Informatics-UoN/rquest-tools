@@ -12,18 +12,26 @@ import json
 def main() -> None:
     client = TaskApiClient()
     logger = logging.getLogger(settings.LOGGER_NAME)
+    lns_threshold = (
+        int(settings.LOW_NUMBER_SUPPRESSION_THRESHOLD or 0)
+        if int(settings.LOW_NUMBER_SUPPRESSION_THRESHOLD or 0) > 0
+        else None
+    )
+    rounding_nearest = (
+        int(settings.ROUNDING_TARGET or 0)
+        if int(settings.ROUNDING_TARGET or 0) > 0
+        else None
+    )
     modifiers_list = results_modifiers(
-        low_number_suppession_threshold=int(
-            settings.LOW_NUMBER_SUPPRESSION_THRESHOLD or 0
-        ),
-        rounding_target=int(settings.ROUNDING_TARGET or 0),
+        low_number_suppession_threshold=lns_threshold,
+        rounding_target=rounding_nearest,
     )
     # Getting the input from the "CLI"/local file for now
     args = parser.parse_args()
     with open(args.body) as body:
         query_dict = json.load(body)
 
-    result = execute_query(query_dict, result_modifiers=modifiers_list)
+    result = execute_query(query_dict, results_modifiers=modifiers_list)
 
     if not isinstance(result, RquestResult):
         raise TypeError("Payload does not match RQuest result schema")
