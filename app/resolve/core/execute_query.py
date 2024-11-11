@@ -1,21 +1,32 @@
-import argparse
 import os
 import sys
 import logging
-import json
+from typing import Dict, List
 
 import core.settings as settings
 from core import query_solvers
 from core.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from core.obfuscation import (
-    get_results_modifiers_from_str,
     apply_filters_v2,
 )
 from core.db_manager import SyncDBManager, TrinoDBManager
 from core.rquest_dto.result import RquestResult
 
 
-def execute_query(parser: argparse.ArgumentParser) -> RquestResult:
+def execute_query(query_dict: Dict, results_modifiers: List) -> RquestResult:
+    """
+    Executes either an availability query or a distribution query, and returns results filtered by modifiers
+
+    Parameters
+    ----------
+    query_dict: Dict
+        A dictionary carrying the payload for the query. If there is an 'analysis' item in the query, it's a distribution query. Otherwise, it executes an availability query
+    results_modifers: List
+        A list of modifiers applied to the results of the query before returning them to Relay
+
+    Returns
+        RquestResult
+    """
     # Set up the logger
     LOG_FORMAT = logging.Formatter(
         settings.MSG_FORMAT,
@@ -26,21 +37,6 @@ def execute_query(parser: argparse.ArgumentParser) -> RquestResult:
     logger = logging.getLogger(settings.LOGGER_NAME)
     logger.setLevel(logging.INFO)
     logger.addHandler(console_handler)
-
-    # parse command line arguments
-    args = parser.parse_args()
-
-    # check only of -a or -d is given
-    if args.is_availability and args.is_distribution:
-        logger.error("Only one of `-a` or `-d` can be specified at once.")
-        parser.print_help()
-        exit()
-
-    # check one of -a or -d is given
-    if not (args.is_availability or args.is_distribution):
-        logger.error("Specify one of `-a` or `-d`.")
-        parser.print_help()
-        exit()
 
     logger.info("Setting up database connection...")
     if bool(os.getenv("USE_TRINO", False)):
@@ -78,16 +74,13 @@ def execute_query(parser: argparse.ArgumentParser) -> RquestResult:
             exit()
 
     logger.info("Processing query...")
-    with open(args.body) as body:
-        query_dict = json.load(body)
-    result_modifers = get_results_modifiers_from_str(args.results_modifiers)
-    if args.is_availability:
+
+    if "analysis" in query_dict.keys():
         try:
-            query = AvailabilityQuery.from_dict(query_dict)
-            result = query_solvers.solve_availability(
+            query = DistributionQuery.from_dict(query_dict)
+            result = query_solvers.solve_distribution(
                 db_manager=db_manager, query=query
             )
-            result.count = apply_filters_v2(result.count, result_modifers)
             return result
         except TypeError as te:  # raised if the distribution query json format is wrong
             logger.error(str(te), exc_info=True)
@@ -95,12 +88,14 @@ def execute_query(parser: argparse.ArgumentParser) -> RquestResult:
             # raised if there was an issue saving the output or
             # the query json has incorrect values
             logger.error(str(ve), exc_info=True)
+
     else:
         try:
-            query = DistributionQuery.from_dict(query_dict)
-            result = query_solvers.solve_distribution(
+            query = AvailabilityQuery.from_dict(query_dict)
+            result = query_solvers.solve_availability(
                 db_manager=db_manager, query=query
             )
+            result.count = apply_filters_v2(result.count, results_modifiers)
             return result
         except TypeError as te:  # raised if the distribution query json format is wrong
             logger.error(str(te), exc_info=True)
