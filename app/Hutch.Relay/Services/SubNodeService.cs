@@ -27,4 +27,11 @@ public class SubNodeService(ApplicationDbContext db)
       Id = entity.Id
     };
   }
+
+  /// <summary>
+  /// List all registered sub nodes
+  /// </summary>
+  /// <returns>A list of nodes</returns>
+  public async Task<List<SubNode>> List()
+    => await db.SubNodes.AsNoTracking().ToListAsync();
 }

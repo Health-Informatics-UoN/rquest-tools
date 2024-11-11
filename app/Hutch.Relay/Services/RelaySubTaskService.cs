@@ -9,26 +9,39 @@ public class RelaySubTaskService(ApplicationDbContext db)
   /// <summary>
   /// Create a new RelaySubTask
   /// </summary>
-  /// <param name="model">Model to create</param>
   /// <returns>The newly created RelaySubTask</returns>
-  public async Task<RelaySubTaskModel> Create(RelaySubTaskModel model)
+  public async Task<RelaySubTaskModel> Create(string relayTaskId, string ownerId)
   {
-    var subNode = await db.SubNodes.FindAsync(model.Owner.Id) ?? throw new KeyNotFoundException();
+    // Not 100% convinced by the multiple db reads here to satisfy nice error messages?
+    var subNode = await db.SubNodes.FindAsync(ownerId) ??
+                  throw new KeyNotFoundException($"The specified owner does not exist: {ownerId}");
+    var parent = await db.RelayTasks.FindAsync(relayTaskId) ??
+                 throw new KeyNotFoundException($"The specified parent Relay Task does not exist: {relayTaskId}");
+
     var entity = new RelaySubTask
     {
-      Id = model.Id,
-      Owner = subNode
+      Id = $"{relayTaskId}_{subNode.Id}",
+      Owner = subNode,
+      RelayTask = parent
     };
-    
+
     db.RelaySubTasks.Add(entity);
     await db.SaveChangesAsync();
-    
-    return new RelaySubTaskModel
+
+    // TODO: what's actually useful here?
+    return new()
     {
       Id = entity.Id,
-      Owner = new SubNodeModel
+      Owner = new()
       {
         Id = subNode.Id
+      },
+      RelayTask = new() // TODO: Automapper or something more sane than this?
+      {
+        Id = parent.Id,
+        Collection = parent.Collection,
+        CreatedAt = parent.CreatedAt,
+        CompletedAt = parent.CompletedAt,
       }
     };
   }
@@ -42,9 +55,9 @@ public class RelaySubTaskService(ApplicationDbContext db)
   /// <exception cref="KeyNotFoundException"></exception>
   public async Task<RelaySubTaskModel> SetResult(string id, string result)
   {
-    var entity = await db.RelaySubTasks.FindAsync(id) 
+    var entity = await db.RelaySubTasks.FindAsync(id)
                  ?? throw new KeyNotFoundException();
-    
+
     entity.Result = result;
     db.RelaySubTasks.Update(entity);
     await db.SaveChangesAsync();

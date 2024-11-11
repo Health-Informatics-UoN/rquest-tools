@@ -11,7 +11,10 @@ namespace Hutch.Relay.Services;
 public class UpstreamTaskPoller(
   ILogger<UpstreamTaskPoller> logger,
   IOptions<ApiClientOptions> options,
-  TaskApiClient upstreamTasks) : BackgroundService
+  TaskApiClient upstreamTasks,
+  SubNodeService subNodes,
+  RelayTaskService relayTasks,
+  RelaySubTaskService relaySubTasks) : BackgroundService
 {
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -39,6 +42,23 @@ public class UpstreamTaskPoller(
     await foreach (var job in jobs.WithCancellation(cancellationToken))
     {
       logger.LogInformation("Task handled: ({Type}) {Id}", typeof(T).Name, job.Uuid);
+      
+      var subnodes = await subNodes.List();
+      if (subnodes.Count == 0) return;
+
+      // Create a parent task
+      await relayTasks.Create(new()
+      {
+        Id = job.Uuid, Collection = job.Collection
+      });
+
+      // Fan out to subtasks
+      foreach (var subnode in subnodes)
+      {
+        await relaySubTasks.Create(job.Uuid, subnode.Id);
+
+        // TODO: Rabbit
+      }
     }
   }
 }
