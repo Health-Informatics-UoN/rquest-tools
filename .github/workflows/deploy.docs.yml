@@ -67,7 +67,12 @@ jobs:
 
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
-        working-directory: website 
+        working-directory: website
+
+      - name: Copy built files to docs
+        run: |
+          rm -rf docs/*
+          cp website/out docs/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

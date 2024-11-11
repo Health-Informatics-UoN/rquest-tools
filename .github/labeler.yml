@@ -9,7 +9,7 @@
   - app/Hutch.Relay/**/*
 "Area: Hutch.Rackit":
   - lib/Hutch.Rackit/**/*
-"Area: Docs":
+"Area: Website":
   - website/**/*
 
 # label types of changes contained in a PR
