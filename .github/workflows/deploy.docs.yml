@@ -6,7 +6,7 @@ on:
       - resolve/96/doc-site
 
     paths:
-      - "docs/**"
+      - "website/**"
 
   workflow_dispatch:
 
