@@ -3,7 +3,7 @@ name: Deploy Documentation Site to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - resolve/96/doc-site
 
     paths:
       - "docs/**"
