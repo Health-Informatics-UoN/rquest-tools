@@ -27,22 +27,20 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
   public async Task Create_ValidRelaySubTaskModel_ReturnsCreatedRelaySubTaskModel()
   {
     // Arrange
-    const string userId = "test-user-id";
     const string ownerId = "test-owner-id";
+    var subNode = new SubNode
+    {
+      Id = ownerId
+    };
+    _dbContext.SubNodes.Add(subNode);
+    await _dbContext.SaveChangesAsync();
+    
     var model = new RelaySubTaskModel
     {
       Id = "test-id",
-      Owner = new SubNode
+      Owner = new SubNodeModel
       {
-        Id = ownerId,
-        RelayUsers = new List<RelayUser>
-        {
-          new()
-          {
-            Id = userId,
-            UserName = "testuser@example.com"
-          }
-        }
+        Id = ownerId
       }
     };
 
