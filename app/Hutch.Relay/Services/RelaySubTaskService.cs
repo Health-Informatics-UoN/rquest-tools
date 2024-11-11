@@ -13,10 +13,11 @@ public class RelaySubTaskService(ApplicationDbContext db)
   /// <returns>The newly created RelaySubTask</returns>
   public async Task<RelaySubTaskModel> Create(RelaySubTaskModel model)
   {
+    var user = await db.SubNodes.FindAsync(model.Owner.Id) ?? throw new KeyNotFoundException();
     var entity = new RelaySubTask
     {
       Id = model.Id,
-      Owner = model.Owner
+      Owner = user
     };
     
     db.RelaySubTasks.Add(entity);
@@ -25,7 +26,10 @@ public class RelaySubTaskService(ApplicationDbContext db)
     return new RelaySubTaskModel
     {
       Id = entity.Id,
-      Owner = entity.Owner
+      Owner = new SubNodeModel
+      {
+        Id = user.Id
+      }
     };
   }
 
@@ -48,7 +52,10 @@ public class RelaySubTaskService(ApplicationDbContext db)
     return new RelaySubTaskModel
     {
       Id = entity.Id,
-      Owner = entity.Owner,
+      Owner = new SubNodeModel
+      {
+        Id = entity.Owner.Id
+      },
       Result = entity.Result
     };
   }
