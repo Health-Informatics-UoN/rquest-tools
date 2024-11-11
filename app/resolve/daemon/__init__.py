@@ -7,6 +7,7 @@ from core.rquest_dto.result import RquestResult
 from core.task_api_client import TaskApiClient
 
 import polling_controller
+import payload
 
 def main() -> None:
     print("hello rabbit world!")
@@ -22,9 +23,9 @@ def main() -> None:
     ### polling
     ### entry point here, to start polling
     poll = polling_controller.Poll(client)
-    poll.poll()
-
-
+    poll_result = poll.poll()
+    data = payload.Payload(poll_result)
+    data.process()
 
 
 

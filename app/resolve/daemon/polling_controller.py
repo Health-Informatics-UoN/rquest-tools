@@ -1,10 +1,12 @@
 import core.settings as settings
 import polling
 
+from core.task_api_client import TaskApiClient
+
 
 class Poll:
 
-    def __init__(self, client):
+    def __init__(self, client: TaskApiClient) -> None:
         self.endpoint = "/task/nextjob/{}".format(settings.COLLECTION_ID)
         self.client = client
 

@@ -4,23 +4,27 @@ import json
 
 
 
-class Process_payload:
+class Payload:
     def __init__(self, payload: str) -> None:
         self.payload = json.loads(payload)
-        self.jobtype = self.set_job_type()
+        self.set_job_type()
 
-    def append_jobid(self):
+    def append_job_id(self):
         json_payload['uuid']+='-'+settings.COLLECTION_ID
 
     def set_job_type(self):
         if "analysis" not in self.payload:
-            self.jobtype = 'A'
+            self.jobtype = 'A' ### equivalent tp -a in argparser
         elif self.payload['analysis'] == 'DISTRIBUTION':
-            self.jobtype = 'B'
+            self.jobtype = 'B' ### equivalent to -d in argparser
         else:
             self.jobtype = 'C'
 
-        pass
+    def process(self):
+        self.append_job_id()
+        self.set_job_type()
+
+
 
 if __name__ == "__main__":
 
