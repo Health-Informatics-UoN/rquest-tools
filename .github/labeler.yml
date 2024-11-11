@@ -9,6 +9,8 @@
   - app/Hutch.Relay/**/*
 "Area: Hutch.Rackit":
   - lib/Hutch.Rackit/**/*
+"Area: Docs":
+  - website/**/*
 
 # label types of changes contained in a PR
 "Contains: Migrations":
