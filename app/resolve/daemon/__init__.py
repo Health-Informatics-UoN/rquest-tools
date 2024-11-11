@@ -5,13 +5,31 @@ from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
 from core.task_api_client import TaskApiClient
 from core.results_modifiers import results_modifiers
-import polling2
+import asyncio
+import tracemalloc
+
+tracemalloc.start()
 
 
-def main() -> None:
+async def main() -> None:
+    client = TaskApiClient()
+    logger = logging.getLogger(settings.LOGGER_NAME)
+    # Task Api Client class init.
 
-    def test(endpoint: str):
-        query = client.get(endpoint=endpoint)
+    # Building results modifiers
+    modifiers_list = results_modifiers(
+        low_number_suppression_threshold=int(
+            settings.LOW_NUMBER_SUPPRESSION_THRESHOLD or 0
+        ),
+        rounding_target=int(settings.ROUNDING_TARGET or 0),
+    )
+
+    while True:
+        # Polling to get query from Relay
+        polling_endpoint = f"task/nextjob/{settings.COLLECTION_ID}"
+        print("Getting query...")
+        query = client.get(endpoint=polling_endpoint)
+        print("query: ", query)
         if query.status_code == 200:
             query_dict: dict = query.json()
             print(f"Found one job. Query is {query.text}")
@@ -38,31 +56,12 @@ def main() -> None:
                     logger.warning(
                         f"Resolve failed to post to {return_endpoint} at {time.time()}"
                     )
-                    time.sleep(5)
+                    await asyncio.sleep(5)
 
         elif query.status_code == 204:
             print("There is no job available at the moment. Trying again...")
-        # For the polling running forever, return False always
-        return False
 
-    client = TaskApiClient()
-    logger = logging.getLogger(settings.LOGGER_NAME)
-    # Task Api Client class init.
+        await asyncio.sleep(5)
 
-    # Building results modifiers
-    modifiers_list = results_modifiers(
-        low_number_suppression_threshold=int(
-            settings.LOW_NUMBER_SUPPRESSION_THRESHOLD or 0
-        ),
-        rounding_target=int(settings.ROUNDING_TARGET or 0),
-    )
 
-    # Polling to get query from Relay
-    polling_endpoint = f"task/nextjob/{settings.COLLECTION_ID}"
-    print("Getting query...")
-
-    polling2.poll(
-        lambda: test(endpoint=polling_endpoint),
-        step=5,
-        poll_forever=True,
-    )
+asyncio.run(main())
