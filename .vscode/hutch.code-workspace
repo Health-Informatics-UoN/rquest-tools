@@ -18,11 +18,11 @@
     },
     {
       "name": "FiveSafes.Net",
-      "path": "../lib/react-client-app"
+      "path": "../lib/FiveSafes.Net"
     },
     {
       "name": "RACKit",
-      "path": "../app/Hutch.RACKit"
+      "path": "../lib/Hutch.RACKit"
     },
   ],
 }
