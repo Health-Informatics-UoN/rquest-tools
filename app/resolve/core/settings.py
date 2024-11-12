@@ -14,6 +14,10 @@ DATE_FORMAT = "%d-%b-%y %H:%M:%S"
 TASK_API_BASE_URL = environ.get("TASK_API_BASE_URL")
 TASK_API_USERNAME = environ.get("TASK_API_USERNAME")
 TASK_API_PASSWORD = environ.get("TASK_API_PASSWORD")
+TASK_API_TYPE = environ.get("TASK_API_TYPE")
+if TASK_API_TYPE and TASK_API_TYPE not in ["a", "b", "c"]:
+    raise TypeError("TASK_API_TYPE must be either 'a' or 'b' or 'c'")
+
 LOW_NUMBER_SUPPRESSION_THRESHOLD = environ.get("LOW_NUMBER_SUPPRESSION_THRESHOLD")
 ROUNDING_TARGET = environ.get("ROUNDING_TARGET")
 
