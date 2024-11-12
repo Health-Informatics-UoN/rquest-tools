@@ -4,7 +4,7 @@ namespace Hutch.Relay.Data.Entities;
 
 public class SubNode
 {
-  public string Id { get; set; } = string.Empty;
+  public Guid Id { get; set; }
 
   public ICollection<RelayUser> RelayUsers { get; set; } = new Collection<RelayUser>();
 }

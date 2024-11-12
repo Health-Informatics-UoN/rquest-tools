@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hutch.Relay.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241107154934_Create_RelayUsers_SubNodes")]
-    partial class Create_RelayUsers_SubNodes
+    [Migration("20241112150240_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,10 +25,56 @@ namespace Hutch.Relay.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubNode", b =>
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelaySubTask", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RelayTaskId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Result")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("RelayTaskId");
+
+                    b.ToTable("RelaySubTasks");
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelayTask", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Collection")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RelayTasks");
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.SubNode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -245,8 +291,8 @@ namespace Hutch.Relay.Migrations
                     b.Property<string>("RelayUsersId")
                         .HasColumnType("text");
 
-                    b.Property<string>("SubNodesId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("SubNodesId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("RelayUsersId", "SubNodesId");
 
@@ -260,6 +306,23 @@ namespace Hutch.Relay.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.HasDiscriminator().HasValue("RelayUser");
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelaySubTask", b =>
+                {
+                    b.HasOne("Hutch.Relay.Data.Entities.SubNode", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hutch.Relay.Data.Entities.RelayTask", "RelayTask")
+                        .WithMany("SubTasks")
+                        .HasForeignKey("RelayTaskId");
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("RelayTask");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -326,6 +389,11 @@ namespace Hutch.Relay.Migrations
                         .HasForeignKey("SubNodesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Hutch.Relay.Data.Entities.RelayTask", b =>
+                {
+                    b.Navigation("SubTasks");
                 });
 #pragma warning restore 612, 618
         }
