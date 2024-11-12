@@ -27,8 +27,8 @@ namespace Hutch.Relay.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("OwnerId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("RelayTaskId")
                         .HasColumnType("text");
@@ -69,8 +69,9 @@ namespace Hutch.Relay.Migrations
 
             modelBuilder.Entity("Hutch.Relay.Data.Entities.SubNode", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -287,8 +288,8 @@ namespace Hutch.Relay.Migrations
                     b.Property<string>("RelayUsersId")
                         .HasColumnType("text");
 
-                    b.Property<string>("SubNodesId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("SubNodesId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("RelayUsersId", "SubNodesId");
 
@@ -308,7 +309,9 @@ namespace Hutch.Relay.Migrations
                 {
                     b.HasOne("Hutch.Relay.Data.Entities.SubNode", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId");
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Hutch.Relay.Data.Entities.RelayTask", "RelayTask")
                         .WithMany("SubTasks")
