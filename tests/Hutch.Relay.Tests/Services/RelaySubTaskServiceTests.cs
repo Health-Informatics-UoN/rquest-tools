@@ -27,7 +27,7 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
   public async Task Create_ValidRelaySubTaskModel_ReturnsCreatedRelaySubTaskModel()
   {
     // Arrange
-    const string ownerId = "test-owner-id";
+    var ownerId = Guid.NewGuid();
     var subNode = new SubNode
     {
       Id = ownerId
@@ -67,7 +67,7 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
       RelayTask = new RelayTask { Id = "test-task-id-1" },
       Owner = new SubNode
       {
-        Id = "test-owner-id-1",
+        Id = Guid.NewGuid(),
         RelayUsers = new List<RelayUser>
         {
           new() { Id = "test-user-id-1", UserName = "testuser1@example.com" }
