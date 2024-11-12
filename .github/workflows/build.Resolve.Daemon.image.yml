@@ -1,10 +1,10 @@
-name: Build Resolve Check
+name: Build Resolve.Daemon Check
 
 on:
   pull_request:
     paths:
       - app/Resolve/**
-      - .github/workflows/build.Resolve.image.yml
+      - .github/workflows/build.Resolve.Daemon.image.yml
 
 jobs:
   build:
