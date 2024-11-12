@@ -22,7 +22,7 @@ internal class AddUser : Command
         username) =>
       {
         // figure out the connection string from the option, or config
-        var connectionString = config.GetConnectionString("RelayDb");
+        var connectionString = config.GetConnectionString("Default");
 
         // Configure DI and run the command handler
         await this

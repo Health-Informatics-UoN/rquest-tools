@@ -6,5 +6,5 @@ public class SubNodeModel
 {
   public required Guid Id { get; init; }
 
-  public required string Owner { get; set; }
+  public required string Owner { get; init; }
 }

@@ -39,7 +39,7 @@ public class AddUser(ILoggerFactory logger, IConsole console, UserManager<RelayU
 
       return;
     }
-    await subNodes.Create(new SubNodeModel(), user);
+    await subNodes.Create(user);
     var outputRows = new List<List<object>>
     {
       new() { "Username", username, "Password", password },

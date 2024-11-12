@@ -8,17 +8,13 @@ namespace Hutch.Relay.Services;
 public class SubNodeService(ApplicationDbContext db)
 {
   /// <summary>
-  /// Create a new SubNode
+  /// Create a new SubNode associated with the provided user
   /// </summary>
-  /// <param name="subNodeModel">SubNode model</param>
   /// <param name="relayUser">The relay user registering the SubNode</param>
   /// <returns>The SubNode created.</returns>
-  public async Task<SubNodeModel> Create(SubNodeModel subNodeModel, RelayUser relayUser)
+  public async Task<SubNodeModel> Create(RelayUser relayUser)
   {
-    var entity = new SubNode()
-    {
-      Id = subNodeModel.Id
-    };
+    var entity = new SubNode();
     entity.RelayUsers.Add(relayUser);
     db.SubNodes.Add(entity);
     await db.SaveChangesAsync();

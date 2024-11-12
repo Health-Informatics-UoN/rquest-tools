@@ -12,7 +12,7 @@ public static class ConfigureWebService
 {
   public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
   {
-    var connectionString = builder.Configuration.GetConnectionString("RelayDb");
+    var connectionString = builder.Configuration.GetConnectionString("Default");
     builder.Services.AddDbContext<ApplicationDbContext>(o => { o.UseNpgsql(connectionString); });
     
     builder.Services.AddIdentityCore<IdentityUser>(DefaultIdentityOptions.Configure).AddEntityFrameworkStores<ApplicationDbContext>();

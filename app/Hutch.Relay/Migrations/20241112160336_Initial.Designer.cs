@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hutch.Relay.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241112150240_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241112160336_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,9 @@ namespace Hutch.Relay.Migrations
 
             modelBuilder.Entity("Hutch.Relay.Data.Entities.RelaySubTask", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
