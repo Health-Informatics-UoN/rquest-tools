@@ -1,6 +1,4 @@
-import logging
 import json
-
 from core.obfuscation import get_results_modifiers_from_str
 from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
