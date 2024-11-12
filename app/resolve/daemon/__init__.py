@@ -22,8 +22,11 @@ def main() -> None:
         ),
         rounding_target=int(settings.ROUNDING_TARGET or 0),
     )
-
-    polling_endpoint = f"task/nextjob/{settings.COLLECTION_ID}"
+    polling_endpoint = (
+        f"task/nextjob/{settings.COLLECTION_ID}.{settings.TASK_API_TYPE}"
+        if settings.TASK_API_TYPE
+        else f"task/nextjob/{settings.COLLECTION_ID}"
+    )
     # Polling forever to get query from Relay
     while True:
         response = client.get(endpoint=polling_endpoint)
