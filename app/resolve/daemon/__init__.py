@@ -4,14 +4,12 @@ from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
 from core.task_api_client import TaskApiClient
 from core.results_modifiers import results_modifiers
-import asyncio
-from core.logger import logger_func
+from core.logger import logger
 from core.setting_database import setting_database
 
 
-async def main() -> None:
+def main() -> None:
 
-    logger = logger_func(settings.LOGGER_NAME)
     # Setting database connection
     db_manager = setting_database(logger=logger)
     # Task Api Client class init.
@@ -30,7 +28,7 @@ async def main() -> None:
     while True:
         response = client.get(endpoint=polling_endpoint)
         if response.status_code == 200:
-            logger.info("Job received. Start resolving...")
+            logger.info("Job received. Resolving...")
             # Convert Response to Dict
             query_dict: dict = response.json()
             # Start querying
@@ -62,12 +60,9 @@ async def main() -> None:
                     logger.warning(
                         f"Resolve failed to post to {return_endpoint} at {time.time()}. Trying again..."
                     )
-                    await asyncio.sleep(5)
+                    time.sleep(5)
 
         elif response.status_code == 204:
             logger.info("Looking for job...")
 
-        await asyncio.sleep(settings.POLLING_INTERVAL)
-
-
-asyncio.run(main())
+        time.sleep(settings.POLLING_INTERVAL)

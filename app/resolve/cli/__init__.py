@@ -2,15 +2,11 @@ import logging
 import json
 
 from core.obfuscation import get_results_modifiers_from_str
-import core.settings as settings
 from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
 from core.parser import parser
-from core.logger import logger_func
+from core.logger import logger
 from core.setting_database import setting_database
-
-
-logger = logger_func(settings.LOGGER_NAME)
 
 
 def save_to_output(result: RquestResult, destination: str) -> None:
