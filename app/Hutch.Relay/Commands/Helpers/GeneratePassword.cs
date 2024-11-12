@@ -26,7 +26,6 @@ public static class GeneratePassword
 
       result.Append(chars[index]);
     }
-    Console.WriteLine(result);
     return result.ToString();
   }
 }
