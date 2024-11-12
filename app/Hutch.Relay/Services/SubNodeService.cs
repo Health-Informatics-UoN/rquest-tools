@@ -32,6 +32,16 @@ public class SubNodeService(ApplicationDbContext db)
   /// List all registered sub nodes
   /// </summary>
   /// <returns>A list of nodes</returns>
-  public async Task<List<SubNode>> List()
-    => await db.SubNodes.AsNoTracking().ToListAsync();
+  public async Task<IEnumerable<SubNodeModel>> List()
+  {
+    var entities = await db.SubNodes.AsNoTracking()
+      .Include(x => x.RelayUsers)
+      .ToListAsync();
+
+    return entities.Select(x => new SubNodeModel
+    {
+      Id = x.Id,
+      Owner = x.RelayUsers.First().UserName ?? string.Empty
+    });
+  }
 }

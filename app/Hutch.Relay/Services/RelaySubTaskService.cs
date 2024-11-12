@@ -1,6 +1,7 @@
 using Hutch.Relay.Data;
 using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hutch.Relay.Services;
 
@@ -13,14 +14,16 @@ public class RelaySubTaskService(ApplicationDbContext db)
   public async Task<RelaySubTaskModel> Create(string relayTaskId, string ownerId)
   {
     // Not 100% convinced by the multiple db reads here to satisfy nice error messages?
-    var subNode = await db.SubNodes.FindAsync(ownerId) ??
-                  throw new KeyNotFoundException($"The specified owner does not exist: {ownerId}");
-    var parent = await db.RelayTasks.FindAsync(relayTaskId) ??
-                 throw new KeyNotFoundException($"The specified parent Relay Task does not exist: {relayTaskId}");
+    var subNode = await db.SubNodes
+                    .Include(x => x.RelayUsers)
+                    .SingleAsync(x => x.Id == ownerId)
+                  ?? throw new KeyNotFoundException($"The specified owner does not exist: {ownerId}");
+
+    var parent = await db.RelayTasks.FindAsync(relayTaskId)
+                 ?? throw new KeyNotFoundException($"The specified parent Relay Task does not exist: {relayTaskId}");
 
     var entity = new RelaySubTask
     {
-      Id = $"{relayTaskId}_{subNode.Id}",
       Owner = subNode,
       RelayTask = parent
     };
@@ -34,7 +37,8 @@ public class RelaySubTaskService(ApplicationDbContext db)
       Id = entity.Id,
       Owner = new()
       {
-        Id = subNode.Id
+        Id = subNode.Id,
+        Owner = subNode.RelayUsers.First().UserName ?? string.Empty
       },
       RelayTask = new() // TODO: Automapper or something more sane than this?
       {
@@ -53,23 +57,37 @@ public class RelaySubTaskService(ApplicationDbContext db)
   /// <param name="result">Result value to set</param>
   /// <returns>The updated RelaySubTask</returns>
   /// <exception cref="KeyNotFoundException"></exception>
-  public async Task<RelaySubTaskModel> SetResult(string id, string result)
+  public async Task<RelaySubTaskModel> SetResult(Guid id, string result)
   {
-    var entity = await db.RelaySubTasks.FindAsync(id)
+    var entity = await db.RelaySubTasks
+                   .Include(x => x.Owner)
+                   .ThenInclude(x => x.RelayUsers)
+                   .Include(x => x.RelayTask)
+                   .SingleAsync(x => x.Id == id)
                  ?? throw new KeyNotFoundException();
 
     entity.Result = result;
     db.RelaySubTasks.Update(entity);
     await db.SaveChangesAsync();
 
-    return new RelaySubTaskModel
+    return new()
     {
       Id = entity.Id,
-      Owner = new SubNodeModel
+      Owner = new()
       {
-        Id = entity.Owner.Id
+        Id = entity.Owner.Id,
+        Owner = entity.Owner.RelayUsers.First()
+                  .UserName ??
+                string.Empty
       },
-      Result = entity.Result
+      Result = entity.Result,
+      RelayTask = new()
+      {
+        Id = entity.RelayTask.Id,
+        Collection = entity.RelayTask.Collection,
+        CreatedAt = entity.RelayTask.CreatedAt,
+        CompletedAt = entity.RelayTask.CompletedAt,
+      }
     };
   }
 }

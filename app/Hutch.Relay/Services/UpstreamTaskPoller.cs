@@ -1,6 +1,8 @@
 using Hutch.Rackit;
 using Hutch.Rackit.TaskApi;
 using Hutch.Rackit.TaskApi.Models;
+using Hutch.Relay.Services.Contracts;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 namespace Hutch.Relay.Services;
@@ -14,7 +16,8 @@ public class UpstreamTaskPoller(
   TaskApiClient upstreamTasks,
   SubNodeService subNodes,
   RelayTaskService relayTasks,
-  RelaySubTaskService relaySubTasks) : BackgroundService
+  RelaySubTaskService relaySubTasks,
+  IRelayTaskQueue queues) : BackgroundService
 {
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -25,29 +28,26 @@ public class UpstreamTaskPoller(
     var availabilityQueries = upstreamTasks.PollJobQueue<AvailabilityJob>(options.Value, stoppingToken);
     var collectionAnalyses = upstreamTasks.PollJobQueue<CollectionAnalysisJob>(options.Value, stoppingToken);
 
-    // TODO: var cohortAnalyses = upstreamTasks.PollJobQueue<>(options.Value, stoppingToken);
+    // TODO: "Type C" var cohortAnalyses = upstreamTasks.PollJobQueue<>(options.Value, stoppingToken);
 
     // start parallel handler threads
     return Task.WhenAll(
-      HandleTasks(availabilityQueries, stoppingToken),
-      HandleTasks(collectionAnalyses, stoppingToken));
-
-    // TODO: Currently this will not restart polling in the event of exceptions
-    // could probably use `Task.WhenAny` to cancel and restart in a loop after logging?
+      HandleTasksFound(availabilityQueries, stoppingToken),
+      HandleTasksFound(collectionAnalyses, stoppingToken));
   }
 
-  private async Task HandleTasks<T>(IAsyncEnumerable<T> jobs, CancellationToken cancellationToken)
+  private async Task HandleTasksFound<T>(IAsyncEnumerable<T> jobs, CancellationToken cancellationToken)
     where T : TaskApiBaseResponse
   {
     await foreach (var job in jobs.WithCancellation(cancellationToken))
     {
       logger.LogInformation("Task handled: ({Type}) {Id}", typeof(T).Name, job.Uuid);
-      
-      var subnodes = await subNodes.List();
+
+      var subnodes = (await subNodes.List()).ToList();
       if (subnodes.Count == 0) return;
 
       // Create a parent task
-      await relayTasks.Create(new()
+      var relayTask = await relayTasks.Create(new()
       {
         Id = job.Uuid, Collection = job.Collection
       });
@@ -55,9 +55,15 @@ public class UpstreamTaskPoller(
       // Fan out to subtasks
       foreach (var subnode in subnodes)
       {
-        await relaySubTasks.Create(job.Uuid, subnode.Id);
+        var subTask = await relaySubTasks.Create(relayTask.Id, subnode.Id);
+
+        // Update the job for the target subnode
+        job.Uuid = subTask.Id.ToString();
+        job.Collection = subnode.Id;
+        job.Owner = subnode.Owner;
 
         // TODO: Rabbit
+        await queues.Send(subnode.Id, job);
       }
     }
   }
