@@ -1,7 +1,5 @@
 import os
-import sys
-import logging
-from typing import Dict, List
+from typing import Dict, List, Logger
 
 import core.settings as settings
 from core import query_solvers
@@ -15,7 +13,7 @@ from core.logger import logger_func
 
 
 def execute_query(
-    query_dict: Dict, results_modifiers: List, logger_test: any
+    query_dict: Dict, results_modifiers: List, logger: Logger
 ) -> RquestResult:
     """
     Executes either an availability query or a distribution query, and returns results filtered by modifiers
@@ -30,7 +28,6 @@ def execute_query(
     Returns
         RquestResult
     """
-    logger = logger_func(settings.LOGGER_NAME)
 
     logger.info("Setting up database connection...")
     if bool(os.getenv("USE_TRINO", False)):

@@ -33,7 +33,7 @@ async def main() -> None:
             query_dict: dict = response.json()
             # Start querying
             result = execute_query(
-                query_dict, results_modifiers=modifiers_list, logger_test=logger
+                query_dict, results_modifiers=modifiers_list, logger=logger
             )
             # Check the payload shape
             if not isinstance(result, RquestResult):
