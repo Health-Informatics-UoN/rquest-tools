@@ -11,20 +11,6 @@ parser.add_argument(
     help="The JSON file containing the query",
 )
 parser.add_argument(
-    "-a",
-    "--availability",
-    dest="is_availability",
-    action="store_true",
-    help="The query is a availability query",
-)
-parser.add_argument(
-    "-d",
-    "--distribution",
-    dest="is_distribution",
-    action="store_true",
-    help="The query is a distribution query",
-)
-parser.add_argument(
     "-o",
     "--output",
     dest="output",

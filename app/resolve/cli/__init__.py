@@ -1,10 +1,10 @@
-import logging
 import json
-
-import core.settings as settings
+from core.obfuscation import get_results_modifiers_from_str
 from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
 from core.parser import parser
+from core.logger import logger
+from core.setting_database import setting_database
 
 
 def save_to_output(result: RquestResult, destination: str) -> None:
@@ -19,7 +19,7 @@ def save_to_output(result: RquestResult, destination: str) -> None:
     """
     if not destination.endswith(".json"):
         raise ValueError("Please specify a JSON file (ending in '.json').")
-    logger = logging.getLogger(settings.LOGGER_NAME)
+
     try:
         with open(destination, "w") as output_file:
             file_body = json.dumps(result.to_dict())
@@ -29,8 +29,17 @@ def save_to_output(result: RquestResult, destination: str) -> None:
 
 
 def main() -> None:
+    # Setting database connection
+    db_manager = setting_database(logger=logger)
+    # Resolve passed args.
     args = parser.parse_args()
-    result = execute_query(parser)
+
+    with open(args.body) as body:
+        query_dict = json.load(body)
+    results_modifier = get_results_modifiers_from_str(args.results_modifiers)
+
+    result = execute_query(
+        query_dict, results_modifier, logger=logger, db_manager=db_manager
+    )
     save_to_output(result, args.output)
-    logger = logging.getLogger(settings.LOGGER_NAME)
     logger.info(f"Saved results to {args.output}")

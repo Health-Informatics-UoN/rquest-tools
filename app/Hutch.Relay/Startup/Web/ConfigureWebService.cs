@@ -21,7 +21,10 @@ public static class ConfigureWebService
     // Add Options
 
     // Add Services
-    builder.Services.AddTransient<SubNodeService>();
+    builder.Services
+      .AddTransient<RelayTaskService>()
+      .AddTransient<RelaySubTaskService>()
+      .AddTransient<SubNodeService>();
     return builder;
   }
 }
