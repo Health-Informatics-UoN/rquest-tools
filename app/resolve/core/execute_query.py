@@ -11,9 +11,12 @@ from core.obfuscation import (
 )
 from core.db_manager import SyncDBManager, TrinoDBManager
 from core.rquest_dto.result import RquestResult
+from core.logger import logger_func
 
 
-def execute_query(query_dict: Dict, results_modifiers: List) -> RquestResult:
+def execute_query(
+    query_dict: Dict, results_modifiers: List, logger_test: any
+) -> RquestResult:
     """
     Executes either an availability query or a distribution query, and returns results filtered by modifiers
 
@@ -27,16 +30,7 @@ def execute_query(query_dict: Dict, results_modifiers: List) -> RquestResult:
     Returns
         RquestResult
     """
-    # Set up the logger
-    LOG_FORMAT = logging.Formatter(
-        settings.MSG_FORMAT,
-        datefmt=settings.DATE_FORMAT,
-    )
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(LOG_FORMAT)
-    logger = logging.getLogger(settings.LOGGER_NAME)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(console_handler)
+    logger = logger_func(settings.LOGGER_NAME)
 
     logger.info("Setting up database connection...")
     if bool(os.getenv("USE_TRINO", False)):
