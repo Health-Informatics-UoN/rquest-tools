@@ -1,3 +1,4 @@
+using Hutch.Relay.Auth.Basic;
 using Hutch.Relay.Constants;
 using Hutch.Relay.Data;
 using Hutch.Relay.Services;
@@ -17,6 +18,9 @@ public static class ConfigureWebService
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    
+    builder.Services.AddAuthentication()
+      .AddBasic(opts => opts.Realm = "relay");
 
     // Add Options
 
