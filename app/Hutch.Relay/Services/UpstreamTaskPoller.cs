@@ -76,7 +76,7 @@ public class UpstreamTaskPoller(
         // Swallow exceptions and just log; the while loop will restart polling
         logger.LogError(e, "An error occurred handling '{TypeName}' tasks", typeof(T).Name);
         
-        // TODO: maintain an exception limit?
+        // TODO: maintain an exception limit that eventually DOES quit?
       }
     }
   }
