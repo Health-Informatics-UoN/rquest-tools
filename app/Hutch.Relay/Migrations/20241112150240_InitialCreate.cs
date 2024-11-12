@@ -31,6 +31,7 @@ namespace Hutch.Relay.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -49,6 +50,31 @@ namespace Hutch.Relay.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RelayTasks",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Collection = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    CompletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RelayTasks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubNodes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubNodes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,6 +183,55 @@ namespace Hutch.Relay.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RelaySubTasks",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RelayTaskId = table.Column<string>(type: "text", nullable: true),
+                    Result = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RelaySubTasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RelaySubTasks_RelayTasks_RelayTaskId",
+                        column: x => x.RelayTaskId,
+                        principalTable: "RelayTasks",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RelaySubTasks_SubNodes_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "SubNodes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RelayUserSubNode",
+                columns: table => new
+                {
+                    RelayUsersId = table.Column<string>(type: "text", nullable: false),
+                    SubNodesId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RelayUserSubNode", x => new { x.RelayUsersId, x.SubNodesId });
+                    table.ForeignKey(
+                        name: "FK_RelayUserSubNode_AspNetUsers_RelayUsersId",
+                        column: x => x.RelayUsersId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RelayUserSubNode_SubNodes_SubNodesId",
+                        column: x => x.SubNodesId,
+                        principalTable: "SubNodes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -193,6 +268,21 @@ namespace Hutch.Relay.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RelaySubTasks_OwnerId",
+                table: "RelaySubTasks",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RelaySubTasks_RelayTaskId",
+                table: "RelaySubTasks",
+                column: "RelayTaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RelayUserSubNode_SubNodesId",
+                table: "RelayUserSubNode",
+                column: "SubNodesId");
         }
 
         /// <inheritdoc />
@@ -214,10 +304,22 @@ namespace Hutch.Relay.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "RelaySubTasks");
+
+            migrationBuilder.DropTable(
+                name: "RelayUserSubNode");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "RelayTasks");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "SubNodes");
         }
     }
 }
