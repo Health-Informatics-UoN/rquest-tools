@@ -1,4 +1,4 @@
-name: Build Hutch.Relay on PR
+name: Build Hutch.Relay Check
 
 on:
   pull_request:

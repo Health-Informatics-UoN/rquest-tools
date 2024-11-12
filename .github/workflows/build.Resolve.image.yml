@@ -1,4 +1,4 @@
-name: Build Resolve on PR
+name: Build Resolve Check
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v5.3.0
         with:
-          context: .
+          context: app/resolve
           file: app/resolve/Dockerfile.daemon
           push: false
           platforms: linux/amd64,linux/arm64
