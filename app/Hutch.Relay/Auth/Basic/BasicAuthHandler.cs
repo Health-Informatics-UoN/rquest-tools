@@ -3,7 +3,9 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using Hutch.Relay.Data;
+using Hutch.Relay.Data.Entities;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 
@@ -12,6 +14,7 @@ namespace Hutch.Relay.Auth.Basic;
 internal class BasicAuthHandler : AuthenticationHandler<BasicAuthSchemeOptions>
     {
         private readonly ApplicationDbContext _db;
+        private readonly UserManager<RelayUser> _userManager;
 
         [Obsolete("Obsolete")]
         public BasicAuthHandler(
@@ -19,10 +22,11 @@ internal class BasicAuthHandler : AuthenticationHandler<BasicAuthSchemeOptions>
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock,
-            ApplicationDbContext db)
+            ApplicationDbContext db, UserManager<RelayUser> userManager)
             : base(options, logger, encoder, clock)
         {
-            _db = db;
+          _db = db;
+          _userManager = userManager;
         }
 
         private (string username, string password) ParseBasicAuthHeader(string authorizationHeader)
@@ -65,15 +69,29 @@ internal class BasicAuthHandler : AuthenticationHandler<BasicAuthSchemeOptions>
             return (credentialsParts[0], credentialsParts[1]);
         }
 
-        private async Task<ClaimsPrincipal> Authenticate(string clientId, string clientSecret)
+        private async Task<ClaimsPrincipal?> Authenticate(string clientId, string clientSecret)
         {
-          
-            // Populate Claims
-            List<Claim> claims = new();
+          // Get user
+          var user = await _userManager.FindByNameAsync(clientId);
+          if (user == null)
+          {
+            Logger.LogWarning($"User not found: {clientId}");
+            return null;
+          }
 
-            // Create the Identity and Principal
-            var identity = new ClaimsIdentity(claims, Scheme.Name);
-            return new ClaimsPrincipal(identity);
+          // Validate password
+          var isPasswordValid = await _userManager.CheckPasswordAsync(user, clientSecret);
+          if (!isPasswordValid)
+          {
+            Logger.LogWarning($"Invalid password for client: {clientId}");
+            return null;
+          }
+          
+          List<Claim> claims = new();
+
+          // Create the Identity and Principal
+          var identity = new ClaimsIdentity(claims, Scheme.Name);
+          return new ClaimsPrincipal(identity);
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
