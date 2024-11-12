@@ -17,9 +17,9 @@ public class UpstreamTaskPoller(
   SubNodeService subNodes,
   RelayTaskService relayTasks,
   RelaySubTaskService relaySubTasks,
-  IRelayTaskQueue queues) : BackgroundService
+  IRelayTaskQueue queues)
 {
-  protected override Task ExecuteAsync(CancellationToken stoppingToken)
+  public Task PollAllQueues(CancellationToken stoppingToken)
   {
     // We need to simultaneously poll against all supported task queues in an upstream system
     // TODO: this may become configurable to support upstream unified queues e.g. in Relay
