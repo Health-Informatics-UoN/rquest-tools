@@ -1,19 +1,18 @@
-import os
-from typing import Dict, List, Logger
-
-import core.settings as settings
+from typing import Dict, List
+from logging import Logger
 from core import query_solvers
 from core.rquest_dto.query import AvailabilityQuery, DistributionQuery
 from core.obfuscation import (
     apply_filters_v2,
 )
-from core.db_manager import SyncDBManager, TrinoDBManager
 from core.rquest_dto.result import RquestResult
-from core.logger import logger_func
 
 
 def execute_query(
-    query_dict: Dict, results_modifiers: List, logger: Logger
+    query_dict: Dict,
+    results_modifiers: List,
+    logger: Logger,
+    db_manager,
 ) -> RquestResult:
     """
     Executes either an availability query or a distribution query, and returns results filtered by modifiers
@@ -28,41 +27,6 @@ def execute_query(
     Returns
         RquestResult
     """
-
-    logger.info("Setting up database connection...")
-    if bool(os.getenv("USE_TRINO", False)):
-        datasource_db_port = os.getenv("DATASOURCE_DB_PORT", 8080)
-        try:
-            db_manager = TrinoDBManager(
-                username=os.getenv("DATASOURCE_DB_USERNAME", "trino-user"),
-                password=os.getenv("DATASOURCE_DB_PASSWORD"),
-                host=os.getenv("DATASOURCE_DB_HOST"),
-                port=int(datasource_db_port),
-                schema=os.getenv("DATASOURCE_DB_SCHEMA"),
-                catalog=os.getenv("DATASOURCE_DB_CATALOG"),
-            )
-        except TypeError as e:
-            logger.error(str(e))
-            exit()
-    else:
-        datasource_db_port = os.getenv("DATASOURCE_DB_PORT")
-        try:
-            db_manager = SyncDBManager(
-                username=os.getenv("DATASOURCE_DB_USERNAME"),
-                password=os.getenv("DATASOURCE_DB_PASSWORD"),
-                host=os.getenv("DATASOURCE_DB_HOST"),
-                port=(
-                    int(datasource_db_port) if datasource_db_port is not None else None
-                ),
-                database=os.getenv("DATASOURCE_DB_DATABASE"),
-                drivername=os.getenv(
-                    "DATASOURCE_DB_DRIVERNAME", settings.DEFAULT_DB_DRIVER
-                ),
-                schema=os.getenv("DATASOURCE_DB_SCHEMA"),
-            )
-        except TypeError as e:
-            logger.error(str(e))
-            exit()
 
     logger.info("Processing query...")
 

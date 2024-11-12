@@ -7,6 +7,7 @@ from core.execute_query import execute_query
 from core.rquest_dto.result import RquestResult
 from core.parser import parser
 from core.logger import logger_func
+from core.setting_database import setting_database
 
 
 logger = logger_func(settings.LOGGER_NAME)
@@ -34,12 +35,17 @@ def save_to_output(result: RquestResult, destination: str) -> None:
 
 
 def main() -> None:
+    # Setting database connection
+    db_manager = setting_database(logger=logger)
+    # Resolve passed args.
     args = parser.parse_args()
 
     with open(args.body) as body:
         query_dict = json.load(body)
     results_modifier = get_results_modifiers_from_str(args.results_modifiers)
 
-    result = execute_query(query_dict, results_modifier, logger=logger)
+    result = execute_query(
+        query_dict, results_modifier, logger=logger, db_manager=db_manager
+    )
     save_to_output(result, args.output)
     logger.info(f"Saved results to {args.output}")

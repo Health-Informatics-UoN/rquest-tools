@@ -6,12 +6,14 @@ from core.task_api_client import TaskApiClient
 from core.results_modifiers import results_modifiers
 import asyncio
 from core.logger import logger_func
+from core.setting_database import setting_database
 
 
 async def main() -> None:
 
     logger = logger_func(settings.LOGGER_NAME)
-
+    # Setting database connection
+    db_manager = setting_database(logger=logger)
     # Task Api Client class init.
     client = TaskApiClient()
 
@@ -33,7 +35,10 @@ async def main() -> None:
             query_dict: dict = response.json()
             # Start querying
             result = execute_query(
-                query_dict, results_modifiers=modifiers_list, logger=logger
+                query_dict,
+                results_modifiers=modifiers_list,
+                logger=logger,
+                db_manager=db_manager,
             )
             # Check the payload shape
             if not isinstance(result, RquestResult):
