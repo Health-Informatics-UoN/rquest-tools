@@ -96,10 +96,21 @@ internal class BasicAuthHandler : AuthenticationHandler<BasicAuthSchemeOptions>
         {
             if (!Request.Headers.ContainsKey("Authorization"))
                 return AuthenticateResult.Fail("Missing Authorization Header");
+            
+            // Get collectionId from the route
+            if (!Request.RouteValues.TryGetValue("collectionId", out var routeCollectionId) || routeCollectionId == null)
+              return AuthenticateResult.Fail("Missing collectionId in route.");
 
             try
             {
                 var (clientId, clientSecret) = ParseBasicAuthHeader(Request.Headers.Authorization!);
+                
+                // Check if the clientID matches the collectionId
+                if (routeCollectionId.ToString() != clientId)
+                {
+                  Logger.LogWarning($"collectionId \'{routeCollectionId}\' does not match clientId \'{clientId}\'.");
+                  return AuthenticateResult.Fail("Collection ID does not match client credentials.");
+                }
 
                 var claimsPrincipal = await Authenticate(clientId, clientSecret);
 

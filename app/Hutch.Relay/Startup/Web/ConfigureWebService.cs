@@ -19,8 +19,11 @@ public static class ConfigureWebService
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     
-    builder.Services.AddAuthentication()
-      .AddBasic(opts => opts.Realm = "relay");
+    builder.Services.AddAuthentication("Basic")
+      .AddScheme<BasicAuthSchemeOptions, BasicAuthHandler>("Basic", opts => 
+      {
+        opts.Realm = "relay";
+      });
 
     // Add Options
 
