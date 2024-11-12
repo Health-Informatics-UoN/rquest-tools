@@ -39,31 +39,44 @@ public class UpstreamTaskPoller(
   private async Task HandleTasksFound<T>(IAsyncEnumerable<T> jobs, CancellationToken cancellationToken)
     where T : TaskApiBaseResponse
   {
-    await foreach (var job in jobs.WithCancellation(cancellationToken))
+    while (cancellationToken.IsCancellationRequested == false)
     {
-      logger.LogInformation("Task handled: ({Type}) {Id}", typeof(T).Name, job.Uuid);
-
-      var subnodes = (await subNodes.List()).ToList();
-      if (subnodes.Count == 0) return;
-
-      // Create a parent task
-      var relayTask = await relayTasks.Create(new()
+      try
       {
-        Id = job.Uuid, Collection = job.Collection
-      });
+        await foreach (var job in jobs.WithCancellation(cancellationToken))
+        {
+          logger.LogInformation("Task handled: ({Type}) {Id}", typeof(T).Name, job.Uuid);
 
-      // Fan out to subtasks
-      foreach (var subnode in subnodes)
+          var subnodes = (await subNodes.List()).ToList();
+          if (subnodes.Count == 0) return;
+
+          // Create a parent task
+          var relayTask = await relayTasks.Create(new()
+          {
+            Id = job.Uuid, Collection = job.Collection
+          });
+
+          // Fan out to subtasks
+          foreach (var subnode in subnodes)
+          {
+            var subTask = await relaySubTasks.Create(relayTask.Id, subnode.Id);
+
+            // Update the job for the target subnode
+            job.Uuid = subTask.Id.ToString();
+            job.Collection = subnode.Id.ToString();
+            job.Owner = subnode.Owner;
+
+            // Queue the task for the subnode
+            await queues.Send(subnode.Id.ToString(), job); // TODO: Test queue configuration BEFORE we get past creating a db record that we can't queue >.<
+          }
+        }
+      }
+      catch (Exception e)
       {
-        var subTask = await relaySubTasks.Create(relayTask.Id, subnode.Id);
-
-        // Update the job for the target subnode
-        job.Uuid = subTask.Id.ToString();
-        job.Collection = subnode.Id.ToString();
-        job.Owner = subnode.Owner;
-
-        // TODO: Rabbit
-        await queues.Send(subnode.Id.ToString(), job);
+        // Swallow exceptions and just log; the while loop will restart polling
+        logger.LogError(e, "An error occurred handling '{TypeName}' tasks", typeof(T).Name);
+        
+        // TODO: maintain an exception limit?
       }
     }
   }

@@ -10,22 +10,26 @@ using RabbitMQ.Client;
 
 namespace Hutch.Relay.Services;
 
-public class RabbitRelayTaskQueue : IRelayTaskQueue
+public class RabbitRelayTaskQueue(IOptions<RelayTaskQueueOptions> options)
+  : IRelayTaskQueue, IDisposable, IAsyncDisposable
 {
-  private readonly ConnectionFactory _factory;
-
-  public RabbitRelayTaskQueue(IOptions<RelayTaskQueueOptions> options)
+  private readonly ConnectionFactory _factory = new()
   {
-    _factory = new()
-    {
-      Uri = new(options.Value.ConnectionString)
-    };
-  }
+    Uri = new(options.Value.ConnectionString)
+  };
+  private IConnection? _connection;
 
   private async Task<IChannel> ConnectChannel(string queueName)
   {
-    await using var connection = await _factory.CreateConnectionAsync();
-    var channel = await connection.CreateChannelAsync();
+    if (_connection is not null && !_connection.IsOpen)
+    {
+      await _connection.DisposeAsync();
+      _connection = null;
+    }
+    
+    _connection ??= await _factory.CreateConnectionAsync();
+    
+    var channel = await _connection.CreateChannelAsync();
 
     await channel.QueueDeclareAsync(
       queue: queueName,
@@ -53,5 +57,15 @@ public class RabbitRelayTaskQueue : IRelayTaskQueue
       {
         Type = typeof(T).Name
       });
+  }
+
+  public void Dispose()
+  {
+    _connection?.Dispose();
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_connection is not null) await _connection.DisposeAsync();
   }
 }

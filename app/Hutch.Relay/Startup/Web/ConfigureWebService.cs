@@ -1,5 +1,6 @@
 using Hutch.Rackit;
 using Hutch.Rackit.TaskApi;
+using Hutch.Relay.Config;
 using Hutch.Relay.Constants;
 using Hutch.Relay.Data;
 using Hutch.Relay.Services;
@@ -30,9 +31,13 @@ public static class ConfigureWebService
       .AddTransient<TaskApiClient>()
       .AddScoped<UpstreamTaskPoller>();
 
+    // Task Queue
+    builder.Services
+      .Configure<RelayTaskQueueOptions>(builder.Configuration.GetSection("RelayTaskQueue"))
+      .AddTransient<IRelayTaskQueue, RabbitRelayTaskQueue>(); // TODO: Azure / Other native queues
+
     // Other App Services
     builder.Services
-      .AddTransient<IRelayTaskQueue, RabbitRelayTaskQueue>() // TODO: Azure / Other native queues
       .AddTransient<RelayTaskService>()
       .AddTransient<RelaySubTaskService>()
       .AddTransient<SubNodeService>();
