@@ -1,3 +1,5 @@
+using Hutch.Rackit;
+using Hutch.Rackit.TaskApi;
 using Hutch.Relay.Constants;
 using Hutch.Relay.Data;
 using Hutch.Relay.Services;
@@ -17,14 +19,22 @@ public static class ConfigureWebService
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-
-    // Add Options
-
-    // Add Services
+    
+    // Upstream Task API
+    builder.Services
+      .Configure<ApiClientOptions>(builder.Configuration.GetSection("UpstreamTaskApi"))
+      .AddHttpClient()
+      .AddTransient<TaskApiClient>();
+    
+    // Other App Services
     builder.Services
       .AddTransient<RelayTaskService>()
       .AddTransient<RelaySubTaskService>()
       .AddTransient<SubNodeService>();
+
+    // Hosted Services
+    builder.Services.AddHostedService<UpstreamTaskPoller>();
+    
     return builder;
   }
 }

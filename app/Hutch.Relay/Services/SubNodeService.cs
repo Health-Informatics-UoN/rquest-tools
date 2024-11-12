@@ -1,6 +1,7 @@
 using Hutch.Relay.Data;
 using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hutch.Relay.Services;
 
@@ -22,10 +23,12 @@ public class SubNodeService(ApplicationDbContext db)
     db.SubNodes.Add(entity);
     await db.SaveChangesAsync();
 
-    return new SubNodeModel()
+    var model = new SubNodeModel
     {
-      Id = entity.Id
+      Id = entity.Id,
+      Owner = entity.RelayUsers.First().UserName ?? string.Empty
     };
+    return model;
   }
 
   /// <summary>

@@ -11,7 +11,7 @@ public class RelaySubTaskService(ApplicationDbContext db)
   /// Create a new RelaySubTask
   /// </summary>
   /// <returns>The newly created RelaySubTask</returns>
-  public async Task<RelaySubTaskModel> Create(string relayTaskId, string ownerId)
+  public async Task<RelaySubTaskModel> Create(string relayTaskId, Guid ownerId)
   {
     // Not 100% convinced by the multiple db reads here to satisfy nice error messages?
     var subNode = await db.SubNodes

@@ -59,11 +59,11 @@ public class UpstreamTaskPoller(
 
         // Update the job for the target subnode
         job.Uuid = subTask.Id.ToString();
-        job.Collection = subnode.Id;
+        job.Collection = subnode.Id.ToString();
         job.Owner = subnode.Owner;
 
         // TODO: Rabbit
-        await queues.Send(subnode.Id, job);
+        await queues.Send(subnode.Id.ToString(), job);
       }
     }
   }
