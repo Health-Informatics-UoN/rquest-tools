@@ -86,11 +86,9 @@ internal class BasicAuthHandler : AuthenticationHandler<BasicAuthSchemeOptions>
             Logger.LogWarning($"Invalid password for client: {clientId}");
             return null;
           }
-          
-          List<Claim> claims = new();
 
           // Create the Identity and Principal
-          var identity = new ClaimsIdentity(claims, Scheme.Name);
+          var identity = new ClaimsIdentity([], Scheme.Name);
           return new ClaimsPrincipal(identity);
         }
 
