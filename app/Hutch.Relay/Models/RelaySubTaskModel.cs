@@ -2,8 +2,8 @@ namespace Hutch.Relay.Models;
 
 public class RelaySubTaskModel
 {
-  public string Id { get; set; } = string.Empty;
-  public SubNodeModel Owner { get; set; } = new();
-  public RelayTaskModel RelayTask { get; set; } = new();
+  public Guid Id { get; set; }
+  public required SubNodeModel Owner { get; set; }
+  public required RelayTaskModel RelayTask { get; set; }
   public string? Result { get; set; }
 }

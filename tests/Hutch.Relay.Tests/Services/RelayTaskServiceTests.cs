@@ -10,9 +10,11 @@ namespace Hutch.Relay.Tests.Services;
 public class RelayTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>, IAsyncLifetime
 {
   private readonly ApplicationDbContext _dbContext = fixtures.DbContext;
-  
-  public async Task InitializeAsync()
-  { }
+
+  public Task InitializeAsync()
+  {
+    return Task.CompletedTask;
+  }
   public async Task DisposeAsync()
   {
     // Clean up the database after each test

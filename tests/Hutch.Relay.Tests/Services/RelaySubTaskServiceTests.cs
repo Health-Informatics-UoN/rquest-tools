@@ -11,9 +11,11 @@ namespace Hutch.Relay.Tests.Services;
 public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixtures>, IAsyncLifetime
 {
   private readonly ApplicationDbContext _dbContext = fixtures.DbContext;
-  
-  public async Task InitializeAsync()
-  { }
+
+  public Task InitializeAsync()
+  {
+    return Task.CompletedTask;
+  }
 
   public async Task DisposeAsync()
   {
@@ -22,50 +24,56 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
     _dbContext.RelayUsers.RemoveRange(_dbContext.RelayUsers);
     await _dbContext.SaveChangesAsync();
   }
-  
+
   [Fact]
   public async Task Create_ValidRelaySubTaskModel_ReturnsCreatedRelaySubTaskModel()
   {
     // Arrange
     var ownerId = Guid.NewGuid();
+    var taskId = Guid.NewGuid().ToString();
+
     var subNode = new SubNode
     {
-      Id = ownerId
-    };
-    _dbContext.SubNodes.Add(subNode);
-    await _dbContext.SaveChangesAsync();
-    
-    var model = new RelaySubTaskModel
-    {
-      Id = "test-id",
-      Owner = new SubNodeModel
+      Id = ownerId,
+      RelayUsers = new List<RelayUser>
       {
-        Id = ownerId
+        new() { Id = "test-user-id-1", UserName = "testuser1@example.com" }
       }
     };
+    _dbContext.SubNodes.Add(subNode);
+
+    var relayTask = new RelayTask
+    {
+      Id = taskId,
+      Collection = "test-collection"
+    };
+
+    _dbContext.RelayTasks.Add(relayTask);
+
+    await _dbContext.SaveChangesAsync();
 
     var service = new RelaySubTaskService(_dbContext);
 
     // Act
-    var result = await service.Create(model);
+    var result = await service.Create(taskId, ownerId);
 
     // Assert
     Assert.NotNull(result);
-    Assert.NotNull(result.Id);
 
     var entityInDb = await _dbContext.RelaySubTasks.FindAsync(result.Id);
     Assert.NotNull(entityInDb);
   }
-  
+
   [Fact]
   public async Task SetResult_ValidId_UpdatesResultAndReturnsRelaySubTaskModel()
   {
     // Arrange
+    var subtaskId = Guid.NewGuid();
     var relaySubTask = new RelaySubTask
     {
-      Id = "test-subtask-id",
-      RelayTask = new RelayTask { Id = "test-task-id-1" },
-      Owner = new SubNode
+      Id = subtaskId,
+      RelayTask = new() { Id = "test-task-id-1" },
+      Owner = new()
       {
         Id = Guid.NewGuid(),
         RelayUsers = new List<RelayUser>
@@ -75,25 +83,25 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
       },
       Result = null
     };
-  
+
     _dbContext.RelaySubTasks.Add(relaySubTask);
     await _dbContext.SaveChangesAsync();
-  
+
     var service = new RelaySubTaskService(_dbContext);
-  
+
     // Act
     const string updatedResult = "Test Result";
-    var result = await service.SetResult(relaySubTask.Id, updatedResult);
-  
+    var result = await service.SetResult(subtaskId, updatedResult);
+
     // Assert
     Assert.NotNull(result);
-    Assert.Equal(relaySubTask.Id, result.Id);
-    Assert.Equal(updatedResult, result.Result); 
-    
+    Assert.Equal(subtaskId, result.Id);
+    Assert.Equal(updatedResult, result.Result);
+
     var updatedSubTask = await _dbContext.RelaySubTasks
       .Include(st => st.Owner)
       .FirstOrDefaultAsync(st => st.Id == relaySubTask.Id);
-  
+
     Assert.NotNull(updatedSubTask);
     Assert.Equal(updatedResult, updatedSubTask.Result);
   }

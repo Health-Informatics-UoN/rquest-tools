@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Flurl;
+using Hutch.Rackit.TaskApi.Contracts;
 using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,7 +19,7 @@ public class TaskApiClient(
   HttpClient client,
   IOptions<ApiClientOptions> configuredOptions,
   ILogger<TaskApiClient> logger
-)
+) : ITaskApiClient
 {
   /// <summary>
   /// Default options for the service as configured
@@ -88,7 +89,8 @@ public class TaskApiClient(
 
     return await FetchNextJobAsync<T>(
       options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(exceptionMessage(nameof(options.BaseUrl))),
-      options?.CollectionId ?? Options.CollectionId ?? throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
+      options?.CollectionId ?? Options.CollectionId ??
+      throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
       options?.Username ?? Options.Username ?? throw new ArgumentException(exceptionMessage(nameof(options.Username))),
       options?.Password ?? Options.Password ?? throw new ArgumentException(exceptionMessage(nameof(options.Password)))
     );
@@ -104,7 +106,8 @@ public class TaskApiClient(
   /// <param name="password">Password to use when connecting to the API.</param>
   /// <returns>A model of the requested query type if one was found; <c>null</c> if not.</returns>
   /// <exception cref="RackitApiClientException">An unknown type was requested, or an otherwise unexpected error occurred while interacting with the API.</exception>
-  public async Task<T?> FetchNextJobAsync<T>(string baseUrl, string collectionId, string username, string password) where T : TaskApiBaseResponse, new()
+  public async Task<T?> FetchNextJobAsync<T>(string baseUrl, string collectionId, string username, string password)
+    where T : TaskApiBaseResponse, new()
   {
     var typeSuffix = new T() switch
     {
@@ -132,7 +135,7 @@ public class TaskApiClient(
     {
       if (result.StatusCode == HttpStatusCode.NoContent)
       {
-        logger.LogDebug("No Jobs of the requested type waiting for {CollectionId}", collectionId);
+        logger.LogDebug("No Jobs of type {TypeName} waiting for {CollectionId}", typeof(T).Name, collectionId);
         return null;
       }
 
@@ -160,10 +163,10 @@ public class TaskApiClient(
   }
 
   private static StringContent AsHttpJsonString<T>(T value)
-      => new(
-        JsonSerializer.Serialize(value),
-        Encoding.UTF8,
-        "application/json");
+    => new(
+      JsonSerializer.Serialize(value),
+      Encoding.UTF8,
+      "application/json");
 
   /// <summary>
   /// Post to the Results endpoint, and handle the response correctly.
@@ -174,17 +177,19 @@ public class TaskApiClient(
   /// <exception cref="ArgumentException">A required option is missing because it wasn't provided and is not present in the service defaults</exception>
   public async Task SubmitResultAsync(string jobId, JobResult result, ApiClientOptions? options = null)
   {
-    static string exceptionMessage(string propertyName)
-      => $"The property '{propertyName}' was not specified, and no default is available to fall back to.";
-
     await SubmitResultAsync(
-      options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(exceptionMessage(nameof(options.BaseUrl))),
-      options?.CollectionId ?? Options.CollectionId ?? throw new ArgumentException(exceptionMessage(nameof(options.CollectionId))),
-      options?.Username ?? Options.Username ?? throw new ArgumentException(exceptionMessage(nameof(options.Username))),
-      options?.Password ?? Options.Password ?? throw new ArgumentException(exceptionMessage(nameof(options.Password))),
+      options?.BaseUrl ?? Options.BaseUrl ?? throw new ArgumentException(ExceptionMessage(nameof(options.BaseUrl))),
+      options?.CollectionId ?? Options.CollectionId ??
+      throw new ArgumentException(ExceptionMessage(nameof(options.CollectionId))),
+      options?.Username ?? Options.Username ?? throw new ArgumentException(ExceptionMessage(nameof(options.Username))),
+      options?.Password ?? Options.Password ?? throw new ArgumentException(ExceptionMessage(nameof(options.Password))),
       jobId,
       result
     );
+    return;
+
+    static string ExceptionMessage(string propertyName)
+      => $"The property '{propertyName}' was not specified, and no default is available to fall back to.";
   }
 
   /// <summary>
@@ -197,7 +202,8 @@ public class TaskApiClient(
   /// <param name="jobId">Job ID to submit results for.</param>
   /// <param name="result">The results to submit.</param>
   /// <exception cref="RackitApiClientException">An unsuccessful response was received from the remote Task API.</exception>
-  public async Task SubmitResultAsync(string baseUrl, string collectionId, string username, string password, string jobId, JobResult result)
+  public async Task SubmitResultAsync(string baseUrl, string collectionId, string username, string password,
+    string jobId, JobResult result)
   {
     var requestUrl = Url.Combine(
       baseUrl,
@@ -249,7 +255,6 @@ internal static class JobTypeSuffixes
   /// </summary>
   public const string CohortAnalysis = ".c";
 }
-
 
 internal static class TaskApiEndpoints
 {

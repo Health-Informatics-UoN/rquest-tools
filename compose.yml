@@ -9,6 +9,18 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
 
+  adminer:
+    image: wodby/adminer
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 9000:9000
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: pgsql
+      ADMINER_DEFAULT_DB_HOST: db
+      ADMINER_DESIGN: pepa-linha
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -28,7 +40,7 @@ services:
       - rabbitmq
       - db
     environment:
-      - ConnectionStrings__RelayDb=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
+      - ConnectionStrings__Default=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
 
   resolve:
     depends_on:

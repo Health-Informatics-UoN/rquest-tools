@@ -28,7 +28,7 @@ public class FetchQueryTests
   [Theory]
   [InlineData(".a")] // Availability Jobs
   [InlineData(".b")] // Collection Analysis Jobs
-  public async void ReturnsNullIfNoJobs(string jobTypeSuffix)
+  public async Task ReturnsNullIfNoJobs(string jobTypeSuffix)
   {
     var http = new MockHttpMessageHandler();
 
@@ -57,7 +57,7 @@ public class FetchQueryTests
   [Theory]
   [InlineData(".a")] // Availability Jobs
   [InlineData(".b")] // Collection Analysis Jobs
-  public async void UsesServiceConfiguredOptionsByDefault(string jobTypeSuffix)
+  public async Task UsesServiceConfiguredOptionsByDefault(string jobTypeSuffix)
   {
     var http = new MockHttpMessageHandler();
 
@@ -95,7 +95,7 @@ public class FetchQueryTests
   [Theory]
   [InlineData(".a")] // Availability Jobs
   [InlineData(".b")] // Collection Analysis Jobs
-  public async void UsesOverrideOptions(string jobTypeSuffix)
+  public async Task UsesOverrideOptions(string jobTypeSuffix)
   {
     var http = new MockHttpMessageHandler();
 
@@ -139,7 +139,7 @@ public class FetchQueryTests
 
   // FetchQuery returns requested response type
   [Fact]
-  public async void AvailabilityQueryReturnsAvailabilityQuery()
+  public async Task AvailabilityQueryReturnsAvailabilityQuery()
   {
     var response = new AvailabilityJob
     {
@@ -172,7 +172,7 @@ public class FetchQueryTests
     Assert.IsType<AvailabilityJob>(result);
   }
   [Fact]
-  public async void DistributionQueryReturnsDistributionQuery()
+  public async Task DistributionQueryReturnsDistributionQuery()
   {
     var response = new CollectionAnalysisJob
     {
