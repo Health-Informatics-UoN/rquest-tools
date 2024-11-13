@@ -10,13 +10,16 @@ using RabbitMQ.Client;
 
 namespace Hutch.Relay.Services;
 
-public class RabbitRelayTaskQueue(IOptions<RelayTaskQueueOptions> options)
+public class RabbitRelayTaskQueue(
+  ILogger<RabbitRelayTaskQueue> logger,
+  IOptions<RelayTaskQueueOptions> options)
   : IRelayTaskQueue, IDisposable, IAsyncDisposable
 {
   private readonly ConnectionFactory _factory = new()
   {
     Uri = new(options.Value.ConnectionString)
   };
+
   private IConnection? _connection;
 
   private async Task<IChannel> ConnectChannel(string queueName)
@@ -26,9 +29,9 @@ public class RabbitRelayTaskQueue(IOptions<RelayTaskQueueOptions> options)
       await _connection.DisposeAsync();
       _connection = null;
     }
-    
+
     _connection ??= await _factory.CreateConnectionAsync();
-    
+
     var channel = await _connection.CreateChannelAsync();
 
     await channel.QueueDeclareAsync(
@@ -39,6 +42,21 @@ public class RabbitRelayTaskQueue(IOptions<RelayTaskQueueOptions> options)
       arguments: null);
 
     return channel;
+  }
+
+  public async Task<bool> IsReady(string? queueName = null)
+  {
+    try
+    {
+      await using var channel = await ConnectChannel(queueName ?? "readyTest");
+    }
+    catch (Exception e) // It's OK that this is broad; any exception while trying to do this means the app is unusable.
+    {
+      logger.LogCritical(e, "{ExceptionMessage}", e.Message);
+      return false;
+    }
+
+    return true;
   }
 
   public async Task Send<T>(string subnodeId, T message) where T : TaskApiBaseResponse

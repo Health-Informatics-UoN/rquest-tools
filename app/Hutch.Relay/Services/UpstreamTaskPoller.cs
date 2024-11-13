@@ -19,19 +19,27 @@ public class UpstreamTaskPoller(
   RelaySubTaskService relaySubTasks,
   IRelayTaskQueue queues)
 {
-  public Task PollAllQueues(CancellationToken stoppingToken)
+  public async Task PollAllQueues(CancellationToken stoppingToken)
   {
     // We need to simultaneously poll against all supported task queues in an upstream system
     // TODO: this may become configurable to support upstream unified queues e.g. in Relay
 
+    // Test Queue Backend availability
+    if (!await queues.IsReady())
+      throw new InvalidOperationException(
+        "The RelayTask Queue Backend is not ready; please check the logs and your configuration.");
+
     // Start polling for job types:
-    var availabilityQueries = upstreamTasks.PollJobQueue<AvailabilityJob>(options.Value, stoppingToken);
-    var collectionAnalyses = upstreamTasks.PollJobQueue<CollectionAnalysisJob>(options.Value, stoppingToken);
+    var availabilityQueries =
+      upstreamTasks.PollJobQueue<AvailabilityJob>(options.Value, stoppingToken);
+    var collectionAnalyses =
+      upstreamTasks.PollJobQueue<CollectionAnalysisJob>(options.Value, stoppingToken);
 
     // TODO: "Type C" var cohortAnalyses = upstreamTasks.PollJobQueue<>(options.Value, stoppingToken);
 
+
     // start parallel handler threads
-    return Task.WhenAll(
+    await Task.WhenAll(
       HandleTasksFound(availabilityQueries, stoppingToken),
       HandleTasksFound(collectionAnalyses, stoppingToken));
   }
@@ -67,7 +75,7 @@ public class UpstreamTaskPoller(
             job.Owner = subnode.Owner;
 
             // Queue the task for the subnode
-            await queues.Send(subnode.Id.ToString(), job); // TODO: Test queue configuration BEFORE we get past creating a db record that we can't queue >.<
+            await queues.Send(subnode.Id.ToString(), job);
           }
         }
       }
@@ -75,7 +83,7 @@ public class UpstreamTaskPoller(
       {
         // Swallow exceptions and just log; the while loop will restart polling
         logger.LogError(e, "An error occurred handling '{TypeName}' tasks", typeof(T).Name);
-        
+
         // TODO: maintain an exception limit that eventually DOES quit?
       }
     }

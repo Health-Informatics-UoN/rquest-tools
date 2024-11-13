@@ -12,6 +12,13 @@ namespace Hutch.Relay.Services.Contracts;
 public interface IRelayTaskQueue
 {
   /// <summary>
+  /// Test if the configured queue backend is available to receive messages, optionally on a specific named queue
+  /// </summary>
+  /// <param name="queueName">Optionally specify a queue name to also ensure is ready</param>
+  /// <returns>True if the queue service is ready to receive items (in the named queue if provided)</returns>
+  public Task<bool> IsReady(string? queueName = null);
+  
+  /// <summary>
   /// Send a message with the provided RelayTask Body to the queue
   /// </summary>
   /// <param name="subnodeId">The ID for the SubNode this RelayTask is intended for</param>
