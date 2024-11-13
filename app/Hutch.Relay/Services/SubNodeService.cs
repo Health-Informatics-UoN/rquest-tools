@@ -1,11 +1,12 @@
 using Hutch.Relay.Data;
 using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Models;
+using Hutch.Relay.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hutch.Relay.Services;
 
-public class SubNodeService(ApplicationDbContext db)
+public class SubNodeService(ApplicationDbContext db) : ISubNodeService
 {
   /// <summary>
   /// Create a new SubNode associated with the provided user

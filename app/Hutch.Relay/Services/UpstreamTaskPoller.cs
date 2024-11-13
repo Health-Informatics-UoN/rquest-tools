@@ -1,8 +1,7 @@
 using Hutch.Rackit;
-using Hutch.Rackit.TaskApi;
+using Hutch.Rackit.TaskApi.Contracts;
 using Hutch.Rackit.TaskApi.Models;
 using Hutch.Relay.Services.Contracts;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 namespace Hutch.Relay.Services;
@@ -13,10 +12,10 @@ namespace Hutch.Relay.Services;
 public class UpstreamTaskPoller(
   ILogger<UpstreamTaskPoller> logger,
   IOptions<ApiClientOptions> options,
-  TaskApiClient upstreamTasks,
-  SubNodeService subNodes,
-  RelayTaskService relayTasks,
-  RelaySubTaskService relaySubTasks,
+  ITaskApiClient upstreamTasks,
+  ISubNodeService subNodes,
+  IRelayTaskService relayTasks,
+  IRelaySubTaskService relaySubTasks,
   IRelayTaskQueue queues)
 {
   public async Task PollAllQueues(CancellationToken stoppingToken)

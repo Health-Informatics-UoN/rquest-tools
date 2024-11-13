@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Flurl;
+using Hutch.Rackit.TaskApi.Contracts;
 using Hutch.Rackit.TaskApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,7 +19,7 @@ public class TaskApiClient(
   HttpClient client,
   IOptions<ApiClientOptions> configuredOptions,
   ILogger<TaskApiClient> logger
-)
+) : ITaskApiClient
 {
   /// <summary>
   /// Default options for the service as configured

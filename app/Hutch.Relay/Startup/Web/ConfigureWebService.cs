@@ -1,5 +1,6 @@
 using Hutch.Rackit;
 using Hutch.Rackit.TaskApi;
+using Hutch.Rackit.TaskApi.Contracts;
 using Hutch.Relay.Config;
 using Hutch.Relay.Constants;
 using Hutch.Relay.Data;
@@ -28,7 +29,7 @@ public static class ConfigureWebService
     builder.Services
       .Configure<ApiClientOptions>(builder.Configuration.GetSection("UpstreamTaskApi"))
       .AddHttpClient()
-      .AddTransient<TaskApiClient>()
+      .AddTransient<ITaskApiClient, TaskApiClient>()
       .AddScoped<UpstreamTaskPoller>();
 
     // Task Queue
@@ -38,9 +39,9 @@ public static class ConfigureWebService
 
     // Other App Services
     builder.Services
-      .AddTransient<RelayTaskService>()
-      .AddTransient<RelaySubTaskService>()
-      .AddTransient<SubNodeService>();
+      .AddTransient<IRelayTaskService, RelayTaskService>()
+      .AddTransient<IRelaySubTaskService, RelaySubTaskService>()
+      .AddTransient<ISubNodeService, SubNodeService>();
 
     // Hosted Services
     builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
