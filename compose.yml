@@ -58,7 +58,7 @@ services:
       - DATASOURCE_DB_SCHEMA=public
       - DATASOURCE_DB_PORT=5432
       - DATASOURCE_DB_HOST=db
-      - TASK_API_BASE_URL=http://localhost:8080
+      - TASK_API_BASE_URL=http://relay:8080
       - TASK_API_USERNAME=username
       - TASK_API_PASSWORD=password
       - TASK_API_TYPE=
