@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace Hutch.Relay.Controllers;
 
 using Rackit.TaskApi.Models;
@@ -6,6 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
+[Authorize]
 public class TaskController : ControllerBase
 {
   [HttpGet("nextjob/{collectionId}")]
