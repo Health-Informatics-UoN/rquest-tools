@@ -1,8 +1,8 @@
 using Hutch.Relay.Auth.Basic;
 using Hutch.Relay.Constants;
 using Hutch.Relay.Data;
+using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hutch.Relay.Startup.Web;
@@ -14,7 +14,8 @@ public static class ConfigureWebService
     var connectionString = builder.Configuration.GetConnectionString("RelayDb");
     builder.Services.AddDbContext<ApplicationDbContext>(o => { o.UseNpgsql(connectionString); });
     
-    builder.Services.AddIdentityCore<IdentityUser>(DefaultIdentityOptions.Configure).AddEntityFrameworkStores<ApplicationDbContext>();
+    builder.Services.AddIdentityCore<RelayUser>(DefaultIdentityOptions.Configure)
+      .AddEntityFrameworkStores<ApplicationDbContext>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
