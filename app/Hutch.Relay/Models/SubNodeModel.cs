@@ -4,7 +4,7 @@ namespace Hutch.Relay.Models;
 
 public class SubNodeModel
 {
-  public Guid Id { get; set; } = Guid.NewGuid();
+  public required Guid Id { get; init; }
 
-  public ICollection<RelayUserModel> RelayUsers { get; set; } = new Collection<RelayUserModel>();
+  public required string Owner { get; init; }
 }

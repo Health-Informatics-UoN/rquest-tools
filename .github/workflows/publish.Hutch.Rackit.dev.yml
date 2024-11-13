@@ -20,7 +20,7 @@ on:
 env:
   # Configure these
   build-config: release
-  dotnet-version: 8.0.x
+  dotnet-version: 9.0.x
   project: lib/Hutch.Rackit
 
   DOTNET_CLI_TELEMETRY_OPTOUT: true

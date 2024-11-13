@@ -1,11 +1,12 @@
 using Hutch.Relay.Data;
 using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Models;
+using Hutch.Relay.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hutch.Relay.Services;
 
-public class RelayTaskService(ApplicationDbContext db)
+public class RelayTaskService(ApplicationDbContext db) : IRelayTaskService
 {
   /// <summary>
   /// Get a RelayTask by id

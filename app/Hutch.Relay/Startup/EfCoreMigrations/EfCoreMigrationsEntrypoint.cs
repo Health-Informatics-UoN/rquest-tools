@@ -18,7 +18,7 @@ public static class EfCoreMigrations
       .ConfigureServices((b, s) =>
       {
         var connectionString =
-          b.Configuration.GetConnectionString("RelayDb");
+          b.Configuration.GetConnectionString("Default");
 
         s.AddDbContext<ApplicationDbContext>(
             o =>

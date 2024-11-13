@@ -26,7 +26,7 @@ public class SubmitResultTests
   private readonly ILogger<TaskApiClient> _logger = Mock.Of<ILogger<TaskApiClient>>();
 
   [Fact]
-  public async void NonSuccessStatusCode_Throws()
+  public async Task NonSuccessStatusCode_Throws()
   {
     var http = new MockHttpMessageHandler();
 
@@ -47,7 +47,7 @@ public class SubmitResultTests
   }
 
   [Fact]
-  public async void Unexpected2xxBody_Throws()
+  public async Task Unexpected2xxBody_Throws()
   {
     var http = new MockHttpMessageHandler();
 
@@ -68,7 +68,7 @@ public class SubmitResultTests
   }
 
   [Fact]
-  public async void ExpectedSuccessResponse_ReturnsSuccessfully()
+  public async Task ExpectedSuccessResponse_ReturnsSuccessfully()
   {
     var http = new MockHttpMessageHandler();
 
@@ -91,7 +91,7 @@ public class SubmitResultTests
   }
 
   [Fact]
-  public async void UsesServiceConfiguredOptionsByDefault()
+  public async Task UsesServiceConfiguredOptionsByDefault()
   {
     var http = new MockHttpMessageHandler();
 
@@ -122,7 +122,7 @@ public class SubmitResultTests
   }
 
   [Fact]
-  public async void UsesOverrideOptions()
+  public async Task UsesOverrideOptions()
   {
     var http = new MockHttpMessageHandler();
 
