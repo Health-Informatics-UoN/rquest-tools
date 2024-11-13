@@ -28,15 +28,15 @@ internal class AddUser : Command
         await this
           .ConfigureServices(s =>
           {
-            ServiceCollectionServiceExtensions.AddSingleton<ILoggerFactory>(s, _ => logger)
+            s.AddSingleton<ILoggerFactory>(_ => logger)
               .AddSingleton<IConfiguration>(_ => config)
               .AddSingleton<IConsole>(_ => console)
               .AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
-            LoggingServiceCollectionExtensions.AddLogging(s)
+            s.AddLogging()
               .AddIdentityCore<RelayUser>(DefaultIdentityOptions.Configure)
               .AddEntityFrameworkStores<ApplicationDbContext>();
-            ServiceCollectionServiceExtensions.AddTransient<SubNodeService>(s);
-            ServiceCollectionServiceExtensions.AddTransient<Runners.AddUser>(s);
+            s.AddTransient<SubNodeService>();
+            s.AddTransient<Runners.AddUser>();
           })
           .GetRequiredService<Runners.AddUser>()
           .Run(username);

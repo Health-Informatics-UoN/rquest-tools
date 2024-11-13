@@ -1,10 +1,7 @@
 using System.Runtime.CompilerServices;
 using Hutch.Rackit;
-using Hutch.Rackit.TaskApi;
 using Hutch.Rackit.TaskApi.Contracts;
 using Hutch.Rackit.TaskApi.Models;
-using Hutch.Relay.Data;
-using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Models;
 using Hutch.Relay.Services;
 using Hutch.Relay.Services.Contracts;
@@ -12,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using Assert = NUnit.Framework.Assert;
 
 namespace Hutch.Relay.Tests.Services;
 
@@ -31,10 +27,10 @@ public class UpstreamTaskPollerTests()
     queues.Setup(x =>
       x.IsReady(It.IsAny<string>())).Returns(Task.FromResult(false));
 
-    var poller = new UpstreamTaskPoller(_logger, options, null, null, null, null, queues.Object);
+    var poller = new UpstreamTaskPoller(_logger, options, null!, null!, null!, null!, queues.Object);
 
     // Act, Assert
-    Assert.ThrowsAsync<InvalidOperationException>(async () => await poller.PollAllQueues(new()));
+    await Assert.ThrowsAsync<InvalidOperationException>(async () => await poller.PollAllQueues(new()));
   }
 
   [Fact]
@@ -125,13 +121,13 @@ public class UpstreamTaskPollerTests()
     // Assert
     Assert.Multiple(() =>
     {
-      Assert.That(taskDb, Has.Count.EqualTo(1));
-      Assert.That(subtaskDb, Has.Count.EqualTo(1));
-      Assert.That(queue, Has.Count.EqualTo(1));
+      Assert.Single(taskDb);
+      Assert.Single(subtaskDb);
+      Assert.Single(queue);
 
-      Assert.That(taskDb, Contains.Item(relayTask));
-      Assert.That(subtaskDb, Contains.Item(relaySubTask));
-      Assert.That(queue, Contains.Item(availabilityTask));
+      Assert.Contains(relayTask, taskDb);
+      Assert.Contains(relaySubTask, subtaskDb);
+      Assert.Contains(availabilityTask, queue);
     });
 
     return;
