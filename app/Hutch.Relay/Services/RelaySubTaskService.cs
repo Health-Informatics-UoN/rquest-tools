@@ -91,4 +91,62 @@ public class RelaySubTaskService(ApplicationDbContext db) : IRelaySubTaskService
       }
     };
   }
+
+  /// <summary>
+  /// Get a SubTask by ID
+  /// </summary>
+  /// <param name="id">Subtask Id</param>
+  /// <returns>RelaySubTaskModel from the ID</returns>
+  /// <exception cref="KeyNotFoundException">The RelaySubTask does not exist.</exception>
+  public async Task<RelaySubTaskModel> Get(Guid id)
+  {
+    var entity = await db.RelaySubTasks.AsNoTracking().Include(relaySubTask => relaySubTask.Owner)
+                   .ThenInclude(subNode => subNode.RelayUsers)
+                   .Include(relaySubTask => relaySubTask.RelayTask)
+                   .SingleOrDefaultAsync(t => t.Id == id)
+                 ?? throw new KeyNotFoundException();
+
+    return new RelaySubTaskModel()
+    {
+      Id = entity.Id,
+      Owner = new SubNodeModel
+      {
+        Id = entity.Owner.Id,
+        Owner = entity.Owner.RelayUsers.First().UserName ?? string.Empty
+      },
+      RelayTask = new RelayTaskModel()
+      {
+        Id = entity.RelayTask.Id
+      },
+      Result = entity.Result
+    };
+  }
+
+  /// <summary>
+  /// List RelaySubTasks that have not been completed for a given RelayTask.
+  /// </summary>
+  /// <returns>The list of incomplete RelaySubTasks</returns>
+  public async Task<IEnumerable<RelaySubTaskModel>> ListIncomplete(string relayTaskId)
+  {
+    var query = await db.RelaySubTasks
+      .AsNoTracking()
+      .Where(x => x.RelayTask.Id == relayTaskId && x.Result == null)
+      .Include(relaySubTask => relaySubTask.Owner).ThenInclude(subNode => subNode.RelayUsers)
+      .Include(relaySubTask => relaySubTask.RelayTask)
+      .ToListAsync();
+
+    return query.Select(x => new RelaySubTaskModel()
+    {
+      Id = x.Id,
+      Owner = new SubNodeModel()
+      {
+        Id = x.Owner.Id,
+        Owner = x.Owner.RelayUsers.First().UserName ?? string.Empty
+      },
+      RelayTask = new RelayTaskModel()
+      {
+        Id = x.RelayTask.Id
+      }
+    });
+  }
 }
