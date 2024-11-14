@@ -7,6 +7,7 @@ using Hutch.Relay.Models;
 using Hutch.Relay.Services.Contracts;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace Hutch.Relay.Services;
 
@@ -75,6 +76,46 @@ public class RabbitRelayTaskQueue(
       {
         Type = typeof(T).Name
       });
+  }
+
+  public async Task<(Type, TaskApiBaseResponse)?> Pop(string subnodeId)
+  {
+    await using var channel = await ConnectChannel(subnodeId);
+
+    var consumer = new AsyncEventingBasicConsumer(channel);
+    consumer.ReceivedAsync += (model, ea) =>
+    {
+      var body = ea.Body.ToArray();
+
+      return Task.CompletedTask;
+    };
+
+    var message = await channel.BasicGetAsync(subnodeId, true);
+    if (message is null) return null;
+
+    var type = message.BasicProperties.Type switch
+    {
+      nameof(AvailabilityJob) => typeof(AvailabilityJob),
+      nameof(CollectionAnalysisJob) => typeof(CollectionAnalysisJob),
+      _ => throw new InvalidOperationException(
+        $"Unknown message type: {message.BasicProperties.Type ?? "null"}")
+    };
+
+    // There must be a better way!
+    TaskApiBaseResponse? task = type.Name switch
+    {
+      nameof(AvailabilityJob) => JsonSerializer.Deserialize<AvailabilityJob>(
+        Encoding.UTF8.GetString(message.Body.ToArray())),
+      nameof(CollectionAnalysisJob) => JsonSerializer.Deserialize<CollectionAnalysisJob>(
+        Encoding.UTF8.GetString(message.Body.ToArray())),
+      _ => throw new InvalidOperationException(
+        $"Unknown message type: {message.BasicProperties.Type ?? "null"}")
+    };
+
+    if (task is null)
+      throw new InvalidOperationException(
+        $"Message body is not valid for specified type: {message.BasicProperties.Type}");
+    return (type, task);
   }
 
   public void Dispose()

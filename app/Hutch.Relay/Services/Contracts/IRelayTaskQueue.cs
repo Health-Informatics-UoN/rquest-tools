@@ -30,4 +30,5 @@ public interface IRelayTaskQueue
   // TODO: Pop a message from the queue
   // Typing is much harder here. Generics is a bit rubbish?
   // Maybe use a Result wrapper?
+  public Task<(Type type, TaskApiBaseResponse task)?> Pop(string subnodeId);
 }
