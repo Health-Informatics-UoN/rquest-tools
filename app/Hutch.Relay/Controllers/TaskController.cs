@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Hutch.Relay.Services;
+
 namespace Hutch.Relay.Controllers;
 
 using Rackit.TaskApi.Models;
@@ -6,7 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
-public class TaskController : ControllerBase
+public class TaskController(RelaySubTaskService relaySubTaskService, TaskApiService taskApiService) : ControllerBase
 {
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
@@ -28,11 +31,28 @@ public class TaskController : ControllerBase
   [SwaggerResponse(403)]
   [SwaggerResponse(404)]
   [SwaggerResponse(409)]
-  public Task<IActionResult> Result(string uuid, string collectionId, [FromBody] JobResult result)
+  public async Task<IActionResult> Result(Guid uuid, string collectionId, [FromBody] JobResult result)
   {
-    // for now assume all JobResult payloads sent here are valid:
-    
-    return Task.FromResult<IActionResult>(Ok("Job saved"));
+    var subtask = await relaySubTaskService.Get(uuid);
+
+    // Check if the parent Task has already been submitted.
+    if (subtask.RelayTask.CompletedAt is not null)
+    {
+      return Conflict(new { message = $"The task has already been submitted." });
+    }
+
+    // Update the SubTask results
+    await relaySubTaskService.SetResult(uuid, JsonSerializer.Serialize(result));
+
+    // Check if there are incomplete Subtasks that belong to the same Task
+    var incompleteSubTasks = await relaySubTaskService.ListIncomplete(subtask.RelayTask.Id);
+    //  If all Subtasks on the parent Task received - then submit to TaskApi
+    if (!incompleteSubTasks.Any())
+    {
+      await taskApiService.SubmitResults(subtask.RelayTask, result);
+    }
+
+    return Ok("SubTask saved");
   }
 
   # region Dummy NextJob
