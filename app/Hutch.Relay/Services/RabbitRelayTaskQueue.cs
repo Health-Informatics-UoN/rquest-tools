@@ -90,9 +90,11 @@ public class RabbitRelayTaskQueue(
       return Task.CompletedTask;
     };
 
+    // Get a message if there is one
     var message = await channel.BasicGetAsync(subnodeId, true);
     if (message is null) return null;
 
+    // Resolve the type property to an actual CLR Type
     var type = message.BasicProperties.Type switch
     {
       nameof(AvailabilityJob) => typeof(AvailabilityJob),
@@ -101,7 +103,7 @@ public class RabbitRelayTaskQueue(
         $"Unknown message type: {message.BasicProperties.Type ?? "null"}")
     };
 
-    // There must be a better way!
+    // Deserialize the body to the correct type
     TaskApiBaseResponse? task = type.Name switch
     {
       nameof(AvailabilityJob) => JsonSerializer.Deserialize<AvailabilityJob>(
@@ -114,7 +116,8 @@ public class RabbitRelayTaskQueue(
 
     if (task is null)
       throw new InvalidOperationException(
-        $"Message body is not valid for specified type: {message.BasicProperties.Type}");
+        $"Message body is not valid for specified task type: {message.BasicProperties.Type}");
+    
     return (type, task);
   }
 
