@@ -23,7 +23,7 @@ public static class ConfigureWebService
       .AddEntityFrameworkStores<ApplicationDbContext>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(o => o.UseOneOfForPolymorphism());
 
     // Upstream Task API
     builder.Services
