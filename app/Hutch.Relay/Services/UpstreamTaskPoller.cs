@@ -55,7 +55,11 @@ public class UpstreamTaskPoller(
           logger.LogInformation("Task handled: ({Type}) {Id}", typeof(T).Name, job.Uuid);
 
           var subnodes = (await subNodes.List()).ToList();
-          if (subnodes.Count == 0) return;
+          if (subnodes.Count == 0)
+          {
+            logger.LogWarning("There are no subnodes configured!");
+            break;
+          }
 
           // Create a parent task
           var relayTask = await relayTasks.Create(new()

@@ -10,11 +10,11 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
-public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService) : ControllerBase
+public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService, IRelayTaskQueue queues) : ControllerBase
 {
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
-  [SwaggerResponse(200)]
+  [SwaggerResponse(200, Type = typeof(TaskApiBaseResponse))]
   [SwaggerResponse(204)]
   [SwaggerResponse(401)]
   [SwaggerResponse(403)]
@@ -22,7 +22,17 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
   [SwaggerResponse(500)]
   public async Task<IActionResult> Next(string collectionId)
   {
-    return await DummyNext(collectionId);
+    // We can still support returning dummy jobs in a test mode
+    // to avoid the need for upstream when testing downstream
+    if(Request.Headers.ContainsKey("X-Relay-DummyNextJob"))
+      return await DummyNext(collectionId);
+    
+    var result = await queues.Pop(collectionId);
+    
+    if(result is null) return NoContent();
+
+    var (type, task) = result.Value;
+    return Ok(Convert.ChangeType(task, type));
   }
 
   [HttpPost("result/{uuid}/{collectionId}")]

@@ -27,7 +27,10 @@ public interface IRelayTaskQueue
   /// <returns></returns>
   public Task Send<T>(string subnodeId, T taskBody) where T : TaskApiBaseResponse;
 
-  // TODO: Pop a message from the queue
-  // Typing is much harder here. Generics is a bit rubbish?
-  // Maybe use a Result wrapper?
+  /// <summary>
+  /// Checks a given SubNode's queue and returns a task if there is one.
+  /// </summary>
+  /// <param name="subnodeId">ID of the sub node to check for</param>
+  /// <returns>null if nothing, else a Tuple with the task and its type</returns>
+  public Task<(Type type, TaskApiBaseResponse task)?> Pop(string subnodeId);
 }
