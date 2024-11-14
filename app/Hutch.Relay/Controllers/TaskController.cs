@@ -10,7 +10,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
-public class TaskController(IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService) : ControllerBase
+public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService) : ControllerBase
 {
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
@@ -51,6 +51,8 @@ public class TaskController(IRelaySubTaskService relaySubTaskService, TaskApiSer
     if (!incompleteSubTasks.Any())
     {
       await taskApiService.SubmitResults(subtask.RelayTask, result);
+      // Set Task as Complete
+      await relayTaskService.SetComplete(subtask.RelayTask.Id);
     }
 
     return Ok("SubTask saved");
