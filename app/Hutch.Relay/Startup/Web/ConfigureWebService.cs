@@ -31,6 +31,7 @@ public static class ConfigureWebService
       {
         opts.Realm = "relay";
       });
+    builder.Services.AddSwaggerGen(o => o.UseOneOfForPolymorphism());
 
     // Upstream Task API
     builder.Services
