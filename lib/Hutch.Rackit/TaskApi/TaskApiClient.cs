@@ -230,7 +230,7 @@ public class TaskApiClient(
       logger.LogError(message);
       logger.LogDebug("Response Body: {Body}", body);
 
-      throw new RackitApiClientException(message);
+      throw new RackitApiClientException(message, response);
     }
   }
 }
