@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Hutch.Relay.Services;
+using Hutch.Relay.Services.Contracts;
 
 namespace Hutch.Relay.Controllers;
 
@@ -9,7 +10,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
-public class TaskController(RelaySubTaskService relaySubTaskService, TaskApiService taskApiService) : ControllerBase
+public class TaskController(IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService) : ControllerBase
 {
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
