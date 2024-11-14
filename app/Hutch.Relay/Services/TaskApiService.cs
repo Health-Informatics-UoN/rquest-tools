@@ -27,7 +27,7 @@ public class TaskApiService(
         var response = upstreamTasks.SubmitResultAsync(relayTask.Id, jobResult, options.Value);
         if (response.IsCompletedSuccessfully)
         {
-          logger.LogError("Successfully submitted results for {RelayTaskId}", relayTask.Id);
+          logger.LogInformation("Successfully submitted results for {RelayTaskId}", relayTask.Id);
           break;
         }
       }
@@ -36,7 +36,7 @@ public class TaskApiService(
         if (exception.UpstreamApiResponse is { StatusCode: HttpStatusCode.InternalServerError })
         {
           retryCount++;
-          logger.LogInformation(
+          logger.LogError(
             "Task submission failed with 500 Internal Server Error. Retrying in {delayInSeconds} seconds... ({retryCount}/{maxRetries})",
             delayInSeconds,
             retryCount, maxRetryCount);
