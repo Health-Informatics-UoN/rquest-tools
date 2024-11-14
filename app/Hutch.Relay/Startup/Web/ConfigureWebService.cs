@@ -24,8 +24,6 @@ public static class ConfigureWebService
       .AddEntityFrameworkStores<ApplicationDbContext>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-    
     builder.Services.AddAuthentication("Basic")
       .AddScheme<BasicAuthSchemeOptions, BasicAuthHandler>("Basic", opts => 
       {
@@ -52,7 +50,7 @@ public static class ConfigureWebService
       .AddTransient<ISubNodeService, SubNodeService>();
 
     // Hosted Services
-    builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
+    // builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
 
     return builder;
   }
