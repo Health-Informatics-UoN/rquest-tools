@@ -28,6 +28,7 @@ public class TaskApiService(
         if (response.IsCompletedSuccessfully)
         {
           logger.LogError("Successfully submitted results for {RelayTaskId}", relayTask.Id);
+          break;
         }
       }
       catch (RackitApiClientException exception)
@@ -44,8 +45,5 @@ public class TaskApiService(
         }
       }
     }
-
-    logger.LogError("Max retry attempts reached. Returning results for {RelayTaskId} has failed or timed out."
-      , relayTask.Id);
   }
 }
