@@ -40,7 +40,7 @@ public class TaskApiService(
             "Task submission failed with 500 Internal Server Error. Retrying in {delayInSeconds} seconds... ({retryCount}/{maxRetries})",
             delayInSeconds,
             retryCount, maxRetryCount);
-          // delay retry
+          
           await Task.Delay(delayInSeconds * 1000);
         }
       }
