@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Hutch.Relay.Commands;
 using AddUser = Hutch.Relay.Commands.AddUser;
 
 namespace Hutch.Relay.Startup.Cli;
@@ -13,6 +14,12 @@ public class CliEntrypoint : RootCommand
     AddCommand(new Command("users", "Add Relay Users")
     {
       new AddUser("add")
+    });    
+    
+    AddCommand(new Command("ef", "Run EF database")
+    {
+      new RunEfDatabase("database")
     });
+    
   }
 }
