@@ -27,7 +27,7 @@ public class UpstreamTaskPollerTests()
     queues.Setup(x =>
       x.IsReady(It.IsAny<string>())).Returns(Task.FromResult(false));
 
-    var poller = new UpstreamTaskPoller(_logger, options, null!, null!, null!, null!, queues.Object);
+    var poller = new UpstreamTaskPoller(_logger, options, null!, null!, null!, queues.Object);
 
     // Act, Assert
     await Assert.ThrowsAsync<InvalidOperationException>(async () => await poller.PollAllQueues(new()));
@@ -80,10 +80,9 @@ public class UpstreamTaskPollerTests()
         return Task.FromResult(relayTask);
       });
 
-    var subtasks = new Mock<IRelaySubTaskService>();
     var subtaskDb = new List<RelaySubTaskModel>();
-    subtasks.Setup(x =>
-        x.Create(relayTask.Id, relaySubTask.Owner.Id))
+    tasks.Setup(x =>
+        x.CreateSubTask(relayTask.Id, relaySubTask.Owner.Id))
       .Returns(() =>
       {
         subtaskDb.Add(relaySubTask);
@@ -100,8 +99,7 @@ public class UpstreamTaskPollerTests()
       return Task.CompletedTask;
     });
 
-    var poller = new UpstreamTaskPoller(_logger, options, upstream.Object, subNodes.Object, tasks.Object,
-      subtasks.Object, queues.Object);
+    var poller = new UpstreamTaskPoller(_logger, options, upstream.Object, subNodes.Object, tasks.Object, queues.Object);
 
     // Act
     // set a timer to cancel polling after a few
