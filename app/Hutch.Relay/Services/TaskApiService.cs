@@ -27,8 +27,12 @@ public class TaskApiService(
       logger.LogInformation("Submitting Results..");
       try
       {
-       int count = obfuscation.LowNumberSuppression(jobResult.Results.Count,
+        int count = obfuscation.LowNumberSuppression(jobResult.Results.Count,
           obfuscationOptions.Value.LowNumberSuppressionThreshold);
+        count = obfuscation.Rounding(count,
+         obfuscationOptions.Value.RoundingTarget);
+       
+        jobResult.Results.Count = count;
         // Submit results upstream
         await upstreamTasks.SubmitResultAsync(relayTask.Id, jobResult, options.Value);
         logger.LogInformation("Successfully submitted results for {RelayTaskId}", relayTask.Id);
