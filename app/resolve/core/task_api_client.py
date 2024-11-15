@@ -62,7 +62,7 @@ class TaskApiClient:
             Response: The response object returned by the requests library.
         """
         url = f"{self.base_url}/{endpoint}"
-        return self.request(SupportedMethod.POST, url, data, **kwargs)
+        return self.request(SupportedMethod.POST, url, data, headers={"Content-Type":"application/json"})
 
     def get(self, endpoint: Optional[str] = None, **kwargs) -> Response:
         """
