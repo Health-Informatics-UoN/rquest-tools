@@ -45,6 +45,7 @@ public static class ConfigureWebService
 
     // Hosted Services
     builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
+    builder.Services.AddHostedService<TaskCompletionHostedService>();
 
     return builder;
   }
