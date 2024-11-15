@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Hutch.Rackit;
 using Hutch.Rackit.TaskApi.Contracts;
 using Hutch.Rackit.TaskApi.Models;
@@ -7,8 +8,8 @@ using Microsoft.Extensions.Options;
 
 namespace Hutch.Relay.Services;
 
-public class TaskApiService(
-  ILogger<TaskApiService> logger,
+public class ResultsService(
+  ILogger<ResultsService> logger,
   IOptions<ApiClientOptions> options,
   ITaskApiClient upstreamTasks)
 {
@@ -40,10 +41,25 @@ public class TaskApiService(
             "Task submission failed with 500 Internal Server Error. Retrying in {delayInSeconds} seconds... ({retryCount}/{maxRetries})",
             delayInSeconds,
             retryCount, maxRetryCount);
-          
+
           await Task.Delay(delayInSeconds * 1000);
         }
       }
     }
+  }
+
+  public int AggregateResults(List<RelaySubTaskModel> relaySubTasks)
+  {
+    int aggregateCount = 0;
+    foreach (var subTask in relaySubTasks)
+    {
+      if (subTask.Result != null)
+      {
+        var result = JsonSerializer.Deserialize<JobResult>(subTask.Result) ?? throw new NullReferenceException();
+        aggregateCount += result.Results.Count;
+      }
+    }
+
+    return aggregateCount;
   }
 }
