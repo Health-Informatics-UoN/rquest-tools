@@ -51,7 +51,7 @@ public static class ConfigureWebService
       .AddTransient<ISubNodeService, SubNodeService>();
 
     // Hosted Services
-    // builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
+    builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
 
     return builder;
   }
