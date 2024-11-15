@@ -25,12 +25,9 @@ public class ResultsService(
       try
       {
         // Submit results upstream
-        var response = upstreamTasks.SubmitResultAsync(relayTask.Id, jobResult, options.Value);
-        if (response.IsCompletedSuccessfully)
-        {
-          logger.LogInformation("Successfully submitted results for {RelayTaskId}", relayTask.Id);
-          break;
-        }
+        await upstreamTasks.SubmitResultAsync(relayTask.Id, jobResult, options.Value);
+        logger.LogInformation("Successfully submitted results for {RelayTaskId}", relayTask.Id);
+        break;
       }
       catch (RackitApiClientException exception)
       {
