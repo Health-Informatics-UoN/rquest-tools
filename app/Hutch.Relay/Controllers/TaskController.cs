@@ -35,17 +35,19 @@ public class TaskController(IRelayTaskQueue queues) : ControllerBase
 
   [HttpPost("result/{uuid}/{collectionId}")]
   [SwaggerOperation("Upload job result by UUID and CollectionId.")]
-  [SwaggerResponse(200)]
+  [SwaggerResponse(200, Type = typeof(JobResult))]
   [SwaggerResponse(401)]
   [SwaggerResponse(403)]
   [SwaggerResponse(404)]
   [SwaggerResponse(409)]
   public Task<IActionResult> Result(string uuid, string collectionId, [FromBody] JobResult result)
   {
-    // for now assume all JobResult payloads sent here are valid:
+    // Assuming validation or other processing has been handled here
     
-    return Task.FromResult<IActionResult>(Ok("Job saved"));
+    // Return the result object directly instead of a message
+    return Task.FromResult<IActionResult>(Ok(result));
   }
+
 
   # region Dummy NextJob
 
