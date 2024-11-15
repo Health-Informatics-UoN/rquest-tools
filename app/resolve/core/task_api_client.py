@@ -1,3 +1,4 @@
+import json
 from requests.models import Response
 from enum import Enum
 import requests
@@ -43,7 +44,7 @@ class TaskApiClient:
         """
         basicAuth = HTTPBasicAuth(self.username, self.password)
         response = requests.request(
-            method=method.value, url=url, data=data, auth=basicAuth, **kwargs
+            method=method.value, url=url, json=data, auth=basicAuth, **kwargs
         )
         return response
 
@@ -61,6 +62,7 @@ class TaskApiClient:
         Returns:
             Response: The response object returned by the requests library.
         """
+        print(data)
         url = f"{self.base_url}/{endpoint}"
         return self.request(SupportedMethod.POST, url, data, headers={"Content-Type":"application/json"})
 
