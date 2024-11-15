@@ -1,6 +1,5 @@
 using Hutch.Relay.Data;
 using Hutch.Relay.Data.Entities;
-using Hutch.Relay.Models;
 using Hutch.Relay.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -52,10 +51,10 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
 
     await _dbContext.SaveChangesAsync();
 
-    var service = new RelaySubTaskService(_dbContext);
+    var service = new RelayTaskService(_dbContext);
 
     // Act
-    var result = await service.Create(taskId, ownerId);
+    var result = await service.CreateSubTask(taskId, ownerId);
 
     // Assert
     Assert.NotNull(result);
@@ -87,11 +86,11 @@ public class RelaySubTaskServiceTests(Fixtures fixtures) : IClassFixture<Fixture
     _dbContext.RelaySubTasks.Add(relaySubTask);
     await _dbContext.SaveChangesAsync();
 
-    var service = new RelaySubTaskService(_dbContext);
+    var service = new RelayTaskService(_dbContext);
 
     // Act
     const string updatedResult = "Test Result";
-    var result = await service.SetResult(subtaskId, updatedResult);
+    var result = await service.SetSubTaskResult(subtaskId, updatedResult);
 
     // Assert
     Assert.NotNull(result);

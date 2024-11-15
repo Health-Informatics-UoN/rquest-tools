@@ -15,7 +15,6 @@ public class UpstreamTaskPoller(
   ITaskApiClient upstreamTasks,
   ISubNodeService subNodes,
   IRelayTaskService relayTasks,
-  IRelaySubTaskService relaySubTasks,
   IRelayTaskQueue queues)
 {
   public async Task PollAllQueues(CancellationToken stoppingToken)
@@ -70,7 +69,7 @@ public class UpstreamTaskPoller(
           // Fan out to subtasks
           foreach (var subnode in subnodes)
           {
-            var subTask = await relaySubTasks.Create(relayTask.Id, subnode.Id);
+            var subTask = await relayTasks.CreateSubTask(relayTask.Id, subnode.Id);
 
             // Update the job for the target subnode
             job.Uuid = subTask.Id.ToString();
