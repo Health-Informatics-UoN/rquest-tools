@@ -244,7 +244,8 @@ public class RelayTaskService(ApplicationDbContext db) : IRelayTaskService
       RelayTask = new RelayTaskModel()
       {
         Id = x.RelayTask.Id
-      }
+      },
+      Result = x.Result
     });
   }
 }
