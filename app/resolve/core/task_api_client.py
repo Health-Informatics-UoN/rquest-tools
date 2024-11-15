@@ -61,7 +61,6 @@ class TaskApiClient:
         Returns:
             Response: The response object returned by the requests library.
         """
-        print(data)
         url = f"{self.base_url}/{endpoint}"
         return self.request(SupportedMethod.POST, url, data, headers={"Content-Type":"application/json"})
 
