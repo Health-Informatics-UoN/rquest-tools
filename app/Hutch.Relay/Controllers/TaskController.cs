@@ -1,6 +1,8 @@
 using System.Text.Json;
+using Hutch.Rackit;
 using Hutch.Relay.Services;
 using Hutch.Relay.Services.Contracts;
+using Microsoft.Extensions.Options;
 
 namespace Hutch.Relay.Controllers;
 
@@ -10,8 +12,14 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
-public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService, IRelayTaskQueue queues) : ControllerBase
+public class TaskController(
+  IRelayTaskService relayTaskService,
+  ResultsService resultsService,
+  IRelayTaskQueue queues,
+  IOptions<ApiClientOptions> apiClientOptions) : ControllerBase
 {
+  private ApiClientOptions apiClientOptions = apiClientOptions.Value;
+
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
   [SwaggerResponse(200, Type = typeof(TaskApiBaseResponse))]
@@ -24,12 +32,12 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
   {
     // We can still support returning dummy jobs in a test mode
     // to avoid the need for upstream when testing downstream
-    if(Request.Headers.ContainsKey("X-Relay-DummyNextJob"))
+    if (Request.Headers.ContainsKey("X-Relay-DummyNextJob"))
       return await DummyNext(collectionId);
-    
+
     var result = await queues.Pop(collectionId);
-    
-    if(result is null) return NoContent();
+
+    if (result is null) return NoContent();
 
     var (type, task) = result.Value;
     return Ok(Convert.ChangeType(task, type));
@@ -44,7 +52,7 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
   [SwaggerResponse(409)]
   public async Task<IActionResult> Result(Guid uuid, string collectionId, [FromBody] JobResult result)
   {
-    var subtask = await relaySubTaskService.Get(uuid);
+    var subtask = await relayTaskService.GetSubTask(uuid);
 
     // Check if the parent Task has already been submitted.
     if (subtask.RelayTask.CompletedAt is not null)
@@ -53,14 +61,29 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
     }
 
     // Update the SubTask results
-    await relaySubTaskService.SetResult(uuid, JsonSerializer.Serialize(result));
-
+    await relayTaskService.SetSubTaskResult(uuid, JsonSerializer.Serialize(result));
     // Check if there are incomplete Subtasks that belong to the same Task
-    var incompleteSubTasks = await relaySubTaskService.ListIncomplete(subtask.RelayTask.Id);
+    var incompleteSubTasks = await relayTaskService.ListSubTasks(subtask.RelayTask.Id, incompleteOnly: true);
     //  If all Subtasks on the parent Task received - then submit to TaskApi
-    if (!incompleteSubTasks.Any())
+    if (!incompleteSubTasks.ToList().Any())
     {
-      await taskApiService.SubmitResults(subtask.RelayTask, result);
+      // Get all SubTasks for the Task
+      var subTasks = await relayTaskService.ListSubTasks(subtask.RelayTask.Id, incompleteOnly: false);
+      //Aggregate SubTasks Result.Count
+      var aggregateCount = resultsService.AggregateResults(subTasks.ToList());
+      var finalResult = new JobResult()
+      {
+        Uuid = subtask.RelayTask.Id,
+        CollectionId = apiClientOptions.CollectionId ??
+                       throw new ArgumentException(nameof(apiClientOptions.CollectionId)),
+        Message = result.Message,
+        ProtocolVersion = result.ProtocolVersion,
+        Results = new QueryResult()
+        {
+          Count = aggregateCount,
+        }
+      };
+      await resultsService.SubmitResults(subtask.RelayTask, finalResult);
       // Set Task as Complete
       await relayTaskService.SetComplete(subtask.RelayTask.Id);
     }
