@@ -14,8 +14,14 @@ public class ObfuscationService(ApplicationDbContext db): IObfuscationService
                    .AsNoTracking() 
                    .SingleOrDefaultAsync(t => t.Id == id) 
                  ?? throw new KeyNotFoundException();
-
+  
+    
     return new ObfuscationModel();
+  }
+
+  public int LowNumberSuppression(int value, int threshold = 10)
+  {
+    return value > threshold ? value : 0;
   }
   
   /// <summary>
@@ -29,7 +35,14 @@ public class ObfuscationService(ApplicationDbContext db): IObfuscationService
                    .AsNoTracking() 
                    .SingleOrDefaultAsync() 
                  ?? throw new KeyNotFoundException();
+
+    
     return new ObfuscationModel();
+  }
+
+  public int Round(int value, int nearest = 10)
+  {
+    return nearest * (int)Math.Round((float)value / nearest);
   }
   
 }
