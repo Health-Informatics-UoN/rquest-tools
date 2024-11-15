@@ -10,7 +10,11 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
-public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskService relaySubTaskService, TaskApiService taskApiService, IRelayTaskQueue queues) : ControllerBase
+public class TaskController(
+  IRelayTaskService relayTaskService,
+  IRelaySubTaskService relaySubTaskService,
+  TaskApiService taskApiService,
+  IRelayTaskQueue queues) : ControllerBase
 {
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
@@ -24,12 +28,12 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
   {
     // We can still support returning dummy jobs in a test mode
     // to avoid the need for upstream when testing downstream
-    if(Request.Headers.ContainsKey("X-Relay-DummyNextJob"))
+    if (Request.Headers.ContainsKey("X-Relay-DummyNextJob"))
       return await DummyNext(collectionId);
-    
+
     var result = await queues.Pop(collectionId);
-    
-    if(result is null) return NoContent();
+
+    if (result is null) return NoContent();
 
     var (type, task) = result.Value;
     return Ok(Convert.ChangeType(task, type));
@@ -60,6 +64,8 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
     //  If all Subtasks on the parent Task received - then submit to TaskApi
     if (!incompleteSubTasks.Any())
     {
+      //TODO Aggregate SubTasks result counts
+
       await taskApiService.SubmitResults(subtask.RelayTask, result);
       // Set Task as Complete
       await relayTaskService.SetComplete(subtask.RelayTask.Id);
