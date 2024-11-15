@@ -18,4 +18,20 @@ public interface IRelaySubTaskService
   /// <returns>The updated RelaySubTask</returns>
   /// <exception cref="KeyNotFoundException"></exception>
   Task<RelaySubTaskModel> SetResult(Guid id, string result);
+
+
+  /// <summary>
+  /// Get a SubTask by ID
+  /// </summary>
+  /// <param name="id">Subtask Id</param>
+  /// <returns>RelaySubTaskModel from the ID</returns>
+  /// <exception cref="KeyNotFoundException">The RelaySubTask does not exist.</exception>
+  Task<RelaySubTaskModel> Get(Guid id);
+
+  /// <summary>
+  /// List RelaySubTasks that have not been completed for a given RelayTask.
+  /// </summary>
+  /// <returns>The list of incomplete RelaySubTasks</returns>
+  Task<IEnumerable<RelaySubTaskModel>> ListIncomplete(string relayTaskId);
+
 }
