@@ -41,7 +41,8 @@ public static class ConfigureWebService
     builder.Services
       .AddTransient<IRelayTaskService, RelayTaskService>()
       .AddTransient<IRelaySubTaskService, RelaySubTaskService>()
-      .AddTransient<ISubNodeService, SubNodeService>();
+      .AddTransient<ISubNodeService, SubNodeService>()
+      .AddTransient<IObfuscationService, ObfuscationService>();
 
     // Hosted Services
     builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
