@@ -65,7 +65,7 @@ public class TaskController(IRelayTaskService relayTaskService, IRelaySubTaskSer
       await relayTaskService.SetComplete(subtask.RelayTask.Id);
     }
 
-    return Ok("SubTask saved");
+    return Ok("Job saved");
   }
 
   # region Dummy NextJob
