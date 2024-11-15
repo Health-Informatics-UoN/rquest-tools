@@ -1,4 +1,3 @@
-import json
 from requests.models import Response
 from enum import Enum
 import requests
