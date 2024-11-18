@@ -47,7 +47,6 @@ services:
       - db
       - relay
       - rabbitmq
-    image: bunny
     build:
       context: app/bunny
       dockerfile: Dockerfile
