@@ -72,7 +72,7 @@ public class TaskController(
     {
       //Aggregate SubTasks Result.Count
       var finalResult = await resultsService.AggregateResults(subtask.RelayTask.Id);
-
+      // Apply Obfuscation functions if configured
       if (obfuscationOptions.Value.LowNumberSuppressionThreshold > 0)
       {
         finalResult.Results.Count = obfuscation.LowNumberSuppression(finalResult.Results.Count,
