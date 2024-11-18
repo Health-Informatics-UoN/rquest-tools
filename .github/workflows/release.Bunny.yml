@@ -8,7 +8,7 @@ on:
       - .github/workflows/release.Bunny.yml # trigger on changes to this file
 
 env:
-  image-name: bunny
+  image-name: hutch/bunny
   repo-owner: ${{ github.repository_owner }}
   registry: ghcr.io
 
