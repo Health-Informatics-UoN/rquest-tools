@@ -52,7 +52,7 @@ def main() -> None:
             for _ in range(4):
                 response = client.post(endpoint=return_endpoint, data=result.to_dict())
 
-                # Resolve will stop retrying to post results when response was successful or there is a client error
+                # Bunny will stop retrying to post results when response was successful or there is a client error
                 if (
                     200 <= response.status_code < 300
                     or 400 <= response.status_code < 500
@@ -61,7 +61,7 @@ def main() -> None:
                     break
                 else:
                     logger.warning(
-                        f"Resolve failed to post to {return_endpoint} at {time.time()}. Trying again..."
+                        f"Bunny failed to post to {return_endpoint} at {time.time()}. Trying again..."
                     )
                     time.sleep(5)
 

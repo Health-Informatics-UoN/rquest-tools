@@ -1,7 +1,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    prog="resolve-cli",
+    prog="bunny-cli",
     description="This program takes a JSON string containing an RQuest query and solves it.",
 )
 parser.add_argument(

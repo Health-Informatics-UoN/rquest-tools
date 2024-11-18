@@ -31,7 +31,7 @@ def save_to_output(result: RquestResult, destination: str) -> None:
 def main() -> None:
     # Setting database connection
     db_manager = setting_database(logger=logger)
-    # Resolve passed args.
+    # Bunny passed args.
     args = parser.parse_args()
 
     with open(args.body) as body:
