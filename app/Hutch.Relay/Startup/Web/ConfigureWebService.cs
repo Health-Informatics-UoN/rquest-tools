@@ -31,7 +31,7 @@ public static class ConfigureWebService
       .AddHttpClient()
       .AddTransient<ITaskApiClient, TaskApiClient>()
       .AddScoped<UpstreamTaskPoller>()
-      .AddTransient<TaskApiService>();
+      .AddTransient<ResultsService>();
 
     // Task Queue
     builder.Services
@@ -41,7 +41,6 @@ public static class ConfigureWebService
     // Other App Services
     builder.Services
       .AddTransient<IRelayTaskService, RelayTaskService>()
-      .AddTransient<IRelaySubTaskService, RelaySubTaskService>()
       .AddTransient<ISubNodeService, SubNodeService>();
     
     // Obfuscation
@@ -51,6 +50,7 @@ public static class ConfigureWebService
 
     // Hosted Services
     builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();
+    builder.Services.AddHostedService<TaskCompletionHostedService>();
 
     return builder;
   }

@@ -1,6 +1,8 @@
 using System.Text.Json;
+using Hutch.Rackit;
 using Hutch.Relay.Services;
 using Hutch.Relay.Services.Contracts;
+using Microsoft.Extensions.Options;
 
 namespace Hutch.Relay.Controllers;
 
@@ -12,10 +14,12 @@ using Swashbuckle.AspNetCore.Annotations;
 [Route("/[controller]")]
 public class TaskController(
   IRelayTaskService relayTaskService,
-  IRelaySubTaskService relaySubTaskService,
-  TaskApiService taskApiService,
-  IRelayTaskQueue queues) : ControllerBase
+  ResultsService resultsService,
+  IRelayTaskQueue queues,
+  IOptions<ApiClientOptions> apiClientOptions) : ControllerBase
 {
+  private ApiClientOptions apiClientOptions = apiClientOptions.Value;
+
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
   [SwaggerResponse(200, Type = typeof(TaskApiBaseResponse))]
@@ -48,7 +52,7 @@ public class TaskController(
   [SwaggerResponse(409)]
   public async Task<IActionResult> Result(Guid uuid, string collectionId, [FromBody] JobResult result)
   {
-    var subtask = await relaySubTaskService.Get(uuid);
+    var subtask = await relayTaskService.GetSubTask(uuid);
 
     // Check if the parent Task has already been submitted.
     if (subtask.RelayTask.CompletedAt is not null)
@@ -57,16 +61,16 @@ public class TaskController(
     }
 
     // Update the SubTask results
-    await relaySubTaskService.SetResult(uuid, JsonSerializer.Serialize(result));
-
+    await relayTaskService.SetSubTaskResult(uuid, JsonSerializer.Serialize(result));
     // Check if there are incomplete Subtasks that belong to the same Task
-    var incompleteSubTasks = await relaySubTaskService.ListIncomplete(subtask.RelayTask.Id);
+    var incompleteSubTasks = await relayTaskService.ListSubTasks(subtask.RelayTask.Id, incompleteOnly: true);
     //  If all Subtasks on the parent Task received - then submit to TaskApi
-    if (!incompleteSubTasks.Any())
+    if (!incompleteSubTasks.ToList().Any())
     {
-      //TODO Aggregate SubTasks result counts
-
-      await taskApiService.SubmitResults(subtask.RelayTask, result);
+      //Aggregate SubTasks Result.Count
+      var finalResult = await resultsService.AggregateResults(subtask.RelayTask.Id);
+      
+      await resultsService.SubmitResults(subtask.RelayTask, finalResult);
       // Set Task as Complete
       await relayTaskService.SetComplete(subtask.RelayTask.Id);
     }
