@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - app/Bunny/**
-      - .github/workflows/build.Hutch.Bunny.yml
+      - .github/workflows/build.Bunny.yml
 
 jobs:
   build:

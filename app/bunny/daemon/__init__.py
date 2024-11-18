@@ -57,7 +57,7 @@ def main() -> None:
                     200 <= response.status_code < 300
                     or 400 <= response.status_code < 500
                 ):
-                    logger.info("Job bunnyd.")
+                    logger.info("Job resolved.")
                     break
                 else:
                     logger.warning(
