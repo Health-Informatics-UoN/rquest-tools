@@ -48,7 +48,7 @@ public class TaskController(
 
   [HttpPost("result/{uuid}/{collectionId}")]
   [SwaggerOperation("Upload job result by UUID and CollectionId.")]
-  [SwaggerResponse(200, Type = typeof(JobResult))]
+  [SwaggerResponse(200)]
   [SwaggerResponse(401)]
   [SwaggerResponse(403)]
   [SwaggerResponse(404)]
@@ -92,7 +92,6 @@ public class TaskController(
 
     return Ok("Job saved");
   }
-
 
   # region Dummy NextJob
 
