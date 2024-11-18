@@ -1,4 +1,4 @@
-name: hutch-resolve-dev
+name: hutch-cohort-discovery-dev
 
 services:
   db:
@@ -42,15 +42,14 @@ services:
     environment:
       - ConnectionStrings__Default=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
 
-  resolve:
+  bunny:
     depends_on:
       - db
       - relay
       - rabbitmq
-    image: resolve
     build:
-      context: app/resolve
-      dockerfile: Dockerfile.daemon
+      context: app/bunny
+      dockerfile: Dockerfile
     environment:
       - DATASOURCE_DB_USERNAME=postgres
       - DATASOURCE_DB_PASSWORD=postgres

@@ -9,8 +9,8 @@
       "path": "../app/Hutch.Relay"
     },
     {
-      "name": "Resolve",
-      "path": "../app/resolve"
+      "name": "Bunny",
+      "path": "../app/bunny"
     },
     {
       "name": "RquestBridge",
