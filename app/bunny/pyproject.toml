@@ -37,5 +37,5 @@ pytest="8.3.3"
 black = "^24.4.0"
 
 [tool.poetry.scripts]
-bunny-cli = "cli:main"
+bunny = "cli:main"
 bunny-daemon = "daemon:main"
