@@ -46,6 +46,7 @@ jobs:
           tags: |
             ${{ github.sha }}
             ${{ env.RUN_TIMESTAMP }}
+            dev-latest
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5.3.0
