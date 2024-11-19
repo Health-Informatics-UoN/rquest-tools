@@ -40,7 +40,7 @@ services:
       - rabbitmq
       - db
     environment:
-      - ConnectionStrings__Default=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
+      - ConnectionStrings__Default=Server=db;Port=5432;Database=hutch-relay;User Id=postgres;Password=postgres
 
   bunny:
     depends_on:
