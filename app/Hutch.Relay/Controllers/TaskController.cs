@@ -69,22 +69,9 @@ public class TaskController(
     //  If all Subtasks on the parent Task received - then submit to TaskApi
     if (!incompleteSubTasks.ToList().Any())
     {
-      // Get all SubTasks for the Task
-      var subTasks = await relayTaskService.ListSubTasks(subtask.RelayTask.Id, incompleteOnly: false);
       //Aggregate SubTasks Result.Count
-      var aggregateCount = resultsService.AggregateResults(subTasks.ToList());
-      var finalResult = new JobResult()
-      {
-        Uuid = subtask.RelayTask.Id,
-        CollectionId = apiClientOptions.CollectionId ??
-                       throw new ArgumentException(nameof(apiClientOptions.CollectionId)),
-        Message = result.Message,
-        ProtocolVersion = result.ProtocolVersion,
-        Results = new QueryResult()
-        {
-          Count = aggregateCount,
-        }
-      };
+      var finalResult = await resultsService.AggregateResults(subtask.RelayTask.Id);
+      
       await resultsService.SubmitResults(subtask.RelayTask, finalResult);
       // Set Task as Complete
       await relayTaskService.SetComplete(subtask.RelayTask.Id);

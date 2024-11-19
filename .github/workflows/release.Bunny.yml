@@ -1,20 +1,19 @@
-name: Release Hutch.Relay to GitHub Registry
+name: Release Bunny to Git Registry
 
 on:
   push:
     branches: [main]
     paths:
-      - app/Hutch.Relay/**
-      - test/Hutch.Relay.Tests/**
-      - .github/workflows/release.Hutch.Relay.yml
+      - app/bunny/** # trigger on changes to the app
+      - .github/workflows/release.Bunny.yml # trigger on changes to this file
 
 env:
-  image-name: hutch/relay
+  image-name: hutch/bunny
   repo-owner: ${{ github.repository_owner }}
   registry: ghcr.io
 
 jobs:
-  publish:
+  publish-bunny:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -47,12 +46,17 @@ jobs:
             ${{ github.sha }}
             ${{ env.RUN_TIMESTAMP }}
             dev-latest
+          labels: |
+            org.opencontainers.image.title=Hutch Bunny
+            org.opencontainers.image.vendor=University of Nottingham
+            org.opencontainers.image.version=0.0.1
+          # Could add more custom labels in the future here
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5.3.0
         with:
-          context: .
-          file: app/Hutch.Relay/Dockerfile
+          context: app/bunny
+          file: app/bunny/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
