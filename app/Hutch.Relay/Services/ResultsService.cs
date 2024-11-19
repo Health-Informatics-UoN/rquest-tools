@@ -35,16 +35,25 @@ public class ResultsService(
       }
       catch (RackitApiClientException exception)
       {
-        if (exception.UpstreamApiResponse is { StatusCode: HttpStatusCode.InternalServerError })
+        
+        if (exception.UpstreamApiResponse != null)
         {
+          HttpStatusCode status = exception.UpstreamApiResponse.StatusCode;
+
           retryCount++;
           logger.LogError(
-            "Task submission failed with 500 Internal Server Error. Retrying in {delayInSeconds} seconds... ({retryCount}/{maxRetries})",
-            delayInSeconds,
-            retryCount, maxRetryCount);
+            $"Task submission failed with {(int)status} {status} Error. Retrying in {delayInSeconds} seconds... ({retryCount}/{maxRetryCount})");
 
           await Task.Delay(delayInSeconds * 1000);
         }
+        else
+        {
+          logger.LogError(
+            "Task submission failed with unidentified exception. UpstreamApiResponse is null.");
+          // break because there's no retries
+          break;
+        }
+          
       }
     }
   }
