@@ -42,6 +42,11 @@ public static class ConfigureWebService
     builder.Services
       .AddTransient<IRelayTaskService, RelayTaskService>()
       .AddTransient<ISubNodeService, SubNodeService>();
+    
+    // Obfuscation
+    builder.Services
+      .Configure<ObfuscationOptions>(builder.Configuration.GetSection(("Obfuscation")))
+      .AddTransient<IObfuscationService, ObfuscationService>();
 
     // Hosted Services
     builder.Services.AddHostedService<BackgroundUpstreamTaskPoller>();

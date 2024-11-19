@@ -1,8 +1,6 @@
 using System.Text.Json;
-using Hutch.Rackit;
 using Hutch.Relay.Services;
 using Hutch.Relay.Services.Contracts;
-using Microsoft.Extensions.Options;
 
 namespace Hutch.Relay.Controllers;
 
@@ -16,9 +14,8 @@ public class TaskController(
   IRelayTaskService relayTaskService,
   ResultsService resultsService,
   IRelayTaskQueue queues,
-  IOptions<ApiClientOptions> apiClientOptions) : ControllerBase
+  IObfuscationService obfuscationService) : ControllerBase
 {
-  private ApiClientOptions apiClientOptions = apiClientOptions.Value;
 
   [HttpGet("nextjob/{collectionId}")]
   [SwaggerOperation("Fetch next job from queue.")]
@@ -69,7 +66,9 @@ public class TaskController(
     {
       //Aggregate SubTasks Result.Count
       var finalResult = await resultsService.AggregateResults(subtask.RelayTask.Id);
-      
+      // Obfuscate the result
+      finalResult.Results.Count = obfuscationService.Obfuscate(finalResult.Results.Count);
+      // Submit the results to TaskApi
       await resultsService.SubmitResults(subtask.RelayTask, finalResult);
       // Set Task as Complete
       await relayTaskService.SetComplete(subtask.RelayTask.Id);
