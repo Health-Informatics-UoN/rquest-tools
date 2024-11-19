@@ -45,7 +45,7 @@ public static class ConfigureWebService
     
     // Obfuscation
     builder.Services
-      .Configure<ObfuscationOptions>(builder.Configuration.GetSection(("ObfuscationOptions")))
+      .Configure<ObfuscationOptions>(builder.Configuration.GetSection(("Obfuscation")))
       .AddTransient<IObfuscationService, ObfuscationService>();
 
     // Hosted Services

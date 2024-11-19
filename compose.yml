@@ -41,8 +41,8 @@ services:
       - db
     environment:
       - ConnectionStrings__Default=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres
-      - ObfuscationOptions__LowNumberSuppressionThreshold=0
-      - ObfuscationOptions__RoundingTarget=0
+      - Obfuscation__LowNumberSuppressionThreshold=0
+      - Obfuscation__RoundingTarget=0
 
   bunny:
     depends_on:
