@@ -18,8 +18,7 @@ public class TaskController(
   ResultsService resultsService,
   IRelayTaskQueue queues,
   IOptions<ApiClientOptions> apiClientOptions,
-  IObfuscationService obfuscation,
-  IOptions<ObfuscationOptions> obfuscationOptions) : ControllerBase
+  IObfuscationService obfuscationService) : ControllerBase
 {
   private ApiClientOptions apiClientOptions = apiClientOptions.Value;
 
@@ -72,19 +71,9 @@ public class TaskController(
     {
       //Aggregate SubTasks Result.Count
       var finalResult = await resultsService.AggregateResults(subtask.RelayTask.Id);
-      // Apply Obfuscation functions if configured
-      if (obfuscationOptions.Value.LowNumberSuppressionThreshold > 0)
-      {
-        finalResult.Results.Count = obfuscation.LowNumberSuppression(finalResult.Results.Count,
-          obfuscationOptions.Value.LowNumberSuppressionThreshold);
-      }
-      
-      if (obfuscationOptions.Value.RoundingTarget > 0)
-      {
-        finalResult.Results.Count =
-          obfuscation.Rounding(finalResult.Results.Count, obfuscationOptions.Value.RoundingTarget);
-      }
-      
+      // Obfuscate the result
+      finalResult.Results.Count = obfuscationService.Obfuscate(finalResult.Results.Count);
+      // Submit the results to TaskApi
       await resultsService.SubmitResults(subtask.RelayTask, finalResult);
       // Set Task as Complete
       await relayTaskService.SetComplete(subtask.RelayTask.Id);

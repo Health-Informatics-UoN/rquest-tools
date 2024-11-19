@@ -13,7 +13,8 @@ public class ResultsService(
   ILogger<ResultsService> logger,
   IOptions<ApiClientOptions> options,
   ITaskApiClient upstreamTasks,
-  IRelayTaskService relayTaskService)
+  IRelayTaskService relayTaskService,
+  IObfuscationService obfuscationService)
 {
   private ApiClientOptions options = options.Value;
 
@@ -86,6 +87,8 @@ public class ResultsService(
       {
         // Aggregate SubTask count
         var finalResult = await AggregateResults(task.Id);
+        // Obfuscate the result
+        finalResult.Results.Count = obfuscationService.Obfuscate(finalResult.Results.Count);
         // Post to TaskApi 
         await SubmitResults(task, finalResult);
         //Set task as complete
