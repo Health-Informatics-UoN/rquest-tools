@@ -13,6 +13,7 @@ public static class ConfigureWebPipeline
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseAuthentication();
+    app.UseAuthorization();
     app.MapControllers();
 
     return app;

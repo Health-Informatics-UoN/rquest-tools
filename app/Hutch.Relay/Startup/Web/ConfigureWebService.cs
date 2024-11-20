@@ -1,13 +1,14 @@
 using Hutch.Rackit;
 using Hutch.Rackit.TaskApi;
 using Hutch.Rackit.TaskApi.Contracts;
+using Hutch.Relay.Auth.Basic;
 using Hutch.Relay.Config;
 using Hutch.Relay.Constants;
 using Hutch.Relay.Data;
+using Hutch.Relay.Data.Entities;
 using Hutch.Relay.Services;
 using Hutch.Relay.Services.Contracts;
 using Hutch.Relay.Services.Hosted;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hutch.Relay.Startup.Web;
@@ -18,11 +19,16 @@ public static class ConfigureWebService
   {
     var connectionString = builder.Configuration.GetConnectionString("Default");
     builder.Services.AddDbContext<ApplicationDbContext>(o => { o.UseNpgsql(connectionString); });
-
-    builder.Services.AddIdentityCore<IdentityUser>(DefaultIdentityOptions.Configure)
+    
+    builder.Services.AddIdentityCore<RelayUser>(DefaultIdentityOptions.Configure)
       .AddEntityFrameworkStores<ApplicationDbContext>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddAuthentication("Basic")
+      .AddScheme<BasicAuthSchemeOptions, BasicAuthHandler>("Basic", opts => 
+      {
+        opts.Realm = "relay";
+      });
     builder.Services.AddSwaggerGen(o => o.UseOneOfForPolymorphism());
 
     // Upstream Task API

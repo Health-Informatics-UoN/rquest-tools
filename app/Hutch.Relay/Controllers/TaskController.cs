@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using Hutch.Relay.Services;
 using Hutch.Relay.Services.Contracts;
@@ -10,6 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("/[controller]")]
+[Authorize]
 public class TaskController(
   IRelayTaskService relayTaskService,
   ResultsService resultsService,
