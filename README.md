@@ -63,12 +63,21 @@ An integration for the HDR UK Cohort Discovery Tool with the DARE UK TRE-FX arch
 
 | | | |
 |-|-|-|
-| ![.NET][dotnet-badge] | [![RACKit NuGet package][nuget-badge]][rackit-packages] | 
+| ![.NET][dotnet-badge] | [![RACKit NuGet package][nuget-badge]][rackit-packages] | [![RACKit Readme][readme-badge]][rackit-readme] |
 
-Path | Name | Description
--|-|-
-`lib/FiveSafes.Net` | FiveSafes.NET | A .NET library for working with the Five Safes RO-Crate profile.
-`lib/Hutch.Rackit` | Hutch RACKit | Hutch's RQuest API Client Kit, a .NET Library for interacting with BC|Rquest's REST API.
+RACKit is the RQuest API Client Kit, a .NET Library for interacting with the HDR UK Cohort Discovery Task API.
+
+#### Samples
+
+The `samples/` directory contains a sample application showcasing the use of RACKit to connect to a Task API.
+
+### 📦 FiveSafes.Net
+
+| |
+|-|
+| ![.NET][dotnet-badge]
+
+A .NET library for working with the [Five Safes RO-Crate][5s-crate] profile.
 
 [hutch-logo]: https://raw.githubusercontent.com/HDRUK/hutch/main/assets/Hutch%20splash%20bg.svg
 [hutch-repo]: https://github.com/health-informatics-uon/hutch
@@ -81,6 +90,11 @@ Path | Name | Description
 
 [bridge-containers]: https://hub.docker.com/r/hutchstack/rquest-bridge
 [bridge-workflow]: https://workflowhub.eu/workflows/471
+
+[rackit-packages]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/pkgs/nuget/Hutch.Rackit
+[rackit-readme]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/blob/main/lib/Hutch.Rackit/README.md
+
+[5s-crate]: https://trefx.uk/5s-crate/
 
 [license-badge]: https://img.shields.io/github/license/health-informatics-uon/hutch-cohort-discovery.svg
 [dotnet-badge]: https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white
