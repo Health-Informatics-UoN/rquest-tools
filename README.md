@@ -4,15 +4,15 @@
 
 [Hutch][hutch-repo] Tools for working with the HDR UK Cohort Discovery Tool.
 
-```bash
+```
 hutch-cohort-discovery/
-├─ app/
-│  ├─ bunny/
-│  ├─ Hutch.Relay/
-│  ├─ RquestBridge/
-├─ lib/
-│  ├─ Hutch.Rackit/
-│  ├─ FiveSafes.Net/
+├── app/
+│   ├── 🐇 bunny/
+│   ├── 🔄 Hutch.Relay/
+│   └── 🔗 RQuestBridge/
+└── lib/
+    ├── 🎾 Hutch.Rackit/
+    └── 📦 FiveSafes.Net/
 ```
 
 ## Applications
@@ -59,6 +59,12 @@ An integration for the HDR UK Cohort Discovery Tool with the DARE UK TRE-FX arch
 
 ## Libraries
 
+### 🎾 RACKit
+
+| | | |
+|-|-|-|
+| ![.NET][dotnet-badge] | [![RACKit NuGet package][nuget-badge]][rackit-packages] | 
+
 Path | Name | Description
 -|-|-
 `lib/FiveSafes.Net` | FiveSafes.NET | A .NET library for working with the Five Safes RO-Crate profile.
@@ -80,5 +86,6 @@ Path | Name | Description
 [dotnet-badge]: https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white
 [python-badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
 [docker-badge]: https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white
+[nuget-badge]: https://img.shields.io/badge/nuget-%23004880?style=for-the-badge&logo=nuget&logoColor=white
 [docs-badge]: https://img.shields.io/badge/docs-black?style=for-the-badge&labelColor=%23222
 [readme-badge]: https://img.shields.io/badge/readme-lightgrey?style=for-the-badge&labelColor=%23222
