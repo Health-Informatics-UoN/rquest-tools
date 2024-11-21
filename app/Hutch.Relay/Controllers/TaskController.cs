@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using Hutch.Rackit;
 using Hutch.Relay.Config;
@@ -18,8 +19,8 @@ public class TaskController(
   ResultsService resultsService,
   IRelayTaskQueue queues,
   IOptions<ApiClientOptions> apiClientOptions,
-  IObfuscationService obfuscation,
-  IOptions<ObfuscationOptions> obfuscationOptions) : ControllerBase
+  IObfuscationService obfuscation) : ControllerBase
+
 {
   private ApiClientOptions apiClientOptions = apiClientOptions.Value;
 
@@ -73,17 +74,7 @@ public class TaskController(
       //Aggregate SubTasks Result.Count
       var finalResult = await resultsService.AggregateResults(subtask.RelayTask.Id);
       // Apply Obfuscation functions if configured
-      if (obfuscationOptions.Value.LowNumberSuppressionThreshold > 0)
-      {
-        finalResult.Results.Count = obfuscation.LowNumberSuppression(finalResult.Results.Count,
-          obfuscationOptions.Value.LowNumberSuppressionThreshold);
-      }
-      
-      if (obfuscationOptions.Value.RoundingTarget > 0)
-      {
-        finalResult.Results.Count =
-          obfuscation.Rounding(finalResult.Results.Count, obfuscationOptions.Value.RoundingTarget);
-      }
+      finalResult.Results.Count = obfuscation.Obfuscate(finalResult.Results.Count);
       
       await resultsService.SubmitResults(subtask.RelayTask, finalResult);
       // Set Task as Complete
