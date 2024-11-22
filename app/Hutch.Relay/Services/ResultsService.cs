@@ -13,7 +13,9 @@ public class ResultsService(
   ILogger<ResultsService> logger,
   IOptions<ApiClientOptions> options,
   ITaskApiClient upstreamTasks,
-  IRelayTaskService relayTaskService)
+  IRelayTaskService relayTaskService,
+  IObfuscationService obfuscation
+  )
 {
   private ApiClientOptions options = options.Value;
 
@@ -72,6 +74,9 @@ public class ResultsService(
       }
     }
 
+    // Apply Obfuscation functions if configured
+    var obfuscatedAggregateCount = obfuscation.Obfuscate(aggregateCount);
+    
     return new JobResult()
     {
       Uuid = relayTaskId,
@@ -79,7 +84,7 @@ public class ResultsService(
                      throw new ArgumentException(nameof(options.CollectionId)),
       Results = new QueryResult()
       {
-        Count = aggregateCount,
+        Count = obfuscatedAggregateCount,
       }
     };
   }
