@@ -37,24 +37,29 @@ public class ResultsService(
       }
       catch (RackitApiClientException exception)
       {
-        
-        if (exception.UpstreamApiResponse != null)
+        if (exception.UpstreamApiResponse == null)
         {
-          HttpStatusCode status = exception.UpstreamApiResponse.StatusCode;
+          logger.LogError(
+            "Task submission failed with unidentified exception. UpstreamApiResponse is null.");
+          break;
+        }
+        
+        HttpStatusCode status = exception.UpstreamApiResponse.StatusCode;
 
+        if (status ==  HttpStatusCode.InternalServerError)
+        {
           retryCount++;
           logger.LogError(
             $"Task submission failed with {(int)status} {status} Error. Retrying in {delayInSeconds} seconds... ({retryCount}/{maxRetryCount})");
-
           await Task.Delay(delayInSeconds * 1000);
         }
         else
         {
           logger.LogError(
-            "Task submission failed with unidentified exception. UpstreamApiResponse is null.");
-          // break because there's no retries
+            $"Task submission failed with {(int)status} {status} Error.");
           break;
         }
+      
           
       }
     }
