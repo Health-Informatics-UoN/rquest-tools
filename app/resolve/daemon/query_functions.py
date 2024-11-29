@@ -4,7 +4,6 @@ from core.rquest_dto.result import RquestResult
 from core.logger import logger
 import payload
 
-
 def http_success(response):
     ### note that any other failure will stay in the infinite polling loop
     if response.status_code == 204:
@@ -35,13 +34,16 @@ def query(db_manager, response, modifiers_list):
     return return_data
 
 
-def return_poll_success(response):
+def return_poll_success(response, data = None):
     if (
         200 <= response.status_code < 300
         or 400 <= response.status_code < 500
     ):
         logger.info("Job resolved.")
         return True
-    else:
+    elif data is not None:
         logger.warning(f"Resolve failed to post to {data.return_endpoint} at {time.time()}. Trying again...")
+        return False
+    else:
+        logger.warning(f"Resolve failed to post at {time.time()}. Trying again...")
         return False

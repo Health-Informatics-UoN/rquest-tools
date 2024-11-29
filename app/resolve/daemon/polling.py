@@ -1,4 +1,3 @@
-import datetime
 import time
 
 class Polling:
@@ -18,7 +17,7 @@ class Polling:
         pass
 
     def poll(self):
-        start_time = datetime.datetime.now()
+        start_time = time.time()
         times_repeated = 0
         while not self._stop:
             result = self.poll_function() ### need to ensure args get passed
@@ -30,7 +29,7 @@ class Polling:
                 return result
             else:
                 ### failure - do we retry, or abort?
-                if self.timeout is not None and (datetime.datetime.now() - start_time).total_seconds() > self.timeout:
+                if self.timeout is not None and (time.time() - start_time) > self.timeout:
                     ### fail due to timeout
                     return None
                 if self.repeats is not None and times_repeated == self.repeats:
