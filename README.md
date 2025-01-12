@@ -1,3 +1,10 @@
+> [!NOTE]
+> This repository is in the process of being archived, as we move the codebases within to their own repositories.
+> 
+> ℹ️ Bunny has already moved [here](https://github.com/Health-Informatics-UoN/hutch-bunny)
+>
+> The other codebases will be moving soon, so beware that issues and pull requests are subject to these pending changes.
+
 ![Hutch][hutch-logo]
 
 # Hutch Cohort Discovery ![MIT License][license-badge]
@@ -83,7 +90,7 @@ A .NET library for working with the [Five Safes RO-Crate][5s-crate] profile.
 [hutch-repo]: https://github.com/health-informatics-uon/hutch
 
 [bunny-docs]: https://health-informatics-uon.github.io/hutch/bunny
-[bunny-containers]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/pkgs/container/hutch%2Fbunny
+[bunny-containers]: https://github.com/Health-Informatics-UoN/hutch-bunny/pkgs/container/hutch%2Fbunny
 
 [relay-docs]: https://health-informatics-uon.github.io/hutch/relay
 [relay-containers]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/pkgs/container/hutch%2Frelay
