@@ -2,7 +2,7 @@
 > This repository has been archived, and the codebases within are moved to their own repositories.
 > 
 > - [Bunny](https://github.com/Health-Informatics-UoN/hutch-bunny)
-> ℹ️ Relay has already moved [here](https://github.com/Health-Informatics-UoN/hutch-relay)
+> - [Relay](https://github.com/Health-Informatics-UoN/hutch-relay)
 >
 
 ![Hutch][hutch-logo]
