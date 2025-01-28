@@ -1,9 +1,9 @@
 > [!NOTE]
-> This repository is in the process of being archived, as we move the codebases within to their own repositories.
+> This repository has been archived, and the codebases within are moved to their own repositories.
 > 
-> ℹ️ Bunny has already moved [here](https://github.com/Health-Informatics-UoN/hutch-bunny)
+> ℹ️ Bunny has moved [here](https://github.com/Health-Informatics-UoN/hutch-bunny)
+> ℹ️ Relay has already moved [here](https://github.com/Health-Informatics-UoN/hutch-relay)
 >
-> The other codebases will be moving soon, so beware that issues and pull requests are subject to these pending changes.
 
 ![Hutch][hutch-logo]
 
@@ -93,13 +93,13 @@ A .NET library for working with the [Five Safes RO-Crate][5s-crate] profile.
 [bunny-containers]: https://github.com/Health-Informatics-UoN/hutch-bunny/pkgs/container/hutch%2Fbunny
 
 [relay-docs]: https://health-informatics-uon.github.io/hutch/relay
-[relay-containers]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/pkgs/container/hutch%2Frelay
+[relay-containers]: https://github.com/Health-Informatics-UoN/hutch-relay/pkgs/container/hutch%2Frelay
 
 [bridge-containers]: https://hub.docker.com/r/hutchstack/rquest-bridge
 [bridge-workflow]: https://workflowhub.eu/workflows/471
 
-[rackit-packages]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/pkgs/nuget/Hutch.Rackit
-[rackit-readme]: https://github.com/Health-Informatics-UoN/hutch-cohort-discovery/blob/main/lib/Hutch.Rackit/README.md
+[rackit-packages]: https://github.com/Health-Informatics-UoN/hutch-relay/pkgs/nuget/Hutch.Rackit
+[rackit-readme]: https://github.com/Health-Informatics-UoN/hutch-relay/blob/main/lib/Hutch.Rackit/README.md
 
 [5s-crate]: https://trefx.uk/5s-crate/
 
