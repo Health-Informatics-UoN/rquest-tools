@@ -1,5 +1,7 @@
 > [!NOTE]
-> This repository has been archived, and the codebases within are moved to their own repositories.
+> This repository is now archived.
+>
+> The active codebases have moved to their own repositories:
 > 
 > - [Bunny](https://github.com/Health-Informatics-UoN/hutch-bunny)
 > - [Relay](https://github.com/Health-Informatics-UoN/hutch-relay)
