@@ -1,7 +1,7 @@
 > [!NOTE]
 > This repository has been archived, and the codebases within are moved to their own repositories.
 > 
-> ℹ️ Bunny has moved [here](https://github.com/Health-Informatics-UoN/hutch-bunny)
+> - [Bunny](https://github.com/Health-Informatics-UoN/hutch-bunny)
 > ℹ️ Relay has already moved [here](https://github.com/Health-Informatics-UoN/hutch-relay)
 >
 
